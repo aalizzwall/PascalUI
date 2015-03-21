@@ -1,0 +1,238 @@
+**v3.3.2**
+* Fixed: Next and Next-Next spell advise
+
+**v3.3.1**
+* Fixed: Lightning shield tracking
+* Fixed: Tier6Talent detection
+
+**v3.3.0**
+* Change: 6.0 compatibility
+
+**v3.2.7**
+* Fixed: Low level shaman doesn't crash at Lava Burst
+
+**v3.2.6**
+* Fixed: Crystal of Instanity and Alchemist's Flask Cooldowns are checked
+
+**v3.2.5**
+* Fixed: various num to nil comparison fixed
+
+**v3.2.4**
+* Fixed: Earthquake logic was bugged
+
+**v3.2.1**
+* Fixed: Wrong logic, if both alchemist flask, and Crystal of Insanity presents
+
+**v3.2.0**
+* Added: Crystal of Insanity detection (both Resto and Elemental)
+* Changed: 5.3 compatibility
+
+**v3.1.7**
+* Fixed: Fixed a LUA error if used on Enhancement talent
+
+**v3.1.6**
+* Fixed: More error check in CountPerson method
+
+**v3.1.5**
+* Fixed: More error check in CountPerson method
+
+**v3.1.4**
+* Fixed: LUA error in CountPerson method
+
+**v3.1.3**
+* Added: Stormlash totem now automaticaly announced to the raid/party chat.
+* Change: 5.2 Compatibiliy
+
+**v3.1.2**
+* Fixed: Modules now can be disabled
+* Fixed: Lua error on detect talent
+
+**v3.1.1**
+* Fixed: Crash if loaded while not playing with Shaman
+
+**v3.1.0**
+* Added: More resto function added, each talent has it's own config panel
+* Fixed: Elemental rotation fixed to match Totemspot's description
+
+**v3.0.2**
+* Change: Modular design, now contains some Restoration functions
+* Fixed: Spell flow frame visible if a mind controlled player is targeted, also remain visible while using a vehicle, which has no action bar
+
+**v3.0.1**
+* Fixed: Fixed Unleashed Fury priority
+
+**v3.0.0**
+* Change: 5.1 compatibility
+* Added: Added a right to left flow layout variant 
+
+**v2.9.9**
+* Fixed: Elemental Blast now in the right place in the priority list
+
+**v2.9.8**
+* Fixed: Unleashed Fury now works as expected
+
+**v2.9.7**
+* Fixed: Ascendance not displayed while active, and during Ascendance Lava Burst are shown as suggestion
+
+**v2.9.6**
+* Fixed: Elemental Blast and Unleashed Fury
+
+**v2.9.5**
+* Added: Ascendance
+
+**v2.9.2**
+* Bugfix: Cooldown frame size fixed.
+* Bugfix: _ variable localized everywhere
+
+**v2.9.1**
+* Bugfix: Fixed Raid detection.
+
+**v2.9.0**
+* Change: Mists of Pandaria (5.0.4) compatibility
+
+**v2.1.5**
+* Added: Option to disable misc and int frames. 
+
+**v2.1.3**
+* Bugfix: Fixed some spell IDs. 
+
+**v2.1.2**
+* Bugfix: Fixed a typo in timing routines. Timing should be more accurate now. 
+
+**v2.1.1**
+* Bugfix: Earthshock not displayed if FS debuff has 6 or less secs remaining 
+
+**v2.1.0**
+* Change: AoE spells shown in the right side now 
+
+**v2.0.6**
+* Bugfix: When an enemy with FS debuff on it dies, it no longer throws an error
+
+**v2.0.5**
+* Change: 4.3 compatibility
+
+**v2.0.4**
+* Change: 4.2 compatibility
+
+**v2.0.3**
+* Bugfix: Flame Shock doesn't shown in the queue after Earth Shock.
+* Change: Earth Shock advised only if FS debuff has higher remaining than FS cooldown.
+
+**v2.0.2**
+* Bugfix: Flame Shock tracker are now more accurate, if there is no FS tick on an enemy in last 4sec, it is automatically removed from tracker
+
+**v2.0.1**
+* Bugfix: Mind Quickening and Boomkin Aura is now detected by ID
+* Bugfix: UE conditions fixed
+* Added: Earthquake can now disabled from rotation
+
+**v2.0.0**
+* Change: Earth Shock advice modified
+* Change: CL advised if more than 2 enemies are presents
+* Bugfix: Better (and maybe faster) friend and foe detection
+* Added: Flame Shock tracker now track untargeted Flameshocks to, up to 4 untargeted debuff tracked
+* Added: Earthquake added if >= 4 foes are detected
+
+**v1.9.9**
+* Bugfix: Fixed friend and foe detection
+* Change: Fire Nova advise if FS is on the target and enabled in config (thx Debose)
+* Change: API version changed to 40100
+* Added: Mind Quickening detection
+
+**v1.9.8**
+* Bugfix: Shadowform check fixed
+
+**v1.9.7**
+* Bugfix: fixed a typo in Ele_GUI.lua
+
+**v1.9.6**
+* Added: Unleashed Elements can be enabled in the configuration window
+
+**v1.9.5**
+* Bugfix: Level 80 Flasks replaced with their lvl85 couterparts (Flask of Enhancement and Flask of the Draconic Mind)
+* Bugfix: Wrath of Air Totem is not displayed if Moonkin aura, or Shadowform buff is on the player
+* Misc: Minor code cleanups
+
+**v1.9.4**
+* Updated to work with 4.0.3
+* Added: Unleash Elements just before Lava Burst, if mainhand weapon has temporary enchant (Flametongue)
+* Removed: Single target CL behavior removed
+
+**v1.9.3**
+* Updated to work with 4.0.1
+* Added: Earth Shock added to rotation (suggested if Lightning Shield has 9 charges)
+* Added: Shield tracker window, display Lightning Shield charges in a separate frame
+* Added: Searing Totem suggestion if no fire totem is active
+* Added: SpellFlash add-on support, if SpellFlash installed, advised spells will flash on you action bar
+* Misc: Code cleanup
+
+**v1.6**
+* Added: Chain Lightning behavior can be changed from the configuration dialog
+
+**v1.5**
+* Bugfix: talent change should not produce lua error anymore
+* Bugfix: If Demonic Pact or Heart of the Crusader is active, Totem of Wrath not advised
+* Added: A new type of behavior can be selected, when FS advised just before LvB available
+* Added: Threat warning in raid warning frame can be turned on
+* Added: Flask of the North buff check if character is Alchemist, and has FotN in the bag
+
+**v1.4**
+* Timing is better, it also calculates when current cast will finish
+
+**v1.3**
+* Fire Nova displayed only if fire totem is active
+* Spell queue is added
+* Spell currently casted is not displayed (only if the next spell should be the same)
+
+**v1.2**
+* Totem of Wrath is also advised if target doesn't have Totem of Wrath Debuff (i.e. target is to far away from Totem of Wrath)
+* Talent detection improved, hopefully now works in all situations
+
+**v1.1**
+* new option to disable Elementarist when not on elemental talent
+* Fire Nova added to the rotation, in case of 3 or more foe detected (can be disabled in settings)
+* Friend and foe detection runs only while in combat (makes Dalaran less CPU intensive)
+
+**v1.0rc1**
+* Added configuration options for debuff tracker
+
+**v0.9.9a**
+* Bugfix: CPU usage has been reduced (was a bug in 0.9.9)
+
+**v0.9.9**
+* Flame Shock debuff tracker frame added as a separate frame, which shows remaining time for FS debuff on target
+
+**v0.9**
+* Bugfixes in combat log parsing (friend and foe detection)
+* Aggro alert (inverse cooldown effect on advised spell) not displayed if not in party, or no other friendly unit detected in combat
+
+**v0.8**
+* DPS and Threat meter added, DPS displayed for the selected target, not the total dps output, Threat displayed as percentage
+* Bugfixes
+
+**v0.7**
+* Bugfix: Frame position stored correctly between session
+* Bugfix: Lava Burst displays correctly 
+
+**v0.6**
+* Should work for lower level shamans
+* Orc racial Blood Fury added
+
+**v0.5**
+Configuration panel now should fully work
+
+**v0.4**
+* Configuration panel added (can be accessed by /ele , or /elementarist slash commands)
+* Alpha and scale of the frame is now changeable
+* Frame can be locked, in that case it doesn't catch mouse clicks 
+
+**v0.3**
+* Elementarist hidden if player is controlling a vehicle.
+* Berserking watched (in case of Troll player)
+* On buff side, Flametongue is the 1st priority now 
+
+**v0.2**
+* Bugfix: Lava Burst displayed correctly
+
+**v0.1**
+Initial version

@@ -1,0 +1,10 @@
+﻿## Interface: 60000
+## Title: SilentRespec
+## Author: Animal
+## Version: 1.0.8
+## Notes: Hide the "learned/unlearned" messages when switching dual specs or re-speccing yourself or your hunter pet.
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9966FF[SilentRespec]|r 天賦轉換過濾
+## Notes-zhTW: 過濾轉換天賦時的洗頻畫面。
+## SavedVariablesPerCharacter: hidelearndual, hideunlearndual, hidelearnrespec, hideunlearnrespec, hidepetlearn, hidepetunlearn, hidetitles, alreadybeenrun
+SilentRespec.lua
+SilentRespec.xml

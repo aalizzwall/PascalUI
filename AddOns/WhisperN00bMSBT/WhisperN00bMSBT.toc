@@ -1,0 +1,20 @@
+## Interface: 60000
+## Title: WhisperN00bMSBT by |cff7fff7f IceMeph|r
+## Notes: Puts all recieved whispers into Mik's Scrolling Battle Text making them hard to miss.
+## Title-zhTW: |cFF77FF77[頻道]|r |cFF9999FF[WhisperN00bMSBT]|r 密語強化提醒
+## Notes-zhTW: 將密語以MSBT方式及音效提醒。
+## Author: IceMeph
+## Version: 1.6.0
+## DefaultState: enabled
+## X-Category: Chat
+## X-Website: http://wow.curseforge.com/addons/whispern00bmsbt/
+## X-Curse-Packaged-Version: 1.6.0
+## X-Curse-Project-Name: WhisperN00bMSBT
+## X-Curse-Project-ID: whispern00bmsbt
+## X-Curse-Repository-ID: wow/whispern00bmsbt/mainline
+## X-WoWI-ID: 16548
+## X-Name: WhisperN00bMSBT
+## Dependencies: MikScrollingBattleText
+
+WhisperN00bMSBT.lua
+WhisperN00bMSBT.xml

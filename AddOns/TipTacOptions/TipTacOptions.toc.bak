@@ -1,0 +1,15 @@
+## Interface: 50300
+## Version: 13.05.22
+## Title: TipTacOptions
+## Title-zhCN: TipTacOptions (选项设置)
+## Author: Aezay (Earthen Ring EU)
+## Notes: Option Dialog for TipTac
+## Notes-zhCN: TipTac 选项对话框
+## Title-zhTW: |cFF0099FF[介面]|r |cFF99FFFF[TipTac]|r 設定選單
+## Notes-zhTW: TipTac提示訊息-選單模組。『/tip』
+## Dependencies: TipTac
+## LoadOnDemand: 1
+Libs\AzDropDown.lua
+Libs\AzOptionsFactory.lua
+DropDowns.lua
+Options.lua

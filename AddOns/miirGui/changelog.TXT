@@ -1,0 +1,14 @@
+## Changes in Version 3.0.2 ##
+
+##LootFrame##
+
++ reworked LootToast.blp
+
+##MiirGui Addon##
+
++ supported addon code now has an own file
++ support for Inventorian
++ support for Combuctor
++ centerd stack count for guildbank, bank, reagentbank and bags
++ fixed errors caused in conjuction with pokemontrainer and rarity
++ fixed crashes when switching from windowed to fullscreen mode and vice versa

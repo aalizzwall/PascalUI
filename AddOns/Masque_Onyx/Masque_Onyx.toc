@@ -1,0 +1,18 @@
+﻿## Interface: 60000
+## Title: Masque: |cffff8000Onyx|r
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9988FF[Masque]|r 快捷風格變換 - Onyx風格
+## Version: 4.3.72
+## Author: StormFX
+## Notes: Onyx skins for Masque.
+## Notes-zhTW: Masque的Onyx風格。
+## Dependencies: Masque
+## X-Website: http://www.wowace.com/projects/masque_onyx
+## X-Category: Interface Enhancements
+## X-WoWI-ID: 8900
+## X-Curse-Packaged-Version: v4.3.72
+## X-Curse-Project-Name: Masque: Onyx
+## X-Curse-Project-ID: masque_onyx
+## X-Curse-Repository-ID: wow/masque_onyx/mainline
+## DefaultState: disabled
+
+Onyx.lua

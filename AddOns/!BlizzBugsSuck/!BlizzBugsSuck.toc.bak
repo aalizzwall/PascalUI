@@ -1,0 +1,20 @@
+## Interface: 60000
+## Title: BlizzBugsSuck 
+## Notes: Fixes UI bugs 
+## Title-zhTW: |r|cFFFFFFFF[其他]|r |cff0088FF[BlizzBugsSuck]|r Bz錯誤修正
+## Notes-zhTW: 修正Bz錯誤。
+## Author: Shefki, oscarucb, Torhal, Xinhuan, yssaril
+## DefaultState: enabled
+## Version: 5.2.0.2
+## X-Curse-Packaged-Version: 5.2.0.2
+## X-Curse-Project-Name: BlizzBugsSuck
+## X-Curse-Project-ID: blizzbugssuck
+## X-Curse-Repository-ID: wow/blizzbugssuck/mainline
+
+## OptionalDeps: LibChatAnims
+## X-Embeds: LibChatAnims
+
+embeds.xml
+
+BlizzBugsSuck.lua
+CrappyChatFix.lua

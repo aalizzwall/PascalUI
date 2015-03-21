@@ -1,0 +1,11 @@
+﻿## Interface: 50300
+## Title: Masque: |cffa20000Diablo|r |cffffffffIII|r
+## Version: 1.1
+## Author: Suicidal Katt
+## Notes: |cffa20000Diablo|r |cffffffffIII|r skin for Masque.
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9988FF[Masque]|r 快捷風格變換 - Diablo III風格
+## Notes-zhTW: Masque的Diablo(暗黑破壞神3)風格。
+## Dependencies: Masque
+## DefaultState: disabled
+
+D3.lua

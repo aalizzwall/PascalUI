@@ -1,0 +1,16 @@
+## Interface: 60000
+## Title: DagAssist
+## Author: Dagos (Cenarius)
+## Notes: Convenient shortcut menu
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9966FF[DagAssist]|r 小地圖快捷鍵
+## Notes-zhTW: 在小地圖左下增加一個按鈕，可以設置較不常用之快捷，以節省鍵位。
+## Version: 6.0.29
+## DefaultState: enabled
+## LoadOnDemand: 0
+## SavedVariablesPerCharacter: DA_Vars
+
+DagAssist_Menu.lua
+DagAssist.xml
+DagAssist.lua
+DagAssistConfig.xml
+DagAssistConfig.lua

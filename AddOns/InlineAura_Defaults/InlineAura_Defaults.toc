@@ -1,0 +1,22 @@
+## Interface: 60000
+## X-Curse-Packaged-Version: v1.9.03
+## X-Curse-Project-Name: Inline Aura
+## X-Curse-Project-ID: inline-aura
+## X-Curse-Repository-ID: wow/inline-aura/mainline
+
+## Title: Inline Aura - Default spell configuration
+## Author: Adirelle
+## Title-zhTW: |cFF00FFFF[戰鬥]|r |cFFCC99CC[Inline Aura]|r 按扭計時-預設模組
+## Notes-zhTW: 在快捷按鈕中顯示技能計時。
+## DefaultState: disabled
+## LoadOnDemand: 1
+## Version: v1.9.03
+## OptionalDeps: DRData-1.0
+## X-Part-Of: InlineAura
+
+#@no-lib-strip@
+..\InlineAura\libs\LibStub\LibStub.lua
+..\InlineAura\libs\DRData-1.0\DRData-1.0.lua
+#@end-no-lib-strip@
+
+..\InlineAura\Defaults.lua

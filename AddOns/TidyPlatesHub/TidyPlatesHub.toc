@@ -1,0 +1,18 @@
+## Interface: 60000
+## Title: Tidy Plates Hub
+## Notes: Provides a common configuration panel for supported themes.
+## Title-zhTW: |cFF0099FF[介面]|r |cFFCCBBCC[Tidy Plates]|r 姓名板美化-Hub
+## Notes-zhTW: 提供一個設定介面。
+## Author: Daniel/Binbwen
+## Dependencies: TidyPlates, TidyPlatesWidgets
+## OptionalDeps: TidyPlatesHubDE, TidyPlatesHubES, TidyPlatesHubMX, TidyPlatesHubFR, TidyPlatesHubKR, TidyPlatesHubRU, TidyPlatesHubCN, TidyPlatesHubTW
+## SavedVariables: TidyPlatesHubCache, TidyPlatesHubGlobal
+## SavedVariablesPerCharacter: TidyPlatesHubSettings
+
+Lists.lua
+Defaults.lua
+Helpers.lua
+Templates.lua
+Hub.lua
+Functions.lua
+

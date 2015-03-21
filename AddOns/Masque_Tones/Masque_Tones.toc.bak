@@ -1,0 +1,18 @@
+﻿## Interface: 50300
+
+## Title: Masque: Tones
+## Notes: Tones skin for Masque.
+## Version: 5.0.0
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9988FF[Masque]|r 快捷風格變換 - Tones風格
+## Notes-zhTW: Masque的Tones風格。
+
+## Author: Kallieen
+## X-eMail: kallieenchan@gmail.com
+## X-Credits: JJSheets for BF, StormFX for continuing it.
+
+## X-Category: Action Bars
+## Dependencies: Masque
+
+## DefaultState: disabled
+
+Skin.lua

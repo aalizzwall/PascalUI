@@ -1,0 +1,28 @@
+﻿## Interface: 60000
+## Title: Masque: |cffff8000DaedUI|r
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9988FF[Masque]|r 快捷風格變換 - DaedUI風格
+## Version: 1.0
+## Notes: DaedUI skin for Masque.
+## Notes-deDE: DaedUI Skins für Masque.
+## Notes-esMX: DaedUI texturas para Masque.
+## Notes-esES: DaedUI texturas para Masque.
+## Notes-frFR: Skin DaedUI pour Masque.
+## Notes-koKR: Masque에 대한 DaedUI 스킨.
+## Notes-ruRU: DaedUI Шкурки для Masque.
+## Notes-zhCN: 为Masque DaedUI皮肤。
+## Notes-zhTW: Masque的DaedUI風格。
+## Author: Daedhir
+## X-eMail: daedhir@gmail.com
+## X-Website: http://daedhirui.blogspot.com
+## X-Category: Interface Enhancements
+## X-Credits: StormFX
+## X-WoWI-ID: 8869
+## Dependencies: Masque
+## X-Curse-Packaged-Version: v1.0.6.1
+## X-Curse-Project-Name: Masque: DaedUI
+## X-Curse-Project-ID: buttonfacade_daedui
+## X-Curse-Repository-ID: wow/buttonfacade_daedui/mainline
+## DefaultState: disabled
+
+
+Skins.lua

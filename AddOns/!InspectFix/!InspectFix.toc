@@ -1,0 +1,17 @@
+## Interface: 60000
+## Title: InspectFix
+## Author: oscarucb
+## Title-zhTW: |r|cFFFFFFFF[其他]|r |cff0088FF[InspectFix]|r 觀察修正
+## Notes-zhTW: 修正Blizzard UI在觀察角色時引起的錯誤。
+## Description: Fixes some bugs that arise in the Blizzard UI while inspecting characters
+## Version: 4.4.2
+## X-Build: 58
+## X-ReleaseDate: 2013-09-11T01:20:41Z
+## X-Revision: $Revision: 58 $
+## X-Curse-Packaged-Version: 4.4.2
+## X-Curse-Project-Name: InspectFix
+## X-Curse-Project-ID: inspectfix
+## X-Curse-Repository-ID: wow/inspectfix/mainline
+
+InspectFix.lua
+

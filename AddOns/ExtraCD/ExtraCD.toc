@@ -1,0 +1,22 @@
+## Interface: 60000
+## Title: ExtraCD
+## Notes: Internal CDs of Talent, Item and Enchant
+## Notes-zhTW: 天賦、飾品和附魔內建冷卻監控。
+## Notes-zhCN: 天赋,物品和附魔内置冷却监视
+## Title-zhTW: |cFF00FFFF[戰鬥]|r |cFFCC99CC[ExtraCD]|r 內建冷卻監控
+## DefaultState: disabled
+## Author: superk
+## SavedVariables: ExtraCDDB
+## Version: 1.3
+## X-Curse-Packaged-Version: 1.3.1
+## X-Curse-Project-Name: ExtraCD
+## X-Curse-Project-ID: extracd
+## X-Curse-Repository-ID: wow/extracd/mainline
+
+embeds.xml
+Locales\locales.xml
+overlay.xml
+
+ExtraCD.lua
+data.lua
+options.lua

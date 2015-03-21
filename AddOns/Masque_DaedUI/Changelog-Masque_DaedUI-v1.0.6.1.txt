@@ -1,0 +1,11 @@
+tag v1.0.6.1
+9359111a4b9ea8d86e66b73cf8f2ea29bf1cf81e
+Brian Drell <daedhir@gmail.com>
+2011-12-09 16:46:02 -0700
+
+Tagging as v1.0.6.1
+
+
+--------------------
+
+No changelog

@@ -1,0 +1,14 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="WhisperN00bMSBT.lua"/>
+	<Frame name="WhisperN00bMSBTFrame" hidden="true">
+		<Scripts>
+			<OnLoad>
+				WhisperN00bMSBT_OnLoad(self);
+			</OnLoad>
+			<OnEvent>
+				WhisperN00bMSBT_OnEvent(self, event, ...);
+			</OnEvent>
+		</Scripts>
+	</Frame>
+</Ui>

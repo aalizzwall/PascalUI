@@ -1,0 +1,14 @@
+tag v4.0.3
+b5b1155bfe8542023bdbb21cfd33bc49301df0d7
+Shadowed <shadowed.wow@gmail.com>
+2014-10-15 09:21:30 -0700
+
+Tagging as release v4.0.3
+
+
+--------------------
+
+Shadowed:
+	- Bump TOC for the options addon
+	- Fixed an error when disabling fake unit cast bars
+	- Fixed casts not being shown as interruptible

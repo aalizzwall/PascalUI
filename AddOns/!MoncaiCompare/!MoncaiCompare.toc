@@ -1,0 +1,17 @@
+﻿## Interface: 60000
+## Title: Moncaí's |cff00ff00Equipment Compare|r
+## Notes: Replacement for Equip Compare, by Moncaí
+## Title-zhTW: |cFF0099FF[介面]|r |cFF99BBFF[Moncaí's Equipment Compare]|r 裝備比較
+## Notes-zhTW: 簡易的將所看到的物品與目前自己身上所裝備的物品做比較。
+## Author: Moncaí
+## Version: 5.4.0
+## X-Website: http://wow.curse.com/downloads/wow-addons/details/moncaicompare.aspx
+## URL: http://wow.curse.com/downloads/wow-addons/details/moncaicompare.aspx
+## RequiredDeps:
+## OptionalDeps: 
+## X-Curse-Packaged-Version: v5.4.0
+## X-Curse-Project-Name: Moncai Compare
+## X-Curse-Project-ID: moncaicompare
+## X-Curse-Repository-ID: wow/moncaicompare/mainline
+!MoncaiCompare.lua
+EncounterJournal.lua

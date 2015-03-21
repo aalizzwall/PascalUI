@@ -1,0 +1,19 @@
+﻿## Interface: 60000
+## Title: Masque: |cffff8000Entropy|r
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9988FF[Masque]|r 快捷風格變換 - Entropy風格
+## Version: 4.3.73
+## Author: StormFX
+## Notes: Entropy skins for Masque.
+## Notes-zhTW: Masque的Entropy風格。
+## Dependencies: Masque
+## X-Website: http://www.wowace.com/projects/masque_entropy
+## X-Category: Interface Enhancements
+## X-Credits: Zeal
+## X-WoWI-ID: 8873
+## X-Curse-Packaged-Version: v4.3.73
+## X-Curse-Project-Name: Masque: Entropy
+## X-Curse-Project-ID: masque_entropy
+## X-Curse-Repository-ID: wow/masque_entropy/mainline
+## DefaultState: disabled
+
+Entropy.lua

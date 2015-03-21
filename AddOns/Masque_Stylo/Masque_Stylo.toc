@@ -1,0 +1,12 @@
+﻿## Interface: 60000
+## Title: Masque |cffff8000Stylo|r
+## Version: v5.0.4
+## Notes: Stylo Designs for Masque
+## Author: Stylo
+## Title-zhTW: |cFF0099FF[介面]|r |cFF9988FF[Masque]|r 快捷風格變換 - Stylo風格
+## Notes-zhTW: Masque的Stylo風格。
+## Credits: Creators of Masque and Opaque for asking for a Masque version of Stylo 
+## Dependencies: Masque
+## DefaultState: disabled
+
+Stylo.lua

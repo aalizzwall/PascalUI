@@ -1,0 +1,21 @@
+## Interface: 60000
+## Title: Extended Vendor UI |cffffffffv1.5.4
+## Notes: Extends the merchant interface for easier browsing.
+## Title-zhTW: |cFF0099FF[介面]|r |cFF99BBFF[Extended Vendor UI]|r 一鍵賣裝&商店功能增強 
+## Notes-zhTW: 一鍵賣裝與商店瀏覽功能增強。
+## Author: Germbread
+## Version: 1.5.4
+## SavedVariables: EXTVENDOR_DATA
+## X-Email: germbread@gmail.com
+
+lib\LibStub.lua
+lib\AceLocale-3.0.lua
+
+locale\enUS.lua
+locale\zhTW.lua
+
+ExtVendor.xml
+SellJunkPopup.xml
+QuickVendorConfig\QuickVendorConfig.xml
+config\Config.xml
+config\about.xml

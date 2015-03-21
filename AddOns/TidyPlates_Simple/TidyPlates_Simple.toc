@@ -1,0 +1,10 @@
+## Interface: 60000
+## Title: TidyPlates_Simple
+## Notes: Simple TidyPlates skin with some built-in Healer functionality.
+## Title-zhTW: |cFF0099FF[介面]|r |cFFCCBBCC[Tidy Plates]|r 姓名板美化-Simple模組
+## Notes: 簡單的血條模組，內建一些治療的功能。
+## Author: FunkyCold
+## Version: 6.0
+## Dependencies: TidyPlates, TidyPlatesWidgets
+
+TidyPlates_Simple.lua

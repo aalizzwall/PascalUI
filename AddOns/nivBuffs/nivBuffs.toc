@@ -1,0 +1,30 @@
+## Interface: 60000
+## Title: nivBuffs
+## Title-zhTW: |cFF0099FF[介面]|r |cFF99BBFF[nivBuffs]|r Buff顯示增強
+## Notes-zhTW: 基本的玩家增益、減益、與武器暫時附魔框架的替代品。
+## Author: Luzzifus, Caleb
+## OptionalDeps: Masque
+## SavedVariables: nivBuffDB
+## X-Curse-Packaged-Version: 5.3
+## X-Curse-Project-Name: nivBuffs
+## X-Curse-Project-ID: nivbuffs
+## X-Curse-Repository-ID: wow/nivbuffs/mainline
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\frFR.lua
+Locales\itIT.lua
+Locales\koKR.lua
+Locales\ptBR.lua
+Locales\ruRU.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+
+nivAuraButtonTemplate.xml
+nivBuffs.lua
