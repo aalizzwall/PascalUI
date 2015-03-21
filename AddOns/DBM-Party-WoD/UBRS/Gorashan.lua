@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod(1226, "DBM-Party-WoD", 8, 559)
 local L		= mod:GetLocalizedStrings()
-local sndWOP	= mod:SoundMM("SoundWOP")
 
-mod:SetRevision(("$Revision: 11332 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 12458 $"):sub(12, -3))
 mod:SetCreatureID(76413)
 mod:SetEncounterID(1761)
 mod:SetZone()
@@ -11,6 +10,7 @@ mod:RegisterCombat("combat")
 mod.disableHealthCombat = true
 
 mod:RegisterEventsInCombat(
+	"SPELL_CAST_START 154448",
 	"SPELL_AURA_APPLIED 166168",
 	"SPELL_AURA_APPLIED_DOSE 166168",
 	"SPELL_AURA_REMOVED 166168",
@@ -21,12 +21,14 @@ mod:RegisterEventsInCombat(
 local warnPowerConduit			= mod:NewCountAnnounce(166168, 3)
 local warnPowerConduitLeft		= mod:NewAddsLeftAnnounce(166168, 2)
 
-local specWarnPowerConduit		= mod:NewSpecialWarningSpell(166168)
+local specWarnPowerConduit		= mod:NewSpecialWarningSpell(166168, nil, nil, nil, 2)
+local specWarnPowerConduitEnded	= mod:NewSpecialWarningEnd(166168)
+local specWarnShrapnelNova		= mod:NewSpecialWarningRun(154448, "-Tank")
 
---local timerPowerConduitCD		= mod:NewCDTimer(20, 166168)--Data suggests it's probably health based because timing LOOKED consistent yet varied based on subtle dps differences
-
-function mod:OnCombatStart(delay)
---	timerPowerConduitCD:Start(-delay)
+function mod:SPELL_CAST_START(args)
+	if args.spellId == 154448 then
+		specWarnShrapnelNova:Show()
+	end
 end
 
 function mod:SPELL_AURA_APPLIED(args)
@@ -34,7 +36,6 @@ function mod:SPELL_AURA_APPLIED(args)
 		warnPowerConduit:Cancel()
 		warnPowerConduit:Schedule(0.5, args.amount or 1)
 		specWarnPowerConduit:Show()
---		timerPowerConduitCD:Start()
 	end
 end
 function mod:SPELL_AURA_APPLIED_DOSE(args)
@@ -46,7 +47,11 @@ end
 
 function mod:SPELL_AURA_REMOVED(args)
 	if args.spellId == 166168 and self:IsInCombat() then
-		warnPowerConduitLeft:Show(args.amount or 0)
+		local amount = args.amount or 0
+		warnPowerConduitLeft:Show(amount)
+		if amount == 0 then
+			specWarnPowerConduitEnded:Show()
+		end
 	end
 end
 mod.SPELL_AURA_REMOVED_DOSE = mod.SPELL_AURA_REMOVED

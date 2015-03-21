@@ -1,5 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
+	
 	<Script file="localization.en.lua"/>
 	<Script file="localization.cn.lua"/>
 	<Script file="localization.de.lua"/>
@@ -7,7 +8,8 @@
 	<Script file="localization.es.lua"/>
 	<Script file="localization.ru.lua"/>
 	<Script file="localization.tw.lua"/>
-	<Script file="ChatBar.lua"/>
+	<Script file="ChatBar.lua" />
+	
 	<Button name="ChatBarButtonTemplate" virtual="true" hidden="true">
 		<Size>
 			<AbsDimension x="16" y="16"/>
@@ -26,21 +28,38 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<Texture name="$parentUpTex_Spec" file="Interface\AddOns\ChatBar\SkinSolid\ChanButton_Up_Spec"/>
-				<Texture name="$parentDownTex_Spec" file="Interface\AddOns\ChatBar\SkinSolid\ChanButton_Down_Spec" hidden="true"/>
-				<Texture name="$parentFlash" alphaMode="ADD" file="Interface\AddOns\ChatBar\SkinSolid\ChanButton_Glow_Alpha" hidden="true"/>
+				<Texture name="$parentUpTex_Spec" file="Interface\AddOns\ChatBar\Skin\ChanButton_Up_Spec"/>
+				<Texture name="$parentDownTex_Spec" file="Interface\AddOns\ChatBar\Skin\ChanButton_Down_Spec"  hidden="true" />
+				<Texture name="$parentFlash" alphaMode="ADD" file="Interface\AddOns\ChatBar\Skin\ChanButton_Glow_Alpha" hidden="true">
+					<Animations>
+						<AnimationGroup parentKey="animFade">
+							<Alpha change="1" duration=".5" startDelay="0" order="1"/>
+							<Alpha change="-1" duration=".5" startDelay=".1" order="2"/>
+							<Scripts>
+								<OnPlay>
+									local frame = self:GetParent();
+									frame:SetAlpha(0);
+									frame:Show();
+								</OnPlay>
+								<OnFinished>
+									self:GetParent():Hide();
+								</OnFinished>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</Texture>
 			</Layer>
 			<Layer level="ARTWORK">
-				<Texture name="$parentCenter" file="Interface\AddOns\ChatBar\SkinSolid\ChanButton_Center"/>
+				<Texture name="$parentCenter" file="Interface\AddOns\ChatBar\Skin\ChanButton_Center"/>
 			</Layer>
 			<Layer level="BORDER">
-				<Texture name="$parentBackground" file="Interface\AddOns\ChatBar\SkinSolid\ChanButton_BG"/>
+				<Texture name="$parentBackground" file="Interface\AddOns\ChatBar\Skin\ChanButton_BG"/>
 			</Layer>
 		</Layers>
 		<Scripts>
 			<OnLoad function="ChatBar_Button_OnLoad"/>
-			<OnEnter function="ChatBar_Button_OnEnter"/>
-			<OnLeave function="ChatBar_Button_OnLeave"/>
+	  		<OnEnter function="ChatBar_Button_OnEnter"/>
+	  		<OnLeave function="ChatBar_Button_OnLeave"/>
 			<OnClick function="ChatBar_Button_OnClick"/>
 			<OnMouseDown function="ChatBar_Button_OnMouseDown"/>
 			<OnMouseUp function="ChatBar_Button_OnMouseUp"/>
@@ -49,6 +68,7 @@
 		<PushedTexture name="$parentDownTex_Shad" file="Interface\AddOns\ChatBar\Skin\ChanButton_Down_Shad"/>
 		<HighlightTexture name="$parentHighlight" alphaMode="ADD" file="Interface\AddOns\ChatBar\Skin\ChanButton_Glow_Alpha"/>
 	</Button>
+	
 	<Frame name="ChatBarFrame" parent="UIParent" enableMouse="true" movable="true" hidden="false">
 		<Size>
 			<AbsDimension x="16" y="16"/>
@@ -62,7 +82,7 @@
 		</Anchors>
 		<Frames>
 			<Frame name="$parentBackground" setAllPoints="true">
-				<Backdrop edgeFile="Interface\AddOns\ChatBar\SkinSolid\ChatBarBorder" bgFile="Interface\AddOns\ChatBar\SkinSolid\BlackBg">
+				<Backdrop edgeFile="Interface\AddOns\ChatBar\Skin\ChatBarBorder" bgFile="Interface\AddOns\ChatBar\Skin\BlackBg">
 					<BackgroundInsets>
 						<AbsInset left="8" right="8" top="8" bottom="8"/>
 					</BackgroundInsets>
@@ -83,8 +103,9 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<GameTooltip name="$parentTooltip" frameStrata="TOOLTIP" hidden="true" inherits="GameTooltipTemplate"/>
+			<GameTooltip name="$parentTooltip" frameStrata="TOOLTIP" hidden="true" inherits="GameTooltipTemplate" />
 		</Frames>
+		
 		<Scripts>
 			<OnLoad function="ChatBar_OnLoad"/>
 			<OnEvent function="ChatBar_OnEvent"/>
@@ -94,6 +115,7 @@
 			<OnDragStop function="ChatBar_OnDragStop"/>
 		</Scripts>
 	</Frame>
+	
 	<Frame name="ChatBar_DropDown" inherits="UIDropDownMenuTemplate" id="1" hidden="true">
 		<Size>
 			<AbsDimension x="10" y="10"/>

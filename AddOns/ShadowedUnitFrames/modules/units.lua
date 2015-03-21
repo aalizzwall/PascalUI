@@ -7,7 +7,7 @@ Units.headerUnits = {["raid"] = true, ["party"] = true, ["maintank"] = true, ["m
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 stateMonitor.raids = {}
 local playerClass = select(2, UnitClass("player"))
-local unitFrames, headerFrames, frameList, unitEvents, childUnits, headerUnits, queuedCombat = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, Units.headerUnits, {}
+local unitFrames, headerFrames, frameList, unitEvents, childUnits, headerUnits, queuedCombat, zoneUnits = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, Units.headerUnits, {}, Units.zoneUnits
 local remappedUnits = Units.remappedUnits
 local _G = getfenv(0)
 
@@ -16,6 +16,7 @@ ShadowUF:RegisterModule(Units, "units")
 
 -- This is the wrapper frame that everything parents to so we can just hide it when we need to deal with pet battles
 local petBattleFrame = CreateFrame("Frame", "SUFWrapperFrame", UIParent, "SecureHandlerBaseTemplate")
+petBattleFrame:SetFrameStrata("BACKGROUND")
 petBattleFrame:SetAllPoints(UIParent)
 petBattleFrame:WrapScript(petBattleFrame, "OnAttributeChanged", [[
 	if( name ~= "state-petbattle" ) then return end
@@ -157,17 +158,37 @@ local function UnregisterAll(self, handler)
 	end
 end
 
+-- TODO: Remove once Blizzard fixes cooldown wheels not taking parents alpha
+local function SetAuraAlpha(self, alpha)
+	if( not self.auras ) then return end
+
+	local childAlpha = 0.8 * alpha
+	if( self.auras.buffs ) then
+		for id, button in pairs(self.auras.buffs.buttons) do
+			button.cooldown:SetSwipeColor(0, 0, 0, childAlpha)
+		end
+	end
+
+	if( self.auras.debuffs ) then
+		for id, button in pairs(self.auras.debuffs.buttons) do
+			button.cooldown:SetSwipeColor(0, 0, 0, childAlpha)
+		end
+	end
+end
+
 -- Handles setting alphas in a way so combat fader and range checker don't override each other
 local function DisableRangeAlpha(self, toggle)
 	self.disableRangeAlpha = toggle
 	
 	if( not toggle and self.rangeAlpha ) then
+		self:SetAuraAlpha(self.rangeAlpha)
 		self:SetAlpha(self.rangeAlpha)
 	end
 end
 
 local function SetRangeAlpha(self, alpha)
 	if( not self.disableRangeAlpha ) then
+		self:SetAuraAlpha(alpha)
 		self:SetAlpha(alpha)
 	else
 		self.rangeAlpha = alpha
@@ -694,6 +715,7 @@ function Units:CreateUnit(...)
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
 	frame.visibility = {}
+	frame.SetAuraAlpha = SetAuraAlpha
 	frame.BlizzRegisterUnitEvent = frame.RegisterUnitEvent
 	frame.RegisterNormalEvent = RegisterNormalEvent
 	frame.RegisterUnitEvent = RegisterUnitEvent
@@ -970,7 +992,26 @@ local function setupRaidStateMonitor(id, headerFrame)
 	stateMonitor.raids[id]:SetFrameRef("raidHeader", headerFrame)
 	stateMonitor.raids[id]:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
 	stateMonitor.raids[id]:WrapScript(stateMonitor.raids[id], "OnAttributeChanged", [[
-		if( name ~= "state-raidmonitor" and name ~= "raiddisabled" and name ~= "hidesemiraid" ) then return end
+		if( name == "hasraid" or name == "hasparty" or name == "recheck" ) then
+			local header = self:GetFrameRef("raidHeader")
+			local raid = self:GetAttribute("hasraid")
+			local party = self:GetAttribute("hasparty")
+
+			if( header:GetAttribute("showParty") ) then
+				if( not party and not raid ) then
+					header:Hide()
+				elseif( party or raid ) then
+					header:Show()
+				end
+			elseif( not raid ) then
+				header:Hide()
+			elseif( raid ) then
+				header:Show()
+			end
+
+		elseif( name ~= "state-raidmonitor" and name ~= "raiddisabled" and name ~= "hidesemiraid" ) then
+			return
+		end
 
 		local header = self:GetFrameRef("raidHeader")
 		if( self:GetAttribute("raidDisabled") ) then
@@ -986,6 +1027,8 @@ local function setupRaidStateMonitor(id, headerFrame)
 	]])
 	
 	RegisterStateDriver(stateMonitor.raids[id], "raidmonitor", "[target=raid6, exists] raid6; none")
+	RegisterStateDriver(stateMonitor.raids[id], "hasraid", "[target=raid1, exists] raid; none")
+	RegisterStateDriver(stateMonitor.raids[id], "hasparty", "[target=party1, exists] party; none")
 end
 
 function Units:LoadSplitGroupHeader(type)
@@ -995,6 +1038,7 @@ function Units:LoadSplitGroupHeader(type)
 	for id, monitor in pairs(stateMonitor.raids) do
 		monitor:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
 		monitor:SetAttribute("raidDisabled", id == -1 and true or nil)
+		monitor:SetAttribute("recheck", time())
 	end
 
 	local config = ShadowUF.db.profile.units[type]
@@ -1148,6 +1192,13 @@ end
 function Units:LoadZoneHeader(type)
 	if( headerFrames[type] ) then
 		headerFrames[type]:Show()
+		for _, child in pairs(headerFrames[type].children) do
+			RegisterUnitWatch(child, child.hasStateWatch)
+		end
+
+		if( type == "arena" ) then
+			self:InitializeArena()
+		end
 		return
 	end
 	
@@ -1252,6 +1303,10 @@ function Units:LoadZoneHeader(type)
 
 	self:SetHeaderAttributes(headerFrame, type)
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])	
+
+	if( type == "arena" ) then
+		self:InitializeArena()
+	end
 end
 
 -- Load a unit that is a child of another unit (party pet/party target)
@@ -1346,6 +1401,11 @@ function Units:UninitializeFrame(type)
 		
 		if( headerFrames[type].children ) then
 			for _, frame in pairs(headerFrames[type].children) do
+				if( self.zoneUnits[type] ) then
+					UnregisterUnitWatch(frame)
+					frame:SetAttribute("state-unitexists", false)
+				end
+
 				frame:Hide()
 			end
 		end
@@ -1354,6 +1414,7 @@ function Units:UninitializeFrame(type)
 		for frame in pairs(frameList) do
 			if( frame.unitType == type ) then
 				UnregisterUnitWatch(frame)
+				frame:SetAttribute("state-unitexits", false)
 				frame:Hide()
 			end
 		end
@@ -1455,24 +1516,17 @@ function Units:CheckPlayerZone(force)
 	end
 end
 
--- Handle figuring out what auras players can cure and also account for symbiosis which can let you cure additional ones
+-- Handle figuring out what auras players can cure
 local curableSpells = {
-	["DRUID"] = {[88423] = {"Magic", "Curse", "Poison"}, [2782] = {"Curse", "Poison"}, [2908] = {"Enrage"}},
-	["HUNTER"] = {[19801] = {"Magic", "Enrage"}},
-	["ROGUE"] = {[5938] = {"Enrage"}},
+	["DRUID"] = {[88423] = {"Magic", "Curse", "Poison"}, [2782] = {"Curse", "Poison"}},
 	["MAGE"] = {[475] = {"Curse"}},
-	["PRIEST"] = {[528] = {"Magic"}, [527] = {"Magic", "Disease"}},
+	["PRIEST"] = {[527] = {"Magic", "Disease"}, [32375] = {"Magic"}},
 	["PALADIN"] = {[4987] = {"Poison", "Disease"}, [53551] = {"Magic"}},
 	["SHAMAN"] = {[77130] = {"Curse", "Magic"}, [51886] = {"Curse"}},
 	["MONK"] = {[115450] = {"Poison", "Disease"}, [115451] = {"Magic"}}
 }
 
-local symbiosisSpells = {
-	["DRUID"] = {["Disease"] = 122288},
-}
-
 curableSpells = curableSpells[select(2, UnitClass("player"))]
-symbiosisSpells = symbiosisSpells[select(2, UnitClass("player"))]
 
 local function checkCurableSpells()
 	if( not curableSpells ) then return end
@@ -1481,29 +1535,12 @@ local function checkCurableSpells()
 
 	for spellID, cures in pairs(curableSpells) do
 		if( IsPlayerSpell(spellID) ) then
-			for _, type in pairs(cures) do
-				Units.canCure[type] = true
+			for _, auraType in pairs(cures) do
+				Units.canCure[auraType] = true
 			end
 		end
 	end
 end
-
-local function checkSymbiosisSpells()
-	if( not symbiosisSpells ) then return end
-	if( ShadowUF.IS_WOD ) then return false end
-
-	local changed = false
-	for type, spellID in pairs(symbiosisSpells) do
-		local hasSpell = IsPlayerSpell(spellID)
-		if( ( Units.canCure[type] and not hasSpell ) or ( not Units.canCure[type] and hasSpell ) ) then
-			changed = true
-			Units.canCure[type] = hasSpell
-		end
-	end
-
-	return changed
-end
-
 
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -1540,17 +1577,6 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 			unitFrames.player:FullUpdate()
 		end
 
-	-- Symbiosis for curable changes
-	elseif( event == "SPELL_UPDATE_USABLE" ) then
-		local changed = checkSymbiosisSpells()
-		if( changed ) then
-			for frame in pairs(ShadowUF.Units.frameList) do
-				if( frame.unit and frame:IsVisible() ) then
-					frame:FullUpdate()
-				end
-		    end
-		end
-
 	-- Monitor talent changes for curable changes
 	elseif( event == "PLAYER_SPECIALIZATION_CHANGED" ) then
 		checkCurableSpells()
@@ -1567,13 +1593,7 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 
 	elseif( event == "PLAYER_LOGIN" ) then
 		checkCurableSpells()
-		checkSymbiosisSpells()
-
 		self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-
-		if( symbiosisSpells ) then
-			self:RegisterEvent("SPELL_UPDATE_USABLE")
-		end
 
 	-- This is slightly hackish, but it suits the purpose just fine for somthing thats rarely called.
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then

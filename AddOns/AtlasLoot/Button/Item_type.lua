@@ -1,9 +1,12 @@
+local ALName, ALPrivate = ...
 local AtlasLoot = _G.AtlasLoot
 local Item = AtlasLoot.Button:AddType("Item", "i")
 local Query = {}
 Item.Query = Query
 local AL = AtlasLoot.Locales
 local ClickHandler = AtlasLoot.ClickHandler
+
+local db
 
 -- lua
 local tonumber = tonumber
@@ -12,7 +15,7 @@ local next, wipe, tab_remove = next, wipe, table.remove
 local format, split = string.format, string.split
 
 -- WoW
-local GetItemInfo = GetItemInfo
+local GetItemInfo, IsEquippableItem = GetItemInfo, IsEquippableItem
 
 -- AL
 local GetAlTooltip = AtlasLoot.Tooltip.GetTooltip
@@ -27,6 +30,7 @@ local itemIsOnEnter = nil
 
 function Item.OnSet(button, second)
 	if not ItemClickHandler then
+		db = AtlasLoot.db.Button.Item
 		ItemClickHandler = ClickHandler:Add(
 		"Item",
 		{
@@ -37,7 +41,7 @@ function Item.OnSet(button, second)
 				DressUp = true,
 			},
 		},
-		AtlasLoot.db.profile.Button.Item.ClickHandler, 
+		db.ClickHandler, 
 		{
 			{ "ChatLink", 	AL["Chat Link"], 	AL["Add item into chat"] },
 			{ "DressUp", 	AL["Dress up"], 	AL["Shows the item in the Dressing room"] },
@@ -79,7 +83,7 @@ end
 
 function Item.OnMouseAction(button, mouseButton)
 	if not mouseButton then return end
-	mouseButton = ItemClickHandler:Get(mouseButton)
+	mouseButton = ItemClickHandler:Get(mouseButton) or mouseButton
 	if mouseButton == "ChatLink" then
 		local itemInfo, itemLink = GetItemInfo(button.ItemString or button.ItemID)
 		itemLink = itemLink or button.ItemString
@@ -89,6 +93,24 @@ function Item.OnMouseAction(button, mouseButton)
 		itemLink = itemLink or button.ItemString
 		if itemLink then
 			DressUpItemLink(itemLink)
+		end
+	elseif mouseButton == "MouseWheelUp" and Item.previewTooltipFrame and Item.previewTooltipFrame:IsShown() then  -- ^
+		local frame = Item.previewTooltipFrame.modelFrame
+		if IsAltKeyDown() then -- model zoom
+			frame.zoomLevelNew = frame.zoomLevelNew + 0.1 >= frame.maxZoom and frame.maxZoom or frame.zoomLevelNew + 0.1
+			frame:SetPortraitZoom(frame.zoomLevelNew)
+		else -- model rotation
+			frame.curRotation = frame.curRotation + 0.1
+			frame:SetRotation(frame.curRotation)
+		end
+	elseif mouseButton == "MouseWheelDown" and Item.previewTooltipFrame and Item.previewTooltipFrame:IsShown() then	-- v
+		local frame = Item.previewTooltipFrame.modelFrame
+		if IsAltKeyDown() then -- model zoom
+			frame.zoomLevelNew = frame.zoomLevelNew - 0.1 <= frame.minZoom and frame.minZoom or frame.zoomLevelNew - 0.1
+			frame:SetPortraitZoom(frame.zoomLevelNew)
+		else -- model rotation
+			frame.curRotation = frame.curRotation - 0.1
+			frame:SetRotation(frame.curRotation)
 		end
 	end
 end
@@ -107,12 +129,16 @@ function Item.OnEnter(button, owner)
 	else
 		tooltip:SetItemByID(button.ItemID)
 	end
-	if button.Droprate and AtlasLoot.db.profile.Button.Item.showDropRate then
+	if button.Droprate and db.showDropRate then
 		tooltip:AddDoubleLine(AL["Droprate:"], button.Droprate.."%")
 	end
 	tooltip:Show()
-	if IsShiftKeyDown() or AtlasLoot.db.profile.Button.Item.alwaysShowCompareTT then
+	if IsShiftKeyDown() or db.alwaysShowCompareTT then
 		GameTooltip_ShowCompareItem(tooltip)
+	end
+	if IsControlKeyDown() or db.alwaysShowPreviewTT then
+		local _, link = tooltip:GetItem()
+		Item.ShowQuickDressUp(link, tooltip)
 	end
 end
 
@@ -121,6 +147,7 @@ function Item.OnLeave(button)
 	itemIsOnEnter = nil
 	ShoppingTooltip1:Hide()
 	ShoppingTooltip2:Hide()
+	if Item.previewTooltipFrame and Item.previewTooltipFrame:IsShown() then Item.previewTooltipFrame:Hide() end
 	--ShoppingTooltip3:Hide()
 end
 
@@ -142,7 +169,7 @@ end
 
 function Item.Refresh(button)
 	if not button.ItemID then return end
-	local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemCount, itemEquipLoc, itemTexture = GetItemInfo(button.ItemString or button.ItemID)
+	local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(button.ItemString or button.ItemID)
 	if not itemName then
 		Query:Add(button)
 		return false
@@ -179,6 +206,12 @@ function Item.Refresh(button)
 		-- ##################
 		button.extra:SetText(GetItemDescInfo(itemEquipLoc, itemType, itemSubType))
 	end
+	if db.showCompletedHook then
+		itemCount = GetItemCount(button.ItemString, true)
+		if itemCount and itemCount > 0 then
+			button.completed:Show()
+		end
+	end
 
 	return true
 end
@@ -192,6 +225,71 @@ function Item.GetStringContent(str)
 		}
 	end
 end
+
+--################################
+-- Item querys
+--################################
+function Item.ShowQuickDressUp(itemLink, ttFrame)
+	if not itemLink or not IsEquippableItem(itemLink) then return end
+	if not Item.previewTooltipFrame then 
+		local name = "AtlasLoot-SetToolTip"
+		local frame = CreateFrame("Frame", name)
+		frame:SetClampedToScreen(true)
+		frame:SetSize(230, 280)
+		
+		frame.modelFrame = CreateFrame("DressUpModel", name.."-ModelFrame", frame)
+		frame.modelFrame:ClearAllPoints()
+		frame.modelFrame:SetParent(frame)
+		frame.modelFrame:SetAllPoints(frame)
+		frame.modelFrame.defaultRotation = MODELFRAME_DEFAULT_ROTATION
+		frame.modelFrame:SetRotation(MODELFRAME_DEFAULT_ROTATION)
+		frame.modelFrame:SetBackdrop(ALPrivate.BOX_BORDER_BACKDROP)
+		frame.modelFrame:SetBackdropColor(0,0,0,1)
+		frame.modelFrame:SetUnit("player")
+		frame.modelFrame.minZoom = 0
+		frame.modelFrame.maxZoom = 1.0
+		frame.modelFrame.curRotation = MODELFRAME_DEFAULT_ROTATION
+		frame.modelFrame.zoomLevel = frame.modelFrame.minZoom
+		frame.modelFrame.zoomLevelNew = frame.modelFrame.zoomLevel
+		frame.modelFrame:SetPortraitZoom(frame.modelFrame.zoomLevel)
+		frame.modelFrame.Reset = _G.Model_Reset
+		
+		Item.previewTooltipFrame = frame
+		frame:Hide()
+	end
+	
+	local frame = Item.previewTooltipFrame
+	
+	-- calculate point for frame
+	local x,y = ttFrame:GetOwner():GetCenter()
+	local fPoint, oPoint = "BOTTOMLEFT", "TOPRIGHT"
+	
+	if y/GetScreenHeight() > 0.3 then
+		fPoint, oPoint = "TOP", "BOTTOM"
+	else
+		fPoint, oPoint = "BOTTOM", "TOP"
+	end
+	if x/GetScreenWidth() > 0.5 then
+		fPoint, oPoint = fPoint.."LEFT", oPoint.."LEFT"
+	else
+		fPoint, oPoint = fPoint.."RIGHT", oPoint.."RIGHT"
+	end
+	
+	frame:Show()
+	
+	frame:ClearAllPoints()
+	frame:SetParent(ttFrame:GetOwner():GetParent())
+	frame:SetFrameStrata("TOOLTIP")
+	frame:SetPoint(fPoint, ttFrame, oPoint)
+	
+	frame = Item.previewTooltipFrame.modelFrame
+	frame:Reset()
+	frame:Undress()
+	frame:SetRotation(frame.curRotation)
+	frame:SetPortraitZoom(frame.zoomLevelNew)
+	frame:TryOn(itemLink)
+end
+
 --################################
 -- Item querys
 --################################
@@ -217,12 +315,17 @@ local function EventFrame_OnEvent(frame, event, arg1, arg2)
 			if arg2 == 1 then
 				if arg1 == "LSHIFT" or arg1 == "RSHIFT" then
 					GameTooltip_ShowCompareItem(itemIsOnEnter)
+				elseif arg1 == "LCTRL" or arg1 == "RCTRL" then
+					local _, link = itemIsOnEnter:GetItem()
+					Item.ShowQuickDressUp(link, itemIsOnEnter)
 				end
 			else
 				if arg1 == "LSHIFT" or arg1 == "RSHIFT" then
 					ShoppingTooltip1:Hide()
 					ShoppingTooltip2:Hide()
 					--ShoppingTooltip3:Hide()
+				elseif arg1 == "LCTRL" or arg1 == "RCTRL" then
+					Item.previewTooltipFrame:Hide()
 				end
 			end
 		end

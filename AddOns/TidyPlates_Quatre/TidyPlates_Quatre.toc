@@ -1,8 +1,6 @@
 ## Interface: 60000
 ## Title: Tidy Plates: Quatre Theme
 ## Notes: It's the 4th!
-## Title-zhTW: |cFF0099FF[介面]|r |cFFCCBBCC[Tidy Plates]|r 姓名板美化-Quatre 風格
-## Notes-zhTW: 玩家姓名板美化。
 ## Author: Binny
 ## Dependencies: TidyPlates, TidyPlatesHub
 

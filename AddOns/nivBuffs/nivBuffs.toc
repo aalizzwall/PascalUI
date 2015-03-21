@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 50400
 ## Title: nivBuffs
 ## Title-zhTW: |cFF0099FF[介面]|r |cFF99BBFF[nivBuffs]|r Buff顯示增強
 ## Notes-zhTW: 基本的玩家增益、減益、與武器暫時附魔框架的替代品。

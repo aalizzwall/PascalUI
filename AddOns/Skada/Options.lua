@@ -22,11 +22,12 @@ Skada.windowdefaults = {
 	classcolorbars = true,
 	classcolortext = false,
 	classicons = true,
+	roleicons = false,
 
 	buttons = {menu = true, reset = true, report = true, mode = true, segment = true},
 
-	title = {height = 15, font="Accidental Presidency", fontsize=11,margin=0, texture="TukTex", bordertexture="Square Clean", borderthickness=2.5, color = {r=0,g=0,b=0,a=0.86}, fontflags = ""},
-	background = {margin=0, height=200, texture="Blizzard Dialog Background Dark", bordertexture="Square Clean", borderthickness=2.5, color = {r=0,g=0,b=0.5,a=0.97}},
+	title = {height = 15, font="Accidental Presidency", fontsize=11,margin=0, texture="Aluminium", bordertexture="None", borderthickness=2, color = {r=0.1,g=0.1,b=0.3,a=0.8}, fontflags = ""},
+	background = {margin=0, height=200, texture="Solid", bordertexture="None", borderthickness=0, color = {r=0,g=0,b=0.5,a=0.2}},
 
 	reversegrowth=false,
 	modeincombat="",
@@ -42,7 +43,8 @@ Skada.windowdefaults = {
 
 	display = "bar",
 	snapto = true,
-	scale = 1
+	scale = 1,
+    version = 1
 }
 
 local windefaultscopy = {}
@@ -71,6 +73,7 @@ Skada.defaults = {
 		mergepets=true,
 		feed = "",
 		showtotals = false,
+        autostop = false,
 
 		modules = {},
 		columns = {},
@@ -436,6 +439,16 @@ Skada.options = {
 							get=function() return Skada.db.profile.tentativecombatstart end,
 							set=function() Skada.db.profile.tentativecombatstart = not Skada.db.profile.tentativecombatstart end,
 					},
+                
+					autostop = {
+							type="toggle",
+							name=L["Autostop"],
+							desc=L["Autostop description"],
+							order=10,
+							get=function() return Skada.db.profile.autostop end,
+							set=function() Skada.db.profile.autostop = not Skada.db.profile.autostop end,
+					},
+                
 				}
 			},
 			columns = {

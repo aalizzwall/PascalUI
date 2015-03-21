@@ -24,6 +24,15 @@ L= DBM:GetModLocalization(1216)
 -----------------------
 L= DBM:GetModLocalization(1225)
 
+-------------
+--  Auch Trash  --
+-------------
+L = DBM:GetModLocalization("AuchTrash")
+
+L:SetGeneralLocalization({
+	name =	"奧齊頓小怪"
+})
+
 -----------------------
 -- <<<Bloodmaul Slag Mines>>> --
 -----------------------
@@ -47,6 +56,15 @@ L= DBM:GetModLocalization(887)
 -----------------------
 L= DBM:GetModLocalization(889)
 
+-------------
+--  BSM Trash  --
+-------------
+L = DBM:GetModLocalization("BSMTrash")
+
+L:SetGeneralLocalization({
+	name =	"血槌熔渣礦場小怪"
+})
+
 -----------------------
 -- <<<Grimrail Depot>>> --
 -----------------------
@@ -61,14 +79,23 @@ L= DBM:GetModLocalization(1138)
 L= DBM:GetModLocalization(1163)
 
 L:SetWarningLocalization({
-	warnGrenadeDown			= "%s dropped",
-	warnMortarDown			= "%s dropped"
+	warnGrenadeDown			= "%s掉落了",
+	warnMortarDown			= "%s掉落了"
 })
 
 -----------------------
 -- Thunderlord General --
 -----------------------
 L= DBM:GetModLocalization(1133)
+
+-------------
+--  GRD Trash  --
+-------------
+L = DBM:GetModLocalization("GRDTrash")
+
+L:SetGeneralLocalization({
+	name =	"恐軌車站小怪"
+})
 
 -----------------------
 -- <<<Iron Docks>>> --
@@ -117,7 +144,7 @@ L= DBM:GetModLocalization(1208)
 L= DBM:GetModLocalization(1209)
 
 L:SetMiscLocalization({
-	Pull	= "Xeri'tac begins unleashing Toxic Spiderlings down on you!"
+	Pull	= "榭里塔克開始放出劇毒幼蛛攻擊你！"
 })
 
 -----------------------
@@ -171,6 +198,25 @@ L= DBM:GetModLocalization(967)
 -----------------------
 L= DBM:GetModLocalization(968)
 
+L:SetWarningLocalization({
+	warnAdd			= DBM_CORE_AUTO_ANNOUNCE_TEXTS.spell:format("擎天護盾傀儡"),
+	specWarnAdd		= DBM_CORE_AUTO_SPEC_WARN_TEXTS.switch:format("擎天護盾傀儡")
+})
+
+L:SetOptionLocalization({
+	warnAdd			= "為擎天護盾傀儡顯示警告",
+	specWarnAdd		= "為轉換攻擊目標至擎天護盾傀儡顯示特別警告"
+})
+
+-------------
+--  Skyreach Trash  --
+-------------
+L = DBM:GetModLocalization("SkyreachTrash")
+
+L:SetGeneralLocalization({
+	name =	"擎天峰小怪"
+})
+
 -----------------------
 -- <<<Upper Blackrock Spire>>> --
 -----------------------
@@ -200,9 +246,18 @@ L= DBM:GetModLocalization(1229)
 L= DBM:GetModLocalization(1234)
 
 L:SetTimerLocalization({
-	timerZaelaReturns	= "Zaela Returns"
+	timerZaelaReturns	= "札伊拉回場地"
 })
 
 L:SetOptionLocalization({
-	timerZaelaReturns	= "Show timer for when Zaela returns"
+	timerZaelaReturns	= "為札伊拉回場地顯示計時器"
+})
+
+-------------
+--  UBRS Trash  --
+-------------
+L = DBM:GetModLocalization("UBRSTrash")
+
+L:SetGeneralLocalization({
+	name =	"黑石塔上層小怪"
 })

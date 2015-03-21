@@ -1,10 +1,12 @@
-﻿## Interface: 60000
+## Interface: 60000
+## X-BigfootType: 4
+## X-BigfootDesc: 该插件可查看游戏内基本所有的物品模型，并且可以预览人物的试穿效果。
 ## Author: Aelobin (The Maelstrom EU) & Lombra (Defias Brotherhood EU)
-## Version: v3.3.3
+## Version: 3.4.0
 ## LoadOnDemand: 1
 ## RequiredDeps: MogIt
-## X-MogItModuleVersion: 2
-## X-Curse-Packaged-Version: v3.3.3
+## X-MogItModuleVersion: 3
+## X-Curse-Packaged-Version: 3.4.0
 ## X-Curse-Project-Name: MogIt
 ## X-Curse-Project-ID: mogit
 ## X-Curse-Repository-ID: wow/mogit/mainline
@@ -17,7 +19,7 @@
 ## Title-ruRU: MogIt: Кожа
 ## Title-koKR: MogIt: 가죽
 ## Title-zhCN: MogIt: 皮甲
-## Title-zhTW: |r|cFFFFFFFF[其他]|r |cff0088FF[MogIt]|r 塑形助手-皮甲
+## Title-zhTW: MogIt: 皮革
 ## Title-ptBR: MogIt: Couro
 ## Title-itIT: MogIt: Leather
 

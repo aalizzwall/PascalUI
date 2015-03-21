@@ -1,15 +1,13 @@
-## Interface: 60000
-## X-Curse-Packaged-Version: 4.6.5
+## Interface: 60100
+## X-Curse-Packaged-Version: 4.6.7
 ## X-Curse-Project-Name: Bartender4
 ## X-Curse-Project-ID: bartender4
 ## X-Curse-Repository-ID: wow/bartender4/mainline
 
 ## Title: Bartender4
 ## Notes: Simple and Advanced combined - Bartender4 ActionBar AddOn
-## Title-zhTW: |cFF0099FF[介面]|r |cFF9966FF[Bartender4]|r 自訂快捷
-## Notes-zhTW: 將原先系統預設的快捷鍵位置隨自己喜好排列擺設。  『/bt』
 
-## Version: 4.6.5
+## Version: 4.6.7
 
 ## Author: Nevcairiel
 ## X-Email: h.leppkes at gmail dot com
@@ -19,7 +17,7 @@
 ## X-License: All rights reserved.
 
 ## SavedVariables: Bartender4DB
-## OptionalDeps: Ace3, ButtonFacade, Masque, LibActionButton-1.0, LibKeyBound-1.0, LibDBIcon-1.0, LibWindow-1.1, LibDualSpec-1.0
+## OptionalDeps: Ace3, ButtonFacade, Masque, LibButtonGlow-1.0, LibActionButton-1.0, LibKeyBound-1.0, LibDBIcon-1.0, LibWindow-1.1, LibDualSpec-1.0
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
@@ -40,6 +38,7 @@ libs\AceGUI-3.0\AceGUI-3.0.xml
 libs\AceConfig-3.0\AceConfig-3.0.xml
 
 libs\LibKeyBound-1.0\lib.xml
+libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
 libs\LibActionButton-1.0\LibActionButton-1.0.lua
 libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 libs\LibWindow-1.1\LibWindow-1.1.lua

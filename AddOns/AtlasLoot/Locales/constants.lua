@@ -4,8 +4,8 @@ AL["AtlasLoot"] = true
 
 AL["Normal"] = true
 AL["Heroic"] = true
-AL["25 Man"] = true
-AL["25 Man Heroic"] = true
+AL["25 Player"] = true
+AL["25 Player Heroic"] = true
 AL["Raid Finder"] = true
 AL["Mythic"] = true
 
@@ -21,13 +21,15 @@ AL["Bonus Loot"] = true
 AL["AtlasLoot_Loader is no longer in use.\nDelete it from your AddOns folder"] = true
 AL["Toggle AtlasLoot"] = true
 
--- Options MODULE
+-- Options module
 AL["General"] = true
 AL["General AtlasLoot options."] = true
 AL["Toggle Minimap Button"] = true
 AL["Toggles the display of the minimap icon."] = true
 
 -- Loader.lua
+AL["Module %s is deactivated."] = true
+AL["Module %s is not installed."] = true
 AL["%s will finish loading after combat."] = true
 AL["Warlords of Draenor"] = true
 AL["Mists of Pandaria"] = true
@@ -87,6 +89,8 @@ AL["Items"] = true
 AL["Sounds"] = true
 AL["|cff00ff00Right-Click:|r Change Spec"] = true
 AL["Shows items for all %s specializations."] = true
+AL["Required module %s is currently disabled."] = true
+AL["Required module %s is not installed."] = true
 
 --GUI\SoundFrame.lua
 AL["Add sound into chat"] = true
@@ -98,9 +102,12 @@ AL["Loading Data ..."] = true
 
 --GUI\SetViewFrame.lua
 AL["AtlasLoot Set View"] = true
+AL["Source"] = true
+AL["Stats"] = true
 
 -- BUTTONS
 AL["Droprate:"] = true
+AL["--- or ---"] = true
 
 -- Item_type.lua
 AL["Chat Link"] = true
@@ -123,17 +130,20 @@ AL["Show Mount in Journal"] = true
 AL["AtlasLoot Search"] = true
 
 -- Common strings
+AL["Black Market Auction House"] = true
 AL["Entrance"] = true
 AL["ilvl %d"] = true
 AL["Miscellaneous"] = true
+AL["No longer available"] = true
 AL["Patterns/Plans"] = true
 AL["Rare"] = true
+AL["Recipes"] = true
+AL["Rewards"] = true
 AL["Set"] = true
 AL["Sets"] = true
 AL["Shared"] = true
 AL["Shared Boss Loot"] = true
 AL["Summon"] = true
-AL["Tier %d Sets"] = true
 AL["Trash Mobs"] = true
 
 -- Classic strings
@@ -166,6 +176,7 @@ AL["Servant's Quarter Animal Bosses"] = true
 AL["Shattered Hand Executioner"] = true
 AL["Third Fragment Guardian"] = true
 AL["Thomas Yance"] = true
+AL["World Bosses"] = true
 
 -- Cataclysm strings
 AL["Firestone Vendor"] = true
@@ -175,39 +186,80 @@ AL["Timed Reward Chest"] = true
 AL["Vendors"] = true
 
 -- Collections strings
+AL["Achievement & Quest Rewards"] = true
 AL["Apexis Crystal"] = true
+AL["Arena Reward"] = true
+AL["Ayla Shadowstorm"] = true
+AL["BoE World Epics"] = true
+AL["Card Game Tabards"] = true
+AL["Challenge Mode Armor Sets"] = true
+AL["Challenge Mode Gear"] = true
+AL["Classic Sets"] = true
+AL["Damek Bloombeard"] = true
+AL["Defias Overseer"] = true
+AL["Druid of the Fang"] = true
+AL["Dungeon Sets"] = true
+AL["Dungeon %d Sets"] = true
+AL["Guild"] = true
+AL["Heirloom"] = true
+AL["Legendary Items"] = true
 AL["Mounts"] = true
 AL["Pets"] = true
+AL["Replica available at Darkmoon Faire"] = true
+AL["Salvage Yard"] = true
+AL["Tabards"] = true
+AL["Tier Sets"] = true
+AL["Tier %d Sets"] = true
+AL["Unobtainable Tabards"] = true
+AL["Varlan Highbough"] = true
+AL["Zen'Vorka"] = true
 
 -- Crafting strings
-AL["2H Weapons"] = true
 AL["Arakkoa"] = true
 AL["Armor"] = true
+AL["Armor Enhancements"] = true
+AL["Attack/Spell Power"] = true
 AL["Attributes"] = true
 AL["Bags"] = true
 AL["Banquets/Feasts"] = true
 AL["Blue Gems"] = true
 AL["Boots"] = true
+AL["BoP Gems"] = true
 AL["Bracers"] = true
 AL["Chest"] = true
 AL["Cloak"] = true
 AL["Cloaks"] = true
+AL["Cogwheels"] = true
+AL["Darkmoon Cards"] = true
+AL["Draenei"] = true
 AL["Draenor Clans"] = true
+AL["Dwarf"] = true
 AL["Elixirs"] = true
+AL["Firework"] = true
 AL["Flasks"] = true
 AL["Food"] = true
 AL["Food without Buffs"] = true
+AL["Fossil"] = true
 AL["Gloves"] = true
 AL["Glyphs"] = true
 AL["Green Gems"] = true
 AL["Illusions"] = true
+AL["Item Enhancements"] = true
+AL["Mantid"] = true
 AL["Meta Gems"] = true
+AL["Mogu"] = true
 AL["Neck"] = true
 AL["Necklaces"] = true
+AL["Nerubian"] = true
+AL["Night Elf"] = true
 AL["Off-Hands"] = true
 AL["Ogre"] = true
 AL["Orange Gems"] = true
+AL["Orc"] = true
+AL["Other Buffs"] = true
+AL["Pandaren"] = true
 AL["Potions"] = true
+AL["Primary Professions"] = true
 AL["Prismatic Gems"] = true
 AL["Purple Gems"] = true
 AL["Ratings"] = true
@@ -216,11 +268,21 @@ AL["Red Gems"] = true
 AL["Ring"] = true
 AL["Rings"] = true
 AL["Scopes"] = true
+AL["Scrolls"] = true
+AL["Secondary Professions"] = true
 AL["Shields"] = true
+AL["Shirts"] = true
+AL["Special"] = true
 AL["Staves"] = true
 AL["Tinker"] = true
+AL["Tol'vir"] = true
+AL["Training Projects"] = true
+AL["Transmutes"] = true
 AL["Trinkets"] = true
+AL["Troll"] = true
+AL["Vrykul"] = true
 AL["Weapons"] = true
+AL["Weapon Enhancements"] = true
 AL["Yellow Gems"] = true
 
 -- Factions strings
@@ -237,21 +299,35 @@ AL["Season %d"] = true
 AL["Warlords Season %d"] = true
 
 -- World Events strings
+AL["Argent Tournament"] = true
+AL["Azeroth"] = true
 AL["Brew of the Month Club"] = true
 AL["Brewfest"] = true
 AL["Candy"] = true
+AL["Children's Week"] = true
+AL["Common Rewards"] = true
 AL["Darkmoon Faire"] = true
 AL["Day of the Dead"] = true
 AL["Drinks"] = true
 AL["Feast of Winter Veil"] = true
+AL["First Prize"] = true
 AL["Gifts & Presents"] = true
 AL["Hallow's End"] = true
 AL["Harvest Festival"] = true
-AL["Heirloom"] = true
+AL["Love is in the Air"] = true
+AL["Lunar Festival"] = true
+AL["Midsummer Fire Festival"] = true
+AL["Noblegarden"] = true
 AL["Non-Playable Race Masks"] = true
+AL["Permanent/Recurring Events"] = true
 AL["Pilgrim's Bounty"] = true
 AL["Playable Race Masks"] = true
+AL["Rare Fish"] = true
+AL["Rare Fish Rewards"] = true
+AL["Seasonal Events"] = true
 AL["Smokywood Pastures Vendor"] = true
+AL["Special Rewards"] = true
+AL["Stranglethorn Fishing Extravaganza"] = true
 AL["Toys"] = true
 AL["Transmoggable Replicas"] = true
 AL["Vanity Gear"] = true

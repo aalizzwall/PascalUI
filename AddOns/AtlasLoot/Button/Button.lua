@@ -18,6 +18,8 @@ AtlasLoot.Button = Button
 Button.Proto = Proto
 Button.API = API
 
+local GetAlTooltip = AtlasLoot.Tooltip.GetTooltip
+
 -- lua
 local assert, type, tonumber, tostring = assert, type, tonumber, tostring
 local next, pairs = next, pairs
@@ -107,6 +109,20 @@ local function Button_SetNormalTexture(self, texture)
 	self.icon:SetTexture(texture)
 end
 
+local function Button_ForceSetText(self, text, force)
+	if force == true then	-- single force
+		self.forcedTextSet = true
+		self:Ori_SetText(text)
+	elseif force == false then	-- remove text force
+		self.forcedTextSet = false
+	elseif text == nil then	-- reset
+		self:Ori_SetText(nil)
+		self.forcedTextSet = false
+	elseif not self.forcedTextSet then
+		self:Ori_SetText(text)
+	end
+end
+
 --/run AtlasLoot.Button:Create():SetContentTable({ 1, 104939 })
 function Button:Create()
 	BUTTON_COUNT = BUTTON_COUNT + 1
@@ -143,6 +159,13 @@ function Button:Create()
 	button.overlay:SetWidth(26)
 	button.overlay:Hide()
 	
+	button.completed = button:CreateTexture(buttonName.."_completed", "OVERLAY")
+	button.completed:SetPoint("BOTTOMRIGHT", button.icon)
+	button.completed:SetHeight(20)
+	button.completed:SetWidth(20)
+	button.completed:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
+	button.completed:Hide()
+	
 	-- ItemName <FontString>
 	button.name = button:CreateFontString(buttonName.."_name", "ARTWORK", "GameFontNormal")
 	button.name:SetPoint("TOPLEFT", button.icon, "TOPRIGHT", 3, 0)
@@ -150,6 +173,8 @@ function Button:Create()
 	button.name:SetText("")
 	button.name:SetWidth(205)
 	button.name:SetHeight(12)
+	button.name.Ori_SetText = button.name.SetText
+	button.name.SetText = Button_ForceSetText
 
 	-- ExtraText <FontString>
 	button.extra = button:CreateFontString(buttonName.."_extra", "ARTWORK", "GameFontNormalSmall")
@@ -159,6 +184,16 @@ function Button:Create()
 	button.extra:SetWidth(205)
 	button.extra:SetHeight(10)
 	button.extra:SetTextColor(1, 1, 1, 1)
+	button.extra.Ori_SetText = button.extra.SetText
+	button.extra.SetText = Button_ForceSetText
+	
+	-- counter
+	button.count = button:CreateFontString(buttonName.."_count", "ARTWORK", "AtlasLoot_ItemAmountFont")
+	button.count:SetPoint("BOTTOMRIGHT", button.icon, "BOTTOMRIGHT", 0, 1)
+	button.count:SetJustifyH("RIGHT")
+	button.count:SetHeight(15)
+	button.count:SetText(15)
+	button.count:Hide()
 	
 	-- secButton <button>
 	button.secButton = CreateFrame("BUTTON", buttonName.."_secButton", button)
@@ -200,6 +235,21 @@ function Button:Create()
 	button.secButton.overlay:SetHeight(26)
 	button.secButton.overlay:SetWidth(26)
 	button.secButton.overlay:Hide()
+	
+	
+	button.secButton.completed = button.secButton:CreateTexture(buttonName.."_secCompleted", "OVERLAY")
+	button.secButton.completed:SetPoint("BOTTOMRIGHT", button.secButton.icon)
+	button.secButton.completed:SetHeight(20)
+	button.secButton.completed:SetWidth(20)
+	button.secButton.completed:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
+	button.secButton.completed:Hide()
+	
+	button.secButton.count = button.secButton:CreateFontString(buttonName.."_secCount", "ARTWORK", "AtlasLoot_ItemAmountFont")
+	button.secButton.count:SetPoint("BOTTOMRIGHT", button.secButton.icon, "BOTTOMRIGHT", 0, 1)
+	button.secButton.count:SetJustifyH("RIGHT")
+	button.secButton.count:SetHeight(15)
+	button.secButton.count:SetText(15)
+	button.secButton.count:Hide()
 	
 	-- factionIcon
 	button.factionIcon = button:CreateTexture(buttonName.."_factionIcon", button)
@@ -261,6 +311,13 @@ function Button:CreateSecOnly(frame)
 	button.secButton.overlay = button.secButton:CreateTexture(buttonName.."_secButtonOverlay", "OVERLAY")
 	button.secButton.overlay:SetAllPoints(button.secButton)
 	button.secButton.overlay:Hide()
+	
+	button.secButton.count = button.secButton:CreateFontString(buttonName.."_secCount", "ARTWORK", "AtlasLoot_ItemAmountFont")
+	button.secButton.count:SetPoint("BOTTOMRIGHT", button.secButton.icon, "BOTTOMRIGHT", 0, 1)
+	button.secButton.count:SetJustifyH("RIGHT")
+	button.secButton.count:SetHeight(15)
+	button.secButton.count:SetText(15)
+	button.secButton.count:Hide()
 		
 		
 	button.secButton.SetNormalTexture = Button_SetNormalTexture
@@ -296,16 +353,20 @@ function Proto:Clear()
 		self.extra:Show()
 	end
 	
-	if self.IsShown then
+	if self.IsShown and self.icon then
 		self.icon:SetTexture(nil)
 		self.name:SetText(nil)
 		self.extra:SetText(nil)
+		if self.count then self.count:Hide() end
 		self.overlay:SetSize(self.icon:GetWidth(), self.icon:GetHeight())
+		if self.completed and self.completed:IsShown() then self.completed:Hide() end
 		self:Hide()
 	end
 	if self.secButton then
 		self.secButton:SetNormalTexture(nil)
 		self.secButton.overlay:SetSize(self.secButton:GetWidth(), self.secButton:GetHeight())
+		if self.secButton.count then self.secButton.count:Hide() end
+		if self.secButton.completed and self.secButton.completed:IsShown() then self.secButton.completed:Hide() end
 		self.secButton:Hide()
 	end
 	
@@ -359,8 +420,9 @@ function Proto:SetContentTable(tab, formatTab, setOnlySec)
 			if not tab[FACTION_INFO_IS_SET_ID] then
 				horde = ( horde and alliance ) and ( PLAYER_FACTION_ID == 0 and horde or alliance ) or horde and horde or ( alliance and alliance or nil )
 				if type(horde) == "table" then
-					tab[2] = horde[1] or tab[2] 
-					tab[3] = horde[2] or tab[3]
+					for i = 1, #horde do
+						tab[i+1] = horde[i]
+					end
 				elseif horde and horde ~= true then
 					tab[2] = horde
 				end
@@ -372,13 +434,27 @@ function Proto:SetContentTable(tab, formatTab, setOnlySec)
 		end
 	end
 	
+	-- amount setup
+	if tab[ATLASLOOT_IT_AMOUNT1] then
+		self.count:SetText(tab[ATLASLOOT_IT_AMOUNT1])
+		self.count:Show()
+	end
+	if tab[ATLASLOOT_IT_AMOUNT2] then
+		self.secButton.count:SetText(tab[ATLASLOOT_IT_AMOUNT2])
+		self.secButton.count:Show()
+	end
+	
 	
 	local formatType, curContent, buttonType
 	for i = 1, #formatTab do
 		formatType, curContent = formatTab[i], tab[i+1]
 		self.__atlaslootinfo[formatType] = nil
-		
-		if type(curContent) == "string" and not button_types[curContent] then
+
+		if formatType == "Name" and curContent then	-- force namechange
+			self.name:SetText(curContent, true)
+		elseif formatType == "Description" and curContent then -- force description change
+			self.extra:SetText(curContent, true)
+		elseif type(curContent) == "string" and not button_types[curContent] then
 			local found = false
 			for j=1, #button_types_index do
 				buttonType = button_types[ button_types_index[j] ]
@@ -462,6 +538,7 @@ function Proto:SetExtraType(typ, val)
 		--else
 			self.__atlaslootinfo.extraType = { typ, val }
 		--end
+		self.enhancedDesc.ttInfo = typ
 		extra_button_types[typ].OnSet(self, self.enhancedDesc)
 	end
 end
@@ -488,6 +565,7 @@ local EnhancedDescriptionProto = {
 		self:Hide()
 		self.contentSize = 0
 		self.info = nil
+		self.ttInfo = nil
 		if self.removerInfo then
 			self.removerInfo[1](self.removerInfo[2])
 			self.removerInfo = nil
@@ -572,14 +650,26 @@ local EnhancedDescriptionProto = {
 	end
 }
 
+local function enhancedDescription_OnEnter(self)
+	if not self.ttInfo or not extra_button_types[self.ttInfo].OnEnter then return end
+	local tooltip = GetAlTooltip() 
+	tooltip:SetOwner(self, "ANCHOR_RIGHT", -(self:GetWidth() * 0.5), 24)
+	extra_button_types[self.ttInfo].OnEnter(self, tooltip)
+	tooltip:Show()
+end
+
+local function enhancedDescription_OnLeave(self)
+	if not self.ttInfo or not extra_button_types[self.ttInfo].OnEnter then return end
+	GetAlTooltip():Hide()
+end
+
 function Proto:AddEnhancedDescription()
 	if self.enhancedDesc then return end
 	local desc = getEnhancedDescription("desc")
 	if not desc then
 		desc = CreateFrame("FRAME")
-		
-		--desc:SetScript("OnEnter", function() print"OnEnter" end)
-		--desc:SetScript("OnLeave", function() print"OnLeave" end)
+		desc:SetScript("OnEnter", enhancedDescription_OnEnter)
+		desc:SetScript("OnLeave", enhancedDescription_OnLeave)
 		
 		desc.content = {}
 		

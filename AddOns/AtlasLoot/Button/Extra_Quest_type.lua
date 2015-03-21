@@ -27,7 +27,7 @@ local function SetQuestQuery(name, frame, remover)
 	if not frame.info or ( remover ~= nil and frame.removerInfo and frame.removerInfo[2] ~= remover ) then return end
 	Cache[frame.cacheTyp] = { name, tonumber(frame.typ) or 0 }
 	SetQuest(name, Cache[frame.cacheTyp][2], frame)
-	frame.info = nil
+	--frame.info = nil
 	frame.typ = nil
 	frame.cacheTyp = nil
 	frame.removerInfo = nil
@@ -37,6 +37,7 @@ function Quest.OnSet(mainButton, descFrame)
 	local typeVal = mainButton.__atlaslootinfo.extraType[2]
 	if Cache[typeVal] then
 		SetQuest(Cache[typeVal][1], Cache[typeVal][2], descFrame)
+		descFrame.info = typeVal
 	else
 		descFrame.cacheTyp = typeVal
 		if type(typeVal) == "string" then
@@ -50,4 +51,10 @@ function Quest.OnSet(mainButton, descFrame)
 		end
 		return
 	end
+end
+
+
+function Quest.OnEnter(descFrame, tooltip)
+	if not descFrame.info then return end
+	tooltip:SetHyperlink("quest:"..descFrame.info)
 end

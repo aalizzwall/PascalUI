@@ -1,19 +1,17 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: Bagnon
 ## Author: Tuller & Jaliborc (João Cardoso)
 ## Notes: Single window displays for your inventory and bank
-## Title-zhTW: |cFF2DA267[背包]|r |cFF99FF66[Bagnon]|r 背包整合
-## Notes-zhTW: 功能強大的整合背包。
-## SavedVariablesPerCharacter: BagnonFrameSettings
-## SavedVariables: BagnonGlobalSettings
+## SavedVariables: Bagnon_Sets
 
 ## OptionalDeps: BagBrother, ItemRack, Wardrobe, WoWUnit
-## Version: 6.0.15
+## Version: 6.1.0
 
 libs\libs.xml
-localization\localization.xml
-main.lua
 
-api\api.xml
-settings\settings.xml
+common\localization\localization.xml
+common\core\core.xml
+common\components\components.xml
+
 components\components.xml
+main.lua

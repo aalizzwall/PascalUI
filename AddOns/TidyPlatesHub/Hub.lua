@@ -161,12 +161,12 @@ Plate Show, Fade In Animation
     -- Enemy
 	panel.ColorEnemyBarMode =  CreateQuickDropdown(objectName.."ColorEnemyBarMode", "敵方血條顏色:", EnemyBarModes, 1, AlignmentColumn, panel.HealthBarLabel)
 	panel.ColorEnemyNameMode =  CreateQuickDropdown(objectName.."ColorEnemyNameMode", "敵方姓名顏色:", NameColorModes, 1, AlignmentColumn, panel.ColorEnemyBarMode)
-	panel.ColorEnemyStatusTextMode =  CreateQuickDropdown(objectName.."ColorEnemyStatusTextMode", "敵方血條上文字:", TextModes, 1, AlignmentColumn, panel.ColorEnemyNameMode)
+	panel.ColorEnemyStatusTextMode =  CreateQuickDropdown(objectName.."ColorEnemyStatusTextMode", "敵方血條上的文字:", TextModes, 1, AlignmentColumn, panel.ColorEnemyNameMode)
 
 	-- Friendly
 	panel.ColorFriendlyBarMode =  CreateQuickDropdown(objectName.."ColorFriendlyBarMode", "友方血條顏色:", FriendlyBarModes, 1, AlignmentColumn, panel.HealthBarLabel, OffsetColumnB)
 	panel.ColorFriendlyNameMode =  CreateQuickDropdown(objectName.."ColorFriendlyNameMode", "友方姓名顏色:", NameColorModes, 1, AlignmentColumn, panel.ColorFriendlyBarMode, OffsetColumnB)
-	panel.ColorFriendlyStatusTextMode =  CreateQuickDropdown(objectName.."ColorFriendlyStatusTextMode", "友方血條上文字:", TextModes, 1, AlignmentColumn, panel.ColorFriendlyNameMode, OffsetColumnB)
+	panel.ColorFriendlyStatusTextMode =  CreateQuickDropdown(objectName.."ColorFriendlyStatusTextMode", "友方血條上的文字:", TextModes, 1, AlignmentColumn, panel.ColorFriendlyNameMode, OffsetColumnB)
 
 	-- Other
 	panel.TextShowLevel = CreateQuickCheckbutton(objectName.."TextShowLevel", "顯示等級", AlignmentColumn, panel.ColorFriendlyStatusTextMode, 0)
@@ -184,7 +184,7 @@ Plate Show, Fade In Animation
 	panel.HeadlineEnemyColor = CreateQuickDropdown(objectName.."HeadlineEnemyColor", "敵方血條顏色:", NameColorModes, 1, AlignmentColumn, panel.StyleEnemyMode)	-- |cffee9900Text-Only Style
 	panel.HeadlineFriendlyColor = CreateQuickDropdown(objectName.."HeadlineFriendlyColor", "友方血條顏色:", NameColorModes, 1, AlignmentColumn, panel.StyleFriendlyMode, OffsetColumnB)	-- |cffee9900Text-Only Style
 
-	panel.TextPlateFieldMode =  CreateQuickDropdown(objectName.."TextPlateFieldMode", "血條上文字:", TextPlateFieldModes, 1, AlignmentColumn, panel.HeadlineEnemyColor )	-- |cffee9900Text-Only Style
+	panel.TextPlateFieldMode =  CreateQuickDropdown(objectName.."TextPlateFieldMode", "血條上的文字:", TextPlateFieldModes, 1, AlignmentColumn, panel.HeadlineEnemyColor )	-- |cffee9900Text-Only Style
 
 
 	------------------------------

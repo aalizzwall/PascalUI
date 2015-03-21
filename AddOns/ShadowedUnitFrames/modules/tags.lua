@@ -1,4 +1,3 @@
--- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}, powerMap = {}, moduleKey = "tags"}
 local tagPool, functionPool, temp, regFontStrings, powerMap = {}, {}, {}, {}, Tags.powerMap
 local L = ShadowUF.L
@@ -181,7 +180,10 @@ local function createTagFunction(tags, resetCache)
 				
 				functionPool[tag] = cachedFunc
 			end
+		else
+			frequencyCache[tag] = Tags.defaultFrequents[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].frequency
 		end
+
 
 		-- Figure out the lowest frequency rate we update at
 		if( frequencyCache[tag] ) then
@@ -290,27 +292,25 @@ function ShadowUF:Hex(r, g, b)
 end
 
 function ShadowUF:FormatLargeNumber(number)
-	if( number < 99999 ) then
+	if( number < 9999 ) then
 		return number
+	elseif( number < 999999 ) then
+		return string.format("%.1fk", number / 1000)
 	elseif( number < 99999999 ) then
-		return string.format("%.1f萬", number / 10000)
-	elseif( number < 9999999999 ) then
-		return string.format("%.2f億", number / 100000000)
+		return string.format("%.2fm", number / 1000000)
 	end
 	
-	return string.format("%d億", number / 100000000)
+	return string.format("%dm", number / 1000000)
 end
 
 function ShadowUF:SmartFormatNumber(number)
 	if( number < 999999 ) then
 		return number
 	elseif( number < 99999999 ) then
-		return string.format("%.1f萬", number / 10000)
-	elseif( number < 9999999999 ) then
-		return string.format("%.2f億", number / 100000000)
+		return string.format("%.2fm", number / 1000000)
 	end
 	
-	return string.format("%d億", number / 100000000)
+	return string.format("%dm", number / 1000000)
 end
 
 function ShadowUF:GetClassColor(unit)

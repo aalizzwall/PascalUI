@@ -4,9 +4,21 @@ local data = AtlasLoot.ItemDB:Add(addonname, 6)
 
 local AL = AtlasLoot.Locales
 
-local RF_DIFF = data:AddDifficulty(AL["Raid Finder"], nil, nil, 17)
-local NORMAL_DIFF = data:AddDifficulty(AL["Normal"], nil, nil, 1)
-local NORMAL_RAID_DIFF = data:AddDifficulty(AL["Normal"], nil, nil, 14)
+local RF_DIFF = data:AddDifficulty(AL["Raid Finder"], "LFRWithPreset", {
+	Item = {
+		item1bonus = nil,
+		item2bonus = "RaidWarforged",
+		autoCompleteItem2 = true,
+	},
+}, 17)
+local NORMAL_DIFF = data:AddDifficulty(AL["Normal"], "n", nil, 1)
+local NORMAL_RAID_DIFF = data:AddDifficulty(AL["Normal"], "NormalRaidWithPreset", {
+	Item = {
+		item1bonus = nil,
+		item2bonus = "RaidWarforged",
+		autoCompleteItem2 = true,
+	},
+}, 14)
 local NORMAL_AUCH_DIFF = data:AddDifficulty(AL["Normal"], "AuchWithPreset", {
 	Item = {
 		item1bonus = "Auch",
@@ -37,7 +49,7 @@ local NORMAL_DUNGEON_DIFF = data:AddDifficulty(AL["Normal"], "DungeonWithPreset"
 		item2bonus = "Dungeon",
 	},
 })
-local HEROIC_DIFF = data:AddDifficulty(AL["Heroic"])
+local HEROIC_DIFF = data:AddDifficulty(AL["Heroic"], "h", nil, 2)
 local HEROIC_DUNGEON_DIFF = data:AddDifficulty(AL["Heroic"], "HeroicDungeonWithPreset", {
 	Item = {
 		item1bonus = "HCDungeon",
@@ -45,15 +57,15 @@ local HEROIC_DUNGEON_DIFF = data:AddDifficulty(AL["Heroic"], "HeroicDungeonWithP
 		autoCompleteItem2 = true,
 	},
 })
-local HEROIC_PRE_DIFF = data:AddDifficulty(AL["Heroic"], "heroicWithPreset", {
+local HEROIC_PRE_DIFF = data:AddDifficulty(AL["Heroic"], "HeroicWithPreset", {
 	Item = {
 		item1bonus = "HeroicRaid",
 		item2bonus = "HeroicRaidWarforged",
 		autoCompleteItem2 = true,
 	},
 }, 15)
-local MYTHIC_DIFF = data:AddDifficulty(AL["Mythic"], nil, nil, 16)
-local MYTHIC_PRE_DIFF = data:AddDifficulty(AL["Mythic"], "myhticWithPreset", {
+local MYTHIC_DIFF = data:AddDifficulty(AL["Mythic"], "m", nil, 16)
+local MYTHIC_PRE_DIFF = data:AddDifficulty(AL["Mythic"], "MyhticWithPreset", {
 	Item = {
 		item1bonus = "MythicRaid",
 		item2bonus = "MythicRaidWarforged",
@@ -63,7 +75,7 @@ local MYTHIC_PRE_DIFF = data:AddDifficulty(AL["Mythic"], "myhticWithPreset", {
 
 local NORMAL_ITTYPE = data:AddItemTableType("Item", "Item")
 local RAID_ITTYPE = data:AddItemTableType("Item", "Item") -- Normal, Thunder-/Warforged...
-local AC_ITTYPE = data:AddItemTableType("Achievement")
+local AC_ITTYPE = data:AddItemTableType("Achievement", "Item")
 
 local DUNGEON_CONTENT = data:AddContentType(AL["Dungeons"], ATLASLOOT_DUNGEON_COLOR)
 local RAID_CONTENT = data:AddContentType(AL["Raids"], ATLASLOOT_RAID_COLOR)
@@ -361,6 +373,11 @@ data["Auchindoun"] = {
 				{ 218, "ac9552" },
 			},
 		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
+		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
 	}
@@ -601,6 +618,11 @@ data["BloodmaulSlagMines"] = {
 				{ 223, "ac9008" },
 			},
 		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
+		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
 	}
@@ -790,6 +812,11 @@ data["GrimrailDepot"] = {
 				{ 206, "114107:0", false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Core of Iron
 				{ 217, "ac9052" },
 			},
+		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
 		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
@@ -1032,6 +1059,11 @@ data["IronDocks"] = {
 				{ 218, "ac9082" },
 			},
 		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
+		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
 	}
@@ -1270,6 +1302,11 @@ data["ShadowmoonBurialGrounds"] = {
 				{ 220, "ac9054" },
 				{ 221, "ac9026" },
 			},
+		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
 		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
@@ -1511,6 +1548,11 @@ data["Skyreach"] = {
 				{ 224, "ac8844" },
 				{ 225, "ac9036" },
 			},
+		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
 		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
@@ -1804,6 +1846,11 @@ data["TheEverbloom"] = {
 				{ 224, "ac9223" },
 			},
 		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
+		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
 	}
@@ -1918,6 +1965,7 @@ data["UpperBlackrockSpire"] = {
 			},
 			[HEROIC_DUNGEON_DIFF] = {
 				GetItemsFromDiff = NORMAL_DUNGEON_DIFF,
+				{ 130, "ac9058" },
 			},
 		},
 		{	--UBRSTharbek
@@ -2097,6 +2145,11 @@ data["UpperBlackrockSpire"] = {
 				{ 218, "ac9057" },
 			},
 		},
+		{	--Challenge Mode Gear
+			name = AL["Challenge Mode Gear"],
+			ExtraList = true,
+			[NORMAL_DIFF] = "AtlasLoot_Collections:CMGEAR:1",
+		},
 		WOD_DUNGEON_HERO_AC_TABLE,
 		WOD_GLORY_OF_THE_HERO_AC_TABLE,
 	}
@@ -2233,6 +2286,7 @@ data["BlackrockFoundry"] = {
 				{ 17, 116316 },	-- Captured Flickerspark
 				{ 19, 116385 },	-- Magma Monsoon Mace
 				{ 20, 116384 },	-- Steelbringer's Polished Shield
+				{ 22, 115493, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Flamebender's Tome
 			},
 			[NORMAL_RAID_DIFF] = {
 				{ 1, 113916 },	-- Charbreath Firecloak
@@ -2253,12 +2307,13 @@ data["BlackrockFoundry"] = {
 				{ 20, 113920 },	-- Dagger of Blazing Radiance
 				{ 21, 113918 },	-- Molten Edge Eviscerator
 				{ 22, 113913 },	-- Ka'graz's Burning Blade
-				{ 24, "ac8929" },
+				{ 24, 115493, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Flamebender's Tome
+				{ 26, "ac8929" },
 			},
 			[HEROIC_PRE_DIFF] = NORMAL_RAID_DIFF,
 			[MYTHIC_PRE_DIFF] = {
 				GetItemsFromDiff = NORMAL_RAID_DIFF,
-				{ 25, "ac8932" },
+				{ 27, "ac8932" },
 			},
 		},
 		{	--BFHansgarFranzok
@@ -2347,6 +2402,7 @@ data["BlackrockFoundry"] = {
 				{ 17, 116315 },	-- Heart of the Fury [Needs Name Change]
 				{ 19, 116382 },	-- Spire of Pyroclastic Flame
 				{ 20, 116379 },	-- Flickering Lantern Wisp
+				{ 22, 115479, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Heart of the Fury
 			},
 			[NORMAL_RAID_DIFF] = {
 				{ 1, 113887 },	-- Bracers of Spattered Steel
@@ -2364,12 +2420,13 @@ data["BlackrockFoundry"] = {
 				{ 18, 119313, false },	-- Leggings of the Iron Vanquisher
 				{ 20, 113886 },	-- Crescent of Living Magma
 				{ 21, 113885 },	-- Mouth of The Fury
-				{ 23, "ac8930" },
+				{ 23, 115479, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Heart of the Fury
+				{ 25, "ac8930" },
 			},
 			[HEROIC_PRE_DIFF] = NORMAL_RAID_DIFF,
 			[MYTHIC_PRE_DIFF] = {
 				GetItemsFromDiff = NORMAL_RAID_DIFF,
-				{ 24, "ac8970" },
+				{ 26, "ac8970" },
 			},
 		},
 		{	--BFKromog
@@ -2427,6 +2484,7 @@ data["BlackrockFoundry"] = {
 				{ 16, 116312 },	-- Sorka's Ear Collection
 				{ 17, 116314 },	-- Blackheart Enforcer's Medallion
 				{ 19, 116390 },	-- Battle Medic's Wand
+				{ 21, 115494, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Draenic Thaumaturgical Orb
 			},
 			[NORMAL_RAID_DIFF] = {
 				{ 1, 113972 },	-- Cloak of Sanguine Terror
@@ -2446,12 +2504,13 @@ data["BlackrockFoundry"] = {
 				{ 20, 113966 },	-- Gar'an's Brutal Spearlauncher
 				{ 21, 113973 },	-- Koloch Na, the Blood Feast
 				{ 22, 113965 },	-- Sorka's Chainfist
-				{ 24, "ac8984" },
+				{ 24, 115494, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Draenic Thaumaturgical Orb
+				{ 26, "ac8984" },
 			},
 			[HEROIC_PRE_DIFF] = NORMAL_RAID_DIFF,
 			[MYTHIC_PRE_DIFF] = {
 				GetItemsFromDiff = NORMAL_RAID_DIFF,
-				{ 25, "ac8972" },
+				{ 27, "ac8972" },
 			},
 		},
 		{	--BFBlackhand
@@ -2501,11 +2560,25 @@ data["BlackrockFoundry"] = {
 			name = AL["Trash Mobs"],
 			ExtraList = true,
 			[NORMAL_RAID_DIFF] = {
+				{ 1, 119332 },	-- Bracers of Darkened Skies
+				{ 2, 119342 },	-- Furnace Stoker's Footwraps
+				{ 3, 119333 },	-- Bracers of Shattered Limbs
+				{ 4, 119340 },	-- Iron-Flecked Sandals
+				{ 5, 119334 },	-- Bracers of Callous Disregard
+				{ 6, 119339 },	-- Treads of the Veteran Smith
+				{ 7, 119331 },	-- Bracers of Visceral Force
+				{ 8, 119341 },	-- Doomslag Greatboots
 			},
-			[HEROIC_DIFF] = {
-			},
-			[MYTHIC_DIFF] = {
-			},
+			[HEROIC_PRE_DIFF] = NORMAL_RAID_DIFF,
+			[MYTHIC_PRE_DIFF] = NORMAL_RAID_DIFF,
+		},
+		{	--Tier 17 Sets
+			name = format(AL["Tier %d Sets"], 17),
+			ExtraList = true,
+			[RF_DIFF] = "AtlasLoot_Collections:TIERSETS:1:rf",
+			[NORMAL_RAID_DIFF] = "AtlasLoot_Collections:TIERSETS:1:n",
+			[HEROIC_PRE_DIFF] = "AtlasLoot_Collections:TIERSETS:1:h",
+			[MYTHIC_PRE_DIFF] = "AtlasLoot_Collections:TIERSETS:1:m",
 		},
 		WOD_RAID1_AC_TABLE,
 	},
@@ -2518,7 +2591,7 @@ data["Draenor"] = {
 	items = {
 		{	--DrovtheRuiner
 			EncounterJournalID = 1291,
-			[NORMAL_DIFF] = {
+			[NORMAL_RAID_DIFF] = {
 				{ 1, 115425 },	-- Quadripedal Grips
 				{ 2, 115429 },	-- Belt of Singing Hooves
 				{ 3, 115426 },	-- Grips of Natural Fury
@@ -2537,7 +2610,7 @@ data["Draenor"] = {
 		},
 		{	--Rukhmar
 			EncounterJournalID = 1262,
-			[NORMAL_DIFF] = {
+			[NORMAL_RAID_DIFF] = {
 				{ 1, 115433 },	-- Solarflame Legwraps
 				{ 2, 120111 },	-- Featherflame Sandals
 				{ 3, 115434 },	-- Down-Lined Leggings
@@ -2557,7 +2630,7 @@ data["Draenor"] = {
 		},
 		{	--TarlnatheAgeless
 			EncounterJournalID = 1211,
-			[NORMAL_DIFF] = {
+			[NORMAL_RAID_DIFF] = {
 				{ 1, 120091 },	-- Robes of the Ageless
 				{ 2, 115425 },	-- Quadripedal Grips
 				{ 3, 115429 },	-- Belt of Singing Hooves
@@ -2763,7 +2836,7 @@ data["Highmaul"] = {
 				{ 19, 116367 },	-- Shield-Shatter Longbow
 				{ 20, 116368 },	-- Polearm of Expulsion
 				{ 21, 116366 },	-- Magic-Breaker Greatsword
-				{ 23, 115288, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Felbreaker's Tome
+				{ 23, 115288, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Felbreaker's Tome
 			},
 			[NORMAL_RAID_DIFF] = {
 				{ 1, 113847 },	-- Cloak of Searing Shadows
@@ -2799,7 +2872,7 @@ data["Highmaul"] = {
 				{ 17, 116280 },	-- Seal of Arcane Wrath
 				{ 19, 116372 },	-- Imperator's Warstaff
 				{ 20, 116373 },	-- Mirrorshield of Arcane Fortification
-				{ 22, 115289, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Sigil of the Sorcerer King
+				{ 22, 115289, false, [ATLASLOOT_IT_FILTERIGNORE] = true },	-- Sigil of the Sorcerer King
 				{ 24, "ac8988" },
 			},
 			[NORMAL_RAID_DIFF] = {
@@ -2831,11 +2904,18 @@ data["Highmaul"] = {
 			name = AL["Trash Mobs"],
 			ExtraList = true,
 			[NORMAL_RAID_DIFF] = {
+				{ 1, 119343 },	-- Eye-Blinder Greatcloak
+				{ 2, 119347 },	-- Gill's Glorious Windcloak
+				{ 3, 119346 },	-- Kyu-Sy's Tarflame Doomcloak
+				{ 4, 119344 },	-- Magic-Breaker Cape
+				{ 5, 119345 },	-- Milenah's Intricate Cloak
+				{ 16, 119336 },	-- Cord of Winsome Sorrows
+				{ 17, 119335 },	-- Eyeripper Girdle
+				{ 18, 119338 },	-- Belt of Inebriated Sorrows
+				{ 19, 119337 },	-- Ripswallow Plate Belt
 			},
-			[HEROIC_DIFF] = {
-			},
-			[MYTHIC_DIFF] = {
-			},
+			[HEROIC_PRE_DIFF] = NORMAL_RAID_DIFF,
+			[MYTHIC_PRE_DIFF] = NORMAL_RAID_DIFF,
 		},
 		WOD_RAID1_AC_TABLE,
 	},

@@ -2,8 +2,6 @@
 ## Title: InspectEquip
 ## Notes: Shows where the equipment of inspected users or yourself is from.
 ## Notes-deDE: Zeigt an, wo die Ausrüstung betrachteter Spieler (oder deine eigene) her ist.
-## Title-zhTW: |cFF0099FF[介面]|r |cFF9966FF[InspectEquip]|r 裝備出處整理 
-## Notes-zhTW: 觀察玩家時，將裝備等級分類顯示，並顯示裝備的出處。
 ## Author: emelio
 ## Version: 2.0.9
 ## OptionalDeps: Ace3, LibBabble-Zone-3.0, LibBabble-Boss-3.0, LibItemUpgradeInfo-1.0, Examiner, Outfitter, Links, LinkWrangler, AtlasLoot

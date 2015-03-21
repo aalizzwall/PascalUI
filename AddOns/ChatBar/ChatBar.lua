@@ -10,6 +10,23 @@ Graphics: Vynn, Zseton
 -Button Bar for openning chat messages of each type.
 
 Change Log:
+v 3.10 (yarko)
+- Replaced usage of Blizzard flash function with alpha animations on flash texture to solve taint problem
+v 3.9 (yarko)
+- toc to 50400
+v 3.8 (yarko)
+- Updated Traditional Chinese localization file
+- toc to 50300
+v 3.7 (yarko)
+- Updated Russian localization file
+- toc to 50200
+v 3.6 (yarko)
+- Chatbar now clears text the user might have typed before clicking on whisper buttons and puts it back when clicking elsewhere
+v 3.5 (yarko)
+- Whisper now defaults to the name last whispered if no whisper has been received
+- Adjusted for new raid and group API functions
+- Adjusted for new instance chat features
+- toc to 50100
 v3.4
 -Fixed 'show text' and 'large buttons' settings to correctly save between sessions
 v3.3
@@ -124,14 +141,12 @@ ChatBar_AlternateDisplay_Sliding = false;
 ChatBar_LargeButtons_Sliding = false;
 ChatBar_HideSpecialChannels = true;
 ChatBar_StoredStickies = { };
-ChatBar_HiddenButtons = {
-	["悄悄話"] = true,
-	["Battle.net密語"] = true,
-	["LFGForwarder3"] = true,
-};
+ChatBar_HiddenButtons = { };
 ChatBar_AltArtDirs = { "SkinSolid", "SkinGlass", "SkinSquares" };
 ChatBar_ChannelBindings = {};
 ChatBar_ButtonScale = 1;
+
+local lastText = nil;
 
 --------------------------------------------------
 -- Button Functions
@@ -143,15 +158,23 @@ function ChatBar_UseChatType(chatType, target)
 	local editBox = ChatEdit_ChooseBoxForSend();
 	local chatFrame = editBox.chatFrame;
 	
+	if (lastText) then
+		editBox:SetText(lastText);
+		lastText = nil;
+	end
+	
 	local chatType, channelIndex = string.gmatch(chatType, "([^%d]*)([%d]*)$")();
 	
 	if chatType == "WHISPER" or chatType == "BN_WHISPER" then
-		target = ChatEdit_GetLastToldTarget();
-		if target == "" or not target then
-			target = ChatEdit_GetLastTellTarget();
+		--target = ChatEdit_GetLastToldTarget();
+		target = ChatEdit_GetLastTellTarget();
+		if not target or target == "" then
+			--target = ChatEdit_GetLastTellTarget();
+			target = ChatEdit_GetLastToldTarget();
 		end
-		if target == "" or not target then
+		if not target or target == "" then
 			--start new (bn) whisper
+			lastText = editBox:GetText();
 			ChatFrame_OpenChat("/w ", chatFrame);
 			ChatEdit_UpdateHeader(editBox);
 		else
@@ -224,7 +247,7 @@ function ChatBar_ChannelShortText(index)
 		if ChatBar_TextChannelNumbers then
 			return channelNum;
 		else
-			return string.utf8sub(channelName, 1, 1);
+			return strsub(channelName,1,CHATBAR_CHAR_LENGTH);
 		end
 	end
 end
@@ -359,6 +382,10 @@ hooksecurefunc("BNSendConversationMessage", function(target, text)
 	ChatBar_SetLastBNConversationOutTarget(target);
 end);
 
+hooksecurefunc("ChatEdit_OnEscapePressed", function()
+	lastText = nil;
+end);
+
 --Check to see if there's an existing conversation (only persists on reloads)
 function GetFristBNConversation()
 	local conversationID = nil;
@@ -416,7 +443,7 @@ ChatBar_ChatTypes = {
 		blockable = true,
 		blockExtra = {"RAID_LEADER"};
 		show = function()
-			return (IsInRaid() and (GetNumGroupMembers() > 0)) and (not ChatBar_HiddenButtons[CHAT_MSG_RAID]);
+			return IsInRaid() and (not ChatBar_HiddenButtons[CHAT_MSG_RAID]);
 		end
 	},
 	{
@@ -425,18 +452,18 @@ ChatBar_ChatTypes = {
 		text = function() return CHAT_MSG_RAID_WARNING; end,
 		click = ChatBar_StandardButtonClick,
 		show = function()
-			return (IsInRaid() and (GetNumGroupMembers() > 0)) and (UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")) and (not ChatBar_HiddenButtons[CHAT_MSG_RAID_WARNING]);
+			return IsInRaid() and (UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")) and (not ChatBar_HiddenButtons[CHAT_MSG_RAID_WARNING]);
 		end
 	},
 	{
 		type = "INSTANCE_CHAT",
 		shortText = function() return CHATBAR_INSTANCE_CHAT_ABRV; end,
-		text = function() return INSTANCE_CHAT_MESSAGE; end,		
+		text = function() return INSTANCE_CHAT; end,
 		click = ChatBar_StandardButtonClick,
 		blockable = true,
 		blockExtra = {"INSTANCE_CHAT_LEADER"};
 		show = function()
-			return (select(2, IsInInstance()) == "pvp") or (IsInGroup(LE_PARTY_CATEGORY_INSTANCE) or IsInRaid(LE_PARTY_CATEGORY_INSTANCE)) and (not ChatBar_HiddenButtons[CHAT_MSG_INSTANCE_CHAT]);
+			return IsInInstance() and (not ChatBar_HiddenButtons[CHAT_MSG_INSTANCE_CHAT]);
 		end
 	},
 	{
@@ -580,7 +607,8 @@ ChatBar_BarTypes = {};
 function ChatBar_OnLoad(self)
 	self:RegisterEvent("UPDATE_CHAT_COLOR");
 	self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE");
-    self:RegisterEvent("GROUP_ROSTER_UPDATE")
+	self:RegisterEvent("PARTY_MEMBERS_CHANGED");
+	self:RegisterEvent("RAID_ROSTER_UPDATE");
 	self:RegisterEvent("PLAYER_GUILD_UPDATE");
 	self:RegisterEvent("VARIABLES_LOADED");
 	self:RegisterForDrag("LeftButton");
@@ -608,14 +636,23 @@ function ChatBar_OnEvent(self, event, ...)
 		self.count = 0;
 	elseif event == "PARTY_MEMBERS_CHANGED" then
 		self.count = 0;
-    elseif event == "GROUP_ROSTER_UPDATE" then
-        self.count = 0;
+	elseif event == "RAID_ROSTER_UPDATE" then
+		self.count = 0;
+	elseif event == "PLAYER_GUILD_UPDATE" then
+		self.count = 0;
+	elseif event == "CHAT_MSG_CHANNEL" and type(chanNum) == "number" then
+		if ChatBar_BarTypes["CHANNEL"..chanNum] then
+			ChatBar_Flash(_G["ChatBarFrameButton"..ChatBar_BarTypes["CHANNEL"..chanNum].."Flash"]);
+			-- Buhbye taint? looks like it
+			--UIFrameFlash(_G["ChatBarFrameButton"..ChatBar_BarTypes["CHANNEL"..chanNum].."Flash"], .5, .5, 1.1);
+		end
 	elseif event == "CHAT_MSG_BN_CONVERSATION" then
 		ChatBar_SetLastBNConversationInTarget(chanNum);
 	elseif event == "VARIABLES_LOADED" then
 		
 		ChatBar_UpdateArt();
 		ChatBar_UpdateAllButtonOrientation();
+		ChatBar_UpdateButtonFlashing();
 		ChatBar_UpdateBarBorder();
 		ChatBar_UpdateChannelBindings();
 		
@@ -629,6 +666,11 @@ function ChatBar_OnEvent(self, event, ...)
 			if enabled then
 				ChatTypeInfo[chatType].sticky = enabled;
 			end
+		end
+	else
+		if ChatBar_BarTypes[strsub(event,10)] then
+			ChatBar_Flash(_G["ChatBarFrameButton"..ChatBar_BarTypes[strsub(event,10)].."Flash"]);
+			--UIFrameFlash(_G["ChatBarFrameButton"..ChatBar_BarTypes[strsub(event,10)].."Flash"], .5, .5, 1.1);
 		end
 	end
 end
@@ -799,6 +841,12 @@ function ChatBar_OnDragStop(self)
 	ChatBar_UpdateOrientationPoint(true);
 end
 
+function ChatBar_Flash(frame)
+	if (not frame.animFade:IsPlaying()) then
+		frame.animFade:Play();
+	end
+end
+
 --------------------------------------------------
 -- DropDown Menu
 --------------------------------------------------
@@ -898,6 +946,16 @@ function ChatBar_CreateFrameMenu()
 	end
 	UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL);
 	
+	--Button Flashing
+	local info = {};
+	info.text = CHATBAR_MENU_MAIN_BUTTONFLASHING;
+	info.func = ChatBar_Toggle_ButtonFlashing;
+	info.keepShownOnClick = 1;
+	if (ChatBar_ButtonFlashing) then
+		info.checked = 1;
+	end
+	UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL);
+
 	--Bar Border
 	local info = {};
 	info.text = CHATBAR_MENU_MAIN_BARBORDER;
@@ -1316,7 +1374,7 @@ function ChatBar_UpdateButtons()
 		local size = (buttonIndex-1)*(CHAT_BAR_BUTTON_SIZE*ChatBar_ButtonScale)+CHAT_BAR_EDGE_SIZE*2;
 		ChatBarFrame:SetWidth(CHAT_BAR_BUTTON_SIZE);
 		if ChatBarFrame:GetTop() then
- 			ChatBar_StartSlidingTo(size);
+			ChatBar_StartSlidingTo(size);
 		else
 			ChatBarFrame:SetHeight(size);
 		end
@@ -1407,6 +1465,39 @@ function ChatBar_UpdateAllButtonOrientation()
 	ChatBar_ForAllButtons(ChatBar_UpdateButtonOrientation, 2);
 end
 
+function ChatBar_UpdateButtonFlashing()
+	local frame = ChatBarFrame;
+	if ChatBar_ButtonFlashing then
+		frame:RegisterEvent("CHAT_MSG_SAY");
+		frame:RegisterEvent("CHAT_MSG_YELL");
+		frame:RegisterEvent("CHAT_MSG_PARTY");
+		frame:RegisterEvent("CHAT_MSG_RAID");
+		frame:RegisterEvent("CHAT_MSG_RAID_WARNING");
+		frame:RegisterEvent("CHAT_MSG_INSTANCE_CHAT");
+		frame:RegisterEvent("CHAT_MSG_GUILD");
+		frame:RegisterEvent("CHAT_MSG_OFFICER");
+		frame:RegisterEvent("CHAT_MSG_WHISPER");
+		frame:RegisterEvent("CHAT_MSG_BN_WHISPER");
+		frame:RegisterEvent("CHAT_MSG_BN_CONVERSATION");
+		frame:RegisterEvent("CHAT_MSG_EMOTE");
+		frame:RegisterEvent("CHAT_MSG_CHANNEL");
+	else
+		frame:UnregisterEvent("CHAT_MSG_SAY");
+		frame:UnregisterEvent("CHAT_MSG_YELL");
+		frame:UnregisterEvent("CHAT_MSG_PARTY");
+		frame:UnregisterEvent("CHAT_MSG_RAID");
+		frame:UnregisterEvent("CHAT_MSG_RAID_WARNING");
+		frame:UnregisterEvent("CHAT_MSG_INSTANCE_CHAT");
+		frame:UnregisterEvent("CHAT_MSG_GUILD");
+		frame:UnregisterEvent("CHAT_MSG_OFFICER");
+		frame:UnregisterEvent("CHAT_MSG_WHISPER");
+		frame:UnregisterEvent("CHAT_MSG_BN_WHISPER");
+		frame:UnregisterEvent("CHAT_MSG_BN_CONVERSATION");
+		frame:UnregisterEvent("CHAT_MSG_EMOTE");
+		frame:UnregisterEvent("CHAT_MSG_CHANNEL");
+	end
+end
+
 function ChatBar_UpdateBarBorder()
 	if ChatBar_BarBorder then
 		ChatBarFrameBackground:Show();
@@ -1436,7 +1527,7 @@ end
 
 function ChatBar_UpdateArt()
 	if type(ChatBar_AltArt) == "boolean" or ChatBar_AltArt == nil or not ChatBar_AltArtDirs[ChatBar_AltArt] then
-		ChatBar_AltArt = 3;
+		ChatBar_AltArt = 1;
 	end
 	local artDir = ChatBar_AltArtDirs[ChatBar_AltArt];
 	
@@ -1540,6 +1631,11 @@ end
 function ChatBar_Toggle_TextOrientation()
 	ChatBar_TextOnButtonDisplay = not ChatBar_TextOnButtonDisplay;
 	ChatBar_UpdateAllButtonOrientation();
+end
+
+function ChatBar_Toggle_ButtonFlashing()
+	ChatBar_ButtonFlashing = not ChatBar_ButtonFlashing;
+	ChatBar_UpdateButtonFlashing();
 end
 
 function ChatBar_Toggle_BarBorder()

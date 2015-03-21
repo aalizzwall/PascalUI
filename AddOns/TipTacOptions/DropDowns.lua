@@ -1,5 +1,3 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("TipTac") 
-
 TipTacDropDowns = {};
 local cfg = TipTac_Config;
 
@@ -79,7 +77,7 @@ local layout_presets = {
 	-- TipTac Layout (New)
 	["TipTac New Style"] = {
 		showTarget = "last",
-		targetYouText = L["<<YOU>>"],
+		targetYouText = "<<YOU>>",
 
 		tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -104,13 +102,13 @@ local layout_presets = {
 		barFontFlags = "OUTLINE",
 		barHeight = 6,
 
-		classification_minus = L["-%s "],
-		classification_trivial = L["~%s "],
-		classification_normal = L["%s "],
-		classification_elite = L["+%s "],
-		classification_worldboss = L["%s|r (Boss) "],
-		classification_rare = L["%s|r (Rare) "],
-		classification_rareelite = L["+%s|r (Rare) "],
+		classification_minus = "-%s ",
+		classification_trivial = "~%s ",
+		classification_normal = "%s ",
+		classification_elite = "+%s ",
+		classification_worldboss = "%s|r (Boss) ",
+		classification_rare = "%s|r (Rare) ",
+		classification_rareelite = "+%s|r (Rare) ",
 
 		overrideFade = true,
 		preFadeTime = 0.1,
@@ -128,7 +126,7 @@ local layout_presets = {
 	-- TipTac Layout (Old)
 	["TipTac Old Style"] = {
 		showTarget = "second",
-		targetYouText = L["<<YOU>>"],
+		targetYouText = "<<YOU>>",
 
 		reactColoredBackdrop = false,
 
@@ -152,13 +150,13 @@ local layout_presets = {
 		barFontFlags = "OUTLINE",
 		barHeight = 6,
 
-		classification_minus = L["-%s "],
-		classification_trivial = L["~%s "],
-		classification_normal = L["%s "],
-		classification_elite = L["+%s "],
-		classification_worldboss = L["%s|r (Boss) "],
-		classification_rare = L["%s|r (Rare) "],
-		classification_rareelite = L["+%s|r (Rare) "],
+		classification_minus = "-%s ",
+		classification_trivial = "~%s ",
+		classification_normal = "%s ",
+		classification_elite = "+%s ",
+		classification_worldboss = "%s|r (Boss) ",
+		classification_rare = "%s|r (Rare) ",
+		classification_rareelite = "+%s|r (Rare) ",
 
 		hideDefaultBar = true,
 		healthBar = true,
@@ -171,7 +169,7 @@ local layout_presets = {
 	-- TipBuddy Layout
 	["TipBuddy"] = {
 		showTarget = "first",
-		targetYouText = L["[YOU]"],
+		targetYouText = "[YOU]",
 
 		tipBackdropBG = "Interface\\Tooltips\\UI-Tooltip-Background",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -194,13 +192,13 @@ local layout_presets = {
 		barFontFlags = "OUTLINE",
 		barHeight = 6,
 
-		classification_minus = L["-%s "],
-		classification_trivial = L["~%s "],
-		classification_normal = L["%s "],
-		classification_elite = L["+%s "],
-		classification_worldboss = L["%s|r (Boss) "],
-		classification_rare = L["%s|r (Rare) "],
-		classification_rareelite = L["+%s|r (Rare) "],
+		classification_minus = "-%s ",
+		classification_trivial = "~%s ",
+		classification_normal = "%s ",
+		classification_elite = "+%s ",
+		classification_worldboss = "%s|r (Boss) ",
+		classification_rare = "%s|r (Rare) ",
+		classification_rareelite = "+%s|r (Rare) ",
 
 		hideDefaultBar = false,
 		healthBar = false,
@@ -210,7 +208,7 @@ local layout_presets = {
 	-- TinyTip Layout
 	["TinyTip"] = {
 		showTarget = "last",
-		targetYouText = L["<<YOU>>"],
+		targetYouText = "<<YOU>>",
 
 		tipBackdropBG = "Interface\\Tooltips\\UI-Tooltip-Background",
 		tipBackdropEdge = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -224,13 +222,13 @@ local layout_presets = {
 		colRace = "|cffddeeaa",
 		colLevel = "|cffffcc00",
 
-		classification_minus = L["Level -%s"],
-		classification_trivial = L["Level ~%s"],
-		classification_normal = L["Level %s"],
-		classification_elite = L["Level %s|cffffcc00 Elite"],
-		classification_worldboss = L["Level %s|cffff0000 Boss"],
-		classification_rare = L["Level %s|cffff66ff Rare"],
-		classification_rareelite = L["Level %s|cffffaaff Rare Elite"],
+		classification_minus = "Level -%s",
+		classification_trivial = "Level ~%s",
+		classification_normal = "Level %s",
+		classification_elite = "Level %s|cffffcc00 Elite",
+		classification_worldboss = "Level %s|cffff0000 Boss",
+		classification_rare = "Level %s|cffff66ff Rare",
+		classification_rareelite = "Level %s|cffffaaff Rare Elite",
 
 		hideDefaultBar = false,
 		healthBar = false,
@@ -240,7 +238,7 @@ local layout_presets = {
 	-- Solid Border Layout
 	["Solid Border"] = {
 		showTarget = "last",
-		targetYouText = L["|cffff0000<<YOU>>"],
+		targetYouText = "|cffff0000<<YOU>>",
 
 		tipBackdropBG = "Interface\\Buttons\\WHITE8X8",
 		tipBackdropEdge = "Interface\\Buttons\\WHITE8X8",
@@ -279,13 +277,13 @@ local layout_presets = {
 		fontFlags = "",
 		fontSizeDelta = 2,
 
-		classification_minus = L["|rLevel -%s"],
-		classification_trivial = L["|rLevel ~%s"],
-		classification_normal = L["|rLevel %s"],
-		classification_elite = L["|rLevel %s (Elite)"],
-		classification_worldboss = L["|rLevel %s (Boss)"],
-		classification_rare = L["|rLevel %s (Rare)"],
-		classification_rareelite = L["|rLevel %s (Rare Elite)"],
+		classification_minus = "|rLevel -%s",
+		classification_trivial = "|rLevel ~%s",
+		classification_normal = "|rLevel %s",
+		classification_elite = "|rLevel %s (Elite)",
+		classification_worldboss = "|rLevel %s (Boss)",
+		classification_rare = "|rLevel %s (Rare)",
+		classification_rareelite = "|rLevel %s (Rare Elite)",
 
 		overrideFade = false,
 		hideWorldTips = false,
@@ -302,12 +300,12 @@ local function LoadLayout_SelectValue(dropDown,entry,index)
 		cfg[name] = value;
 	end
 	TipTac:ApplySettings();
-	dropDown.label:SetText(L["|cff80ff80Layout Loaded"]);
+	dropDown.label:SetText("|cff80ff80Layout Loaded");
 end
 
 local function DeleteLayout_SelectValue(dropDown,entry,index)
 	layout_presets[entry.value] = nil;
-	dropDown.label:SetText(L["|cffff8080Layout Deleted!"]);
+	dropDown.label:SetText("|cffff8080Layout Deleted!");
 end
 
 function TipTacDropDowns.LoadLayout_Init(dropDown,list)
@@ -317,7 +315,7 @@ function TipTacDropDowns.LoadLayout_Init(dropDown,list)
 		tbl = list[#list + 1];
 		tbl.text = name; tbl.value = name;
 	end
-	dropDown.label:SetText(L["|cff00ff00Pick Layout..."]);
+	dropDown.label:SetText("|cff00ff00Pick Layout...");
 end
 
 function TipTacDropDowns.DeleteLayout_Init(dropDown,list)
@@ -327,5 +325,5 @@ function TipTacDropDowns.DeleteLayout_Init(dropDown,list)
 		tbl = list[#list + 1];
 		tbl.text = name; tbl.value = name;
 	end
-	dropDown.label:SetText(L["|cff00ff00Delete Layout..."]);
+	dropDown.label:SetText("|cff00ff00Delete Layout...");
 end

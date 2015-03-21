@@ -9,6 +9,7 @@ object.frame = object.frame or CreateFrame("Frame")
 object.addons = object.addons or {}
 object.events = object.events or {}
 object.onUpdates = object.onUpdates or {}
+object.defaults = object.defaults or {}
 
 local function safecall(object, method, ...)
 	if object[method] then
@@ -16,17 +17,36 @@ local function safecall(object, method, ...)
 	end
 end
 
+local function removeDefaults(tbl, defaults)
+	for k, v in pairs(defaults) do
+		if type(v) == "table" then
+			removeDefaults(tbl[k], v)
+			if not next(tbl[k]) then
+				tbl[k] = nil
+			end
+		elseif v == tbl[k] then
+			tbl[k] = nil
+		end
+	end
+end
+
 object.frame:RegisterEvent("ADDON_LOADED")
+object.frame:RegisterEvent("PLAYER_LOGOUT")
 object.frame:SetScript("OnEvent", function(self, event, ...)
 	if event == "ADDON_LOADED" then
 		local addon = object.addons[...]
 		if addon then
 			safecall(addon, "OnInitialize")
 			addon.OnInitialize = nil
-			for k, module in pairs(addon.modules) do
+			for i, module in addon:IterateModules() do
 				safecall(module, "OnInitialize")
 				module.OnInitialize = nil
 			end
+		end
+	end
+	if event == "PLAYER_LOGOUT" then
+		for tbl, defaults in pairs(object.defaults) do
+			removeDefaults(tbl, defaults)
 		end
 	end
 	for module, eventHandler in pairs(object.events[event]) do
@@ -82,20 +102,49 @@ function Libra:GetAddon(name)
 end
 
 function AddonPrototype:NewModule(name, table)
+	if self:GetModule(name) then
+		error(format("Module '%s' already exists in %s.", name, self.name), 2)
+	end
+	
 	local module = table or {}
 	ObjectEmbed(module)
 	module.name = name
-	self.modules[name] = module
+	tinsert(self.modules, module)
 	safecall(self, "OnModuleCreated", name, module)
 	return module, name
 end
 
 function AddonPrototype:GetModule(name)
-	return self.modules[name]
+	for i, module in self:IterateModules() do
+		if module.name == name then
+			return module
+		end
+	end
 end
 
 function AddonPrototype:IterateModules()
-	return pairs(self.modules)
+	return next, self.modules
+end
+
+local function copyDefaults(src, dst)
+	if not src then return {} end
+	if not dst then dst = {} end
+	for k, v in pairs(src) do
+		if type(v) == "table" then
+			dst[k] = copyDefaults(v, dst[k])
+		elseif type(v) ~= type(dst[k]) then
+			dst[k] = v
+		end
+	end
+	return dst
+end
+
+function AddonPrototype:CreateDB(global, defaults)
+	local db = _G[global]
+	db = copyDefaults(defaults, db)
+	_G[global] = db
+	object.defaults[db] = defaults
+	return db
 end
 
 function ObjectPrototype:RegisterEvent(event, handler)
@@ -136,7 +185,7 @@ end
 for k, v in pairs(object.addons) do
 	AddonEmbed(v)
 	ObjectEmbed(v)
-	for k, v in pairs(v.modules) do
+	for i, v in v:IterateModules() do
 		ObjectEmbed(v)
 	end
 end

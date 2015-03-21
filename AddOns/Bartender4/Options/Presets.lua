@@ -1,6 +1,6 @@
 --[[
 	Copyright (c) 2009, CMTitan
-	Copyright (c) 2009-2012, Hendrik "Nevcairiel" Leppkes < h.leppkes at gmail dot com >
+	Copyright (c) 2009-2015, Hendrik "Nevcairiel" Leppkes < h.leppkes at gmail dot com >
 	Based on Nevcairiel's RepXPBar.lua
 	All rights to be transferred to Nevcairiel upon inclusion into Bartender4.
 	All rights reserved, otherwise.
@@ -48,10 +48,10 @@ local function BuildSingleProfile()
 	config.actionbars[2].enabled = false
 	config.actionbars[3].padding = 5
 	config.actionbars[3].rows = 12
-	SetBarLocation( config.actionbars[3], "BOTTOMRIGHT", -82, 610 )
+	SetBarLocation( config.actionbars[3], "BOTTOMRIGHT", -42, 610 )
 	config.actionbars[4].padding = 5
 	config.actionbars[4].rows = 12
-	SetBarLocation( config.actionbars[4], "BOTTOMRIGHT", -42, 610 )
+	SetBarLocation( config.actionbars[4], "BOTTOMRIGHT", -82, 610 )
 	SetBarLocation( config.actionbars[5], "BOTTOM", -232, 94 + dy )
 	SetBarLocation( config.actionbars[6], "BOTTOM", -232, 132 + dy )
 
@@ -82,16 +82,16 @@ local function BuildSingleProfile()
 	end
 
 	config = Bartender4.db:GetNamespace("BlizzardArt").profile
-	config.enabled = false
+	config.enabled = true
 	config.artLayout = "ONEBAR"
 	Bartender4:GetModule("BlizzardArt"):Enable()
 	SetBarLocation( config, "BOTTOM", -256, 47 )
 
 	config = Bartender4.db:GetNamespace("PetBar").profile
 	SetBarLocation( config, "BOTTOM", -164, 164 + dy )
-	end
+end
 
-	local function BuildDoubleProfile()
+local function BuildDoubleProfile()
 	local dy, config
 	dy = 0
 	if not PresetsMod.showRepBar then
@@ -102,7 +102,7 @@ local function BuildSingleProfile()
 	end
 
 	Bartender4.db.profile.blizzardVehicle = true
-	Bartender4.db.profile.outofrange = "button"
+	Bartender4.db.profile.outofrange = "hotkey"
 	Bartender4.db.profile.focuscastmodifier = false
 
 	config = Bartender4.db:GetNamespace("ActionBars").profile
@@ -112,10 +112,10 @@ local function BuildSingleProfile()
 	SetBarLocation( config.actionbars[2], "BOTTOM", 3, 41.75 )
 	config.actionbars[3].padding = 5
 	config.actionbars[3].rows = 12
-	SetBarLocation( config.actionbars[3], "BOTTOMRIGHT", -82, 610 )
+	SetBarLocation( config.actionbars[3], "BOTTOMRIGHT", -42, 610 )
 	config.actionbars[4].padding = 5
 	config.actionbars[4].rows = 12
-	SetBarLocation( config.actionbars[4], "BOTTOMRIGHT", -42, 610 )
+	SetBarLocation( config.actionbars[4], "BOTTOMRIGHT", -82, 610 )
 	config.actionbars[5].padding = 6
 	SetBarLocation( config.actionbars[5], "BOTTOM", 3, 102 + dy )
 	config.actionbars[6].padding = 6
@@ -144,7 +144,7 @@ local function BuildSingleProfile()
 	end
 
 	config = Bartender4.db:GetNamespace("BlizzardArt").profile
-	config.enabled = false
+	config.enabled = true
 	config.artLayout = "TWOBAR"
 	Bartender4:GetModule("BlizzardArt"):Enable()
 	SetBarLocation( config, "BOTTOM", -512, 47 )
@@ -171,7 +171,7 @@ local function BuildBlizzardProfile()
 	end
 
 	Bartender4.db.profile.blizzardVehicle = true
-	Bartender4.db.profile.outofrange = "button"
+	Bartender4.db.profile.outofrange = "hotkey"
 	Bartender4.db.profile.focuscastmodifier = false
 
 	config = Bartender4.db:GetNamespace("ActionBars").profile
@@ -190,11 +190,12 @@ local function BuildBlizzardProfile()
 	SetBarLocation( config.actionbars[6], "BOTTOM", -510, 102 + dy )
 
 	config = Bartender4.db:GetNamespace("BagBar").profile
-	config.onebag = true
-	SetBarLocation( config, "BOTTOM", 463.5, 41.75 )
+	config.onebag = false
+	SetBarLocation( config, "BOTTOM", 345, 38.5 )
 
 	config = Bartender4.db:GetNamespace("MicroMenu").profile
 	config.position.scale = 1.0
+	config.padding = -2
 	SetBarLocation( config, "BOTTOM", 37.5, 41.75 )
 
 	if PresetsMod.showRepBar then
@@ -212,7 +213,7 @@ local function BuildBlizzardProfile()
 	end
 
 	config = Bartender4.db:GetNamespace("BlizzardArt").profile
-	config.enabled = false
+	config.enabled = true
 	Bartender4:GetModule("BlizzardArt"):Enable()
 	SetBarLocation( config, "BOTTOM", -512, 47 )
 

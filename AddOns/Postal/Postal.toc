@@ -1,7 +1,6 @@
 ## Interface: 60000
 ## Version: 3.5.1
 ## Title: Postal
-## Title-zhTW: |cFF0099FF[介面]|r |cFF99BBFF[Postal]|r 信箱增強
 ## Author: Xinhuan
 ## X-Credits: Ammo, Rabbit, Grennon, Mikk
 ## X-Category: Mail

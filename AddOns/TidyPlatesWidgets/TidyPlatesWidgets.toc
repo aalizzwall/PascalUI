@@ -1,8 +1,6 @@
 ## Interface: 60000
 ## Title: Tidy Plates Widgets
 ## Notes: Library of Widgets
-## Title-zhTW: |cFF0099FF[介面]|r |cFFCCBBCC[Tidy Plates]|r 姓名板美化部件
-## Notes-zhTW: Widgets部件函式庫
 ## Dependencies: TidyPlates
 ## SavedVariables: TidyPlatesWidgetData
 

@@ -431,7 +431,7 @@ local options = {
 					end,
 					set = function(info, v)
 						if selectedPreset == v then
-							mod:ApplyPreset("Simple Square")
+							mod:ApplyPreset("Blue Rune Circles")
 						end
 						mod.presets[v] = nil
 						userPresets[v] = nil
@@ -821,7 +821,7 @@ function mod:OnInitialize(profile)
 		profile.borders = {
 			hideBlizzard = true,
 			borders = {},
-			applyPreset = "Simple Square",
+			applyPreset = "Blue Rune Circles",
 			backdrop = {
 				scale = 1,
 				show = false,

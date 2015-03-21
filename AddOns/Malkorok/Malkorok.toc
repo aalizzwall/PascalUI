@@ -1,8 +1,5 @@
 ## Interface: 60000
 ## Title: Malkorok Helper
-## Title-zhTW: |cFF00CCFF[團隊]|r |cFFFF77FF[Malkorok Helper]|r 馬可羅克助手
-## Notes-zhTW: 指令/MAL，選項在ESC→介面→插件→馬可羅克助手。
-## DefaultState: disabled
 ## Author: ykiigor (Афиа @ EU-Howling Fjord)
 ## Notes: /malkorok, /mal
 ## SavedVariables: ExRT

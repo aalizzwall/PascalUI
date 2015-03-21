@@ -1,6 +1,5 @@
-## Interface: 60000
+﻿## Interface: 60000
 ## Title: MinimapButtonBag
-## Title-zhTW: |cFF0099FF[介面]|r |cFF9966FF[MinimapButtonBag]|r MBB地圖按鈕管理
 ## Author: karlsnyder
 ## X-Category: Map
 ## Notes: Cleans up minimap buttons and makes them accessible through a pop out menu!

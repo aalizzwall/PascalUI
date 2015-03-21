@@ -1,7 +1,7 @@
 ﻿local mod = ExtraCD
 
 function mod:GetDataVersion()
-	return 63
+	return 60
 end
 
 function mod:GetSpellData() 
@@ -87,15 +87,33 @@ function mod:GetSpellData()
 		-- type = "spec" 
 		-- spec = {the numbers of the spec(from 1 to 3(4 for druid))}
 		-- druid
-		[68285] = {
+		[34299] = {
 			desc = "",
 			type = "spec",
 			class = "DRUID",
-			spec = {2},
+			spec = {2, 3},
 			cd = 6,
 		}, -- Leader of the Pack
 		
-		--[[--dk
+		-- hunter
+		[56453] = {
+			desc = "",
+			type = "spec",
+			class = "HUNTER",
+			spec = {3},
+			cd = 10,
+		}, -- Lock and Load
+		
+		-- priest
+		[47755] = {
+			desc = "",
+			type = "spec",
+			class = "PRIEST",
+			spec = {1},
+			cd = 12,
+		}, -- Rapture
+		
+		--dk
 		[96171] = {
 			desc = "",
 			type = "spec",
@@ -103,8 +121,8 @@ function mod:GetSpellData()
 			spec = {1},
 			cd = 45,
 			duration = 8,
-		}, -- Will of the Necropolis
-		]]
+		}, -- Will of the Necropolis	
+		
 		--warlock
 		[104317] = {
 			desc = "",
@@ -113,7 +131,14 @@ function mod:GetSpellData()
 			spec = {2},
 			cd = 20,
 		}, --
-			
+		[34936] = {
+			desc = "",
+			type = "spec",
+			class = "WARLOCK",
+			spec = {3},
+			cd = 8,
+		}, --
+		
 
 		
 	-- item
@@ -181,53 +206,53 @@ function mod:GetSpellData()
 			duration = 10,
 		}, -- Jina-Kang, Kindness of Chi-Ji
 		
-		-- SoO 6.02ALL/ WH(Warforged Heroic)/ H/ WN/ N/ F(Flexible)/ LFR  
+		-- SoO WH(Warforged Heroic)/ H/ WN/ N/ F(Flexible)/ LFR  
 		[148911] = {
 			desc = "",
 			type = "item",
-			item = {112849, 105607, 104611, 105358, 102304, 104860, 105109},
+			item = {105607, 104611, 105358, 102304, 104860, 105109},
 			cd = 115,
 			duration = 20,
 		}, -- Thok's Acid-Grooved Tooth
 		[146250] = {
 			desc = "",
 			type = "item",
-			item = {112850, 105609, 104613, 105360, 102305, 104862, 105111},
+			item = {105609, 104613, 105360, 102305, 104862, 105111},
 			cd = 115,
 			duration = 20,
 		}, -- Thok's Tail Tip
 		[146046] = {
 			desc = "",
 			type = "item",
-			item = {112426, 105422, 104426, 105173, 102293, 104675, 104924},
+			item = {105422, 104426, 105173, 102293, 104675, 104924},
 			cd = 115,
 			duration = 20,
 		}, -- Purified Bindings of Immerseus
 		[146308] = {
 			desc = "",
 			type = "item",
-			item = {112947, 105472, 104476, 105223, 102292, 104725, 104974},
+			item = {105472, 104476, 105223, 102292, 104725, 104974},
 			cd = 115,
 			duration = 20,
 		}, -- Assurance of Consequence
 		[146314] = {
 			desc = "",
 			type = "item",
-			item = {112948, 105474, 104478, 105225, 102299, 104727, 104976},
+			item = {105474, 104478, 105225, 102299, 104727, 104976},
 			cd = 115,
 			duration = 20,
 		}, -- Prismatic Prison of Pride
 		[146245] = {
 			desc = "",
 			type = "item",
-			item = {112703, 105491, 104495, 105242, 102298, 104744, 104993},
+			item = {105491, 104495, 105242, 102298, 104744, 104993},
 			cd = 55,
 			duration = 10,
 		}, -- Evil Eye of Galakras
 		[148903] = {
 			desc = "",
 			type = "item",
-			item = {112754, 105527, 104531, 105278, 102301, 104780, 105029},
+			item = {105527, 104531, 105278, 102301, 104780, 105029},
 			cd = 0,
 			ppm = 0.92,
 			duration = 10,
@@ -235,7 +260,7 @@ function mod:GetSpellData()
 		[148906] = {
 			desc = "",
 			type = "item",
-			item = {112768, 105540, 104544, 105291, 102300, 104793, 105042},
+			item = {105540, 104544, 105291, 102300, 104793, 105042},
 			cd = 0,
 			ppm = 0.92,
 			duration = 10,
@@ -243,7 +268,7 @@ function mod:GetSpellData()
 		[148908] = {
 			desc = "",
 			type = "item",
-			item = {112778, 105549, 104553, 105300, 102294, 104802, 105051},
+			item = {105549, 104553, 105300, 102294, 104802, 105051},
 			cd = 0,
 			ppm = 0.92,
 			duration = 10,
@@ -251,21 +276,21 @@ function mod:GetSpellData()
 		[148897] = {
 			desc = "",
 			type = "item",
-			item = {112815, 105572, 104576, 105323, 102303, 104825, 105074},
+			item = {105572, 104576, 105323, 102303, 104825, 105074},
 			cd = 85,
 			duration = 15,
 		}, -- Frenzied Crystal of Rage
 		[148896] = {
 			desc = "",
 			type = "item",
-			item = {112825, 105580, 104584, 105331, 102302, 104833, 105082},
+			item = {105580, 104584, 105331, 102302, 104833, 105082},
 			cd = 85,
 			duration = 15,
 		}, -- Sigil of Rampage
 		[146310] = {
 			desc = "",
 			type = "item",
-			item = {112879, 105612, 104616, 105363, 102311, 104865, 105114},
+			item = {105612, 104616, 105363, 102311, 104865, 105114},
 			cd = 0,
 			ppm = 1,
 			duration = 10,
@@ -273,7 +298,7 @@ function mod:GetSpellData()
 		[146317] = {
 			desc = "",
 			type = "item",
-			item = {112877, 105615, 104619, 105366, 102309, 104868, 105117},
+			item = {105615, 104619, 105366, 102309, 104868, 105117},
 			cd = 0,
 			ppm = 0.92,
 			modifier = 'haste',
@@ -282,7 +307,7 @@ function mod:GetSpellData()
 		[146285] = {
 			desc = "",
 			type = "item",
-			item = {112913, 105632, 104636, 105383, 102308, 104885, 105134},
+			item = {105632, 104636, 105383, 102308, 104885, 105134},
 			cd = 0,
 			ppm = 0.92,
 			duration = 10,
@@ -290,7 +315,7 @@ function mod:GetSpellData()
 		[146184] = {
 			desc = "",
 			type = "item",
-			item = {112938, 105648, 104652, 105399, 102310, 104901, 105150},
+			item = {105648, 104652, 105399, 102310, 104901, 105150},
 			cd = 0,
 			ppm = 0.92,
 			duration = 10,
@@ -298,7 +323,7 @@ function mod:GetSpellData()
 		[148899] = {
 			desc = "",
 			type = "item",
-			item = {112503, 105459, 104463, 105210, 102295, 104712, 104961},
+			item = {105459, 104463, 105210, 102295, 104712, 104961},
 			cd = 85,
 			duration = 15,
 		}, -- Fusion-Fire Core
@@ -721,7 +746,7 @@ function mod:GetSpellData()
 		-- items = {all items of this set(including all difficulties)}
 		-- piece = the minimum pieces of the item set to get the bonus
 		
-		--[[
+		
 		[102545] = {
 			type = "itemset",
 			class = "DRUID",
@@ -729,7 +754,7 @@ function mod:GetSpellData()
 			piece = 4,
 			cd = 30,
 		}, -- Feral PVP 4P
-		]]
+		
 
 	-- enchant
 		-- type = "enchant",
@@ -773,7 +798,30 @@ function mod:GetSpellData()
 		}, -- Black Magic
 		
 		-- MOP
-		
+		[125488] = {
+			desc = "",
+			type = "enchant",
+			enchant = {4893, 4116, 3728},
+			slot = 15,
+			cd = 60,
+			duration = 15
+		},	-- Darkglow Embroidery
+		[125489] = {
+			desc = "",
+			type = "enchant",
+			enchant = {4894, 3730, 4118},
+			slot = 15,
+			cd = 60,
+			duration = 15
+		}, -- Swordguard Embroidery
+		[125487] = {
+			desc = "",
+			type = "enchant",
+			enchant = {4892, 3722, 4115},
+			slot = 15,
+			cd = 55,
+			duration = 15
+		}, -- Lightweave Embroidery
 		[104993] = {
 			desc = "",
 			type = "enchant",

@@ -1,4 +1,3 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("TipTac") 
 --[[
 	### Rev 04 ###
 	- Dropdowns can now overwrite the label in their init and selectvalue funcs.
@@ -208,7 +207,7 @@ local function DropDown_InitSelectedItem(self,selectedValue)
 	if (not menu) then
 		CreateMenu();
 	end
-	self.label:SetText(L["|cff00ff00Select Value..."]);
+	self.label:SetText("|cff00ff00Select Value...");
 	InitMenu(self,self.InitFunc,self.SelectValueFunc);
 	self.SelectedValue = selectedValue;
 	for _, table in ipairs(menu.list) do

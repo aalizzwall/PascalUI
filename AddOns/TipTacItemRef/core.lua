@@ -1,5 +1,3 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("TipTacItemRef") 
-
 local modName = ...;
 local ttif = CreateFrame("Frame",modName);
 
@@ -152,78 +150,13 @@ local function SetHyperlink_Hook(self,refString)
 end
 
 -- HOOK: SetUnitAura
-local function GetUnitColorText(unit)
-	local ClassColor = RAID_CLASS_COLORS[select(2,UnitClass(unit))] or NORMAL_FONT_COLOR;
-	if (not UnitIsPlayer(unit)) then ClassColor = NORMAL_FONT_COLOR end;
-	return format("|cFF%s%s|r",format("%02X%02X%02X",ClassColor.r*255,ClassColor.g*255,ClassColor.b*255),UnitName(unit));
-end
-
-local function GetCasterColorAndName(unit)
-	local PartyUnitID = unit:match("^party(%d+)$");
-	local RaidUnitID = unit:match("^raid(%d+)$");
-	local PartyPetID = unit:match("^partypet(%d+)$");
-	local RaidPetID = unit:match("^raidpet(%d+)$");
-	local text = GetUnitColorText(unit);
-	if unit == "vehicle" then
-		text = text..format("(%s)", GetUnitColorText("player"));
-	elseif unit == "target" then
-		text = text..format("(%s)", L["|cFFFFFFFFTarget|r"]);
-	elseif PartyUnitID then
-		text = text..format("(%s)", L["|cFFFFFFFFYour Group|r"]);
-	elseif RaidUnitID then
-		text = text..format(L["(Group %s)"], "|cFFFFFFFF"..select(3,GetRaidRosterInfo(RaidUnitID)).."|r");
-	elseif PartyPetID then
-		text = text..format("(%s:%s)", L["|cFFFFFFFFYour Group|r"], GetUnitColorText("party"..PartyPetID));
-	elseif RaidPetID then
-		text = text..format(L["(Group %s:%s)"], "|cFFFFFFFF"..select(3,GetRaidRosterInfo(RaidPetID)).."|r", GetUnitColorText("raid"..RaidPetID));
-	end
-	return text;
-end
-
-local function SetUnitBuff_Hook(self,unit,index,filter)
-	if (cfg.if_enable) and (cfg.if_showAuraCaster) then
-		local _, _, _, _, _, _, _, casterUnit, _, _, spellID = UnitBuff(unit,index,filter);
-		if spellID then
-			if (UnitExists(casterUnit)) then
-				r,g,b=unpack(cfg.if_infoColor)
-				self:AddDoubleLine(format(L["SpellID: %d"],spellID),format(L["Cast By: %s"],GetCasterColorAndName(casterUnit) or UNKNOWN),r,g,b,r,g,b);
-				self:Show();
-			else
-				self:AddLine(format(L["SpellID: %d"],spellID),unpack(cfg.if_infoColor));
-				self:Show();
-			end
-		end	
-	end
-end
-local function SetUnitDebuff_Hook(self,unit,index,filter)
-	if (cfg.if_enable) and (cfg.if_showAuraCaster) then
-		local _, _, _, _, _, _, _, casterUnit, _, _, spellID = UnitDebuff(unit,index,filter);
-		if spellID then
-			if (UnitExists(casterUnit)) then
-				r,g,b=unpack(cfg.if_infoColor)
-				self:AddDoubleLine(format(L["SpellID: %d"],spellID),format(L["Cast By: %s"],GetCasterColorAndName(casterUnit) or UNKNOWN),r,g,b,r,g,b);
-				self:Show();
-			else
-				self:AddLine(format(L["SpellID: %d"],spellID),unpack(cfg.if_infoColor));
-				self:Show();
-			end
-		end	
-	end
-end
-
 local function SetUnitAura_Hook(self,unit,index,filter)
 	if (cfg.if_enable) and (cfg.if_showAuraCaster) then
-		local _, _, _, _, _, _, _, casterUnit, _, _, spellID = UnitAura(unit,index,filter);
-		if spellID then
-			if (UnitExists(casterUnit)) then
-				r,g,b=unpack(cfg.if_infoColor)
-				self:AddDoubleLine(format(L["SpellID: %d"],spellID),format(L["Cast By: %s"],GetCasterColorAndName(casterUnit) or UNKNOWN),r,g,b,r,g,b);
-				self:Show();
-			else
-				self:AddLine(format(L["SpellID: %d"],spellID),unpack(cfg.if_infoColor));
-				self:Show();
-			end
-		end	
+		local _, _, _, _, _, _, _, casterUnit = UnitAura(unit,index,filter);
+		if (UnitExists(casterUnit)) then
+			self:AddLine(format("<Applied by %s>",UnitName(casterUnit) or UNKNOWNOBJECT),unpack(cfg.if_infoColor));
+			self:Show();
+		end
 	end
 end
 
@@ -325,7 +258,7 @@ end
 -- item
 function TipTypeFuncs:item(link,linkToken,id)
 	local _, _, itemRarity, itemLevel, _, _, _, itemStackCount, _, itemTexture = GetItemInfo(link);
-	upgradeitemLevel, upgrade = GetUpgradedItemLevelFromItemLink(link);
+	itemLevel = GetUpgradedItemLevelFromItemLink(link);
 	-- Icon
 	if (self.SetIconTextureAndText) and (not cfg.if_smartIcons or SmartIconEvaluation(self,linkToken)) then
 		local count = (itemStackCount and itemStackCount > 1 and (itemStackCount == 0x7FFFFFFF and "#" or itemStackCount) or "");
@@ -337,33 +270,14 @@ function TipTypeFuncs:item(link,linkToken,id)
 	end
 	-- level + id
 	if (cfg.if_showItemLevelAndId) then
-		local upable = nil
-		local text = nil
-		local TTTRANSMOGRIFIED  = "^" .. gsub(TRANSMOGRIFIED, "%%s", "(.+)")
-		local trans = nil
 		for i = 2, self:NumLines() do
 			local line = _G[self:GetName().."TextLeft"..i];
 			if (line and (line:GetText() or ""):match(ITEM_LEVEL.."+")) then
-				text = string.gsub(line:GetText(), ".*物品等級", "");
-				line:SetText(nil);
-				--line:SetText(string.gsub(text, "物品等級", ""));
-			elseif (line and (line:GetText() or ""):match("提升等級".."+")) then
-				upable = string.gsub(line:GetText(), ".*提升等級:", "");
-				line:SetText(nil);
-			elseif (line and (line:GetText() or ""):match(TTTRANSMOGRIFIED)) then
-				--line:SetText(strmatch(line:GetText(), TTTRANSMOGRIFIED))
-				trans = strmatch(line:GetText(), TTTRANSMOGRIFIED)
 				line:SetText(nil);
 				break;
 			end
 		end
-		if (trans) then
-			self:AddLine(format("|cFF23A0FD目前塑形: |cFFFF80FF%s|r",trans or 0),unpack(cfg.if_infoColor));
-		end
-		if (upable and text) then
-			self:AddLine(format("|cFF23A0FD目前等級: |cFFFBC400%s|r, |cFF23A0FD升級次數: |cFFFBC400%s|r",text or 0,upable or 0),unpack(cfg.if_infoColor));
-		end
-		self:AddLine(format("|cFF23A0FD物品等級: |cFF23A0FD%d|r, |cFF23A0FD物品編號: |cFF23A0FD%d|r",itemLevel or 0,id or 0),unpack(cfg.if_infoColor));
+		self:AddLine(format("ItemLevel: %d, ItemID: %d",itemLevel or 0,id or 0),unpack(cfg.if_infoColor));
 		self:Show();
 	end
 end
@@ -377,7 +291,7 @@ function TipTypeFuncs:spell(link,linkToken,id)
 	end
 	-- Id + Rank
 	if (cfg.if_showSpellIdAndRank) then
-		self:AddLine(L["SpellID: "]..id..(rank and rank ~= "" and ", "..rank or ""),unpack(cfg.if_infoColor));
+		self:AddLine("SpellID: "..id..(rank and rank ~= "" and ", "..rank or ""),unpack(cfg.if_infoColor));
 		self:Show();
 	end
   	-- TipType Border Color -- Disable these 3 lines to color border. Az: Work into options?
@@ -389,7 +303,7 @@ end
 -- quest
 function TipTypeFuncs:quest(link,linkToken,id,level)
 	if (cfg.if_showQuestLevelAndId) then
-		self:AddLine(format(L["QuestLevel: %d, QuestID: %d"],level or 0,id or 0),unpack(cfg.if_infoColor));
+		self:AddLine(format("QuestLevel: %d, QuestID: %d",level or 0,id or 0),unpack(cfg.if_infoColor));
 		self:Show();
 	end
   	-- TipType Border Color -- Disable these 3 lines to color border. Az: Work into options?
@@ -402,12 +316,11 @@ end
 function TipTypeFuncs:currency(link,linkToken,id)
 	local _, currencyCount, currencyTexture = GetCurrencyInfo(id);
 	if (self.SetIconTextureAndText) then
-		self:SetIconTextureAndText(currencyTexture,currencyCount);
-		--self:SetIconTextureAndText("Interface\\Icons\\"..currencyTexture,currencyCount);
+		self:SetIconTextureAndText(currencyTexture,currencyCount);	-- As of 5.2 GetCurrencyInfo() now returns full texture path. Previously you had to prefix it with "Interface\\Icons\\"
 	end
 	-- ID
 	if (cfg.if_showCurrencyId) then
-		self:AddLine(format(L["CurrencyID: %d"],id),unpack(cfg.if_infoColor));
+		self:AddLine(format("CurrencyID: %d",id),unpack(cfg.if_infoColor));
 		self:Show();
 	end
   	-- TipType Border Color -- Disable these 3 lines to color border. Az: Work into options?
@@ -466,7 +379,7 @@ function TipTypeFuncs:achievement(link,linkToken,id,guid,completed,month,day,yea
 		self:AddLine(BoolCol(completed)..progressText);
 		if (#criteriaList > 0) then
 			self:AddLine(" ");
-			self:AddLine(L["Achievement Criteria |cffffffff"]..criteriaComplete.."|r of |cffffffff"..#criteriaList);
+			self:AddLine("Achievement Criteria |cffffffff"..criteriaComplete.."|r of |cffffffff"..#criteriaList);
 			local r1, g1, b1, r2, g2, b2;
 			local myDone1, myDone2;
 			for i = 1, #criteriaList, 2 do
@@ -487,7 +400,7 @@ function TipTypeFuncs:achievement(link,linkToken,id,guid,completed,month,day,yea
 		end
 		-- ID + Category
 		if (cfg.if_showAchievementIdAndCategory) then
-			self:AddLine(format(L["AchievementID: %d, CategoryID: %d"],id or 0,catId or 0),unpack(cfg.if_infoColor));
+			self:AddLine(format("AchievementID: %d, CategoryID: %d",id or 0,catId or 0),unpack(cfg.if_infoColor));
 		end
 		-- Icon
 		if (self.SetIconTextureAndText) then
@@ -504,7 +417,7 @@ function TipTypeFuncs:achievement(link,linkToken,id,guid,completed,month,day,yea
 		-- ID + Category
 		if (cfg.if_showAchievementIdAndCategory) then
 			local catId = GetAchievementCategory(id);
-			self:AddLine(format(L["AchievementID: %d, CategoryID: %d"],id or 0,catId or 0),unpack(cfg.if_infoColor));
+			self:AddLine(format("AchievementID: %d, CategoryID: %d",id or 0,catId or 0),unpack(cfg.if_infoColor));
 			self:Show();
 		end
 	end

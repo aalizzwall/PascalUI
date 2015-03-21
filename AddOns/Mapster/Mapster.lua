@@ -60,7 +60,7 @@ local db = setmetatable({}, {
 
 local format = string.format
 
-local wmfOnShow, wmfStartMoving, wmfStopMoving, dropdownScaleFix, WorldMapFrameGetAlpha
+local wmfOnShow, wmfStartMoving, wmfStopMoving, dropdownScaleFix
 
 function Mapster:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("MapsterDB", defaults, true)
@@ -97,8 +97,8 @@ function Mapster:OnEnable()
 
 	-- remove from UI panel system
 	UIPanelWindows["WorldMapFrame"] = nil
-	WorldMapFrame:SetAttribute("UIPanelLayout-area", nil)
-	WorldMapFrame:SetAttribute("UIPanelLayout-enabled", false)
+	SetUIPanelAttribute(WorldMapFrame, "area", nil)
+	SetUIPanelAttribute(WorldMapFrame, "enabled", false)
 	WorldMapFrame:HookScript("OnShow", wmfOnShow)
 	BlackoutWorld:Hide()
 
@@ -121,9 +121,6 @@ function Mapster:OnEnable()
 	WorldMapFrameSizeDownButton:SetScript("OnClick", function() Mapster:ToggleMapSize() end)
 	WorldMapFrameSizeUpButton:SetScript("OnClick", function() Mapster:ToggleMapSize() end)
 	self:RawHook("WorldMapFrame_ToggleWindowSize", "ToggleMapSize", true)
-
-	WorldMapFrame.GetAlphaMapster = WorldMapFrame.GetAlpha
-	WorldMapFrame.GetAlpha = WorldMapFrameGetAlpha
 
 	tinsert(UISpecialFrames, "WorldMapFrame")
 
@@ -378,13 +375,6 @@ function wmfOnShow(frame)
 	Mapster:SetStrata()
 	Mapster:SetScale()
 	realZone = getZoneId()
-
-	if IsPlayerMoving() and GetCVarBool("mapFade") then
-		if not WorldMapFrame:IsMouseOver() then
-			WorldMapFrame:SetAlpha(WORLD_MAP_MIN_ALPHA)
-		end
-		WorldMapFrame.fadeOut = true
-	end
 end
 
 function wmfStartMoving(frame)
@@ -424,18 +414,6 @@ end
 
 function Mapster:SetAlpha()
 	WorldMapFrame:SetAlpha(db.alpha)
-	WORLD_MAP_MAX_ALPHA =  db.alpha
-end
-
-function WorldMapFrameGetAlpha(frame)
-	local alpha = WorldMapFrame:GetAlphaMapster()
-	if abs(alpha - WORLD_MAP_MAX_ALPHA) < 0.05 then
-		return WORLD_MAP_MAX_ALPHA
-	end
-	if abs(alpha - WORLD_MAP_MIN_ALPHA) < 0.05 then
-		return WORLD_MAP_MIN_ALPHA
-	end
-	return alpha
 end
 
 function Mapster:SetArrow()

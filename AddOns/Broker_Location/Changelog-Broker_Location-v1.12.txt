@@ -1,0 +1,12 @@
+tag v1.12
+cc4fa2bdea7c453545d524e9afd5aa72b108b6a5
+iceeagle <ciprianmihai.coman@gmail.com>
+2014-10-16 11:32:54 +0300
+
+tag as v1.12
+
+
+--------------------
+
+iceeagle:
+	- update for WoD beta

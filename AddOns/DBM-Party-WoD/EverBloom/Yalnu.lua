@@ -1,8 +1,7 @@
 local mod	= DBM:NewMod(1210, "DBM-Party-WoD", 5, 556)
 local L		= mod:GetLocalizedStrings()
-local sndWOP	= mod:SoundMM("SoundWOP")
 
-mod:SetRevision(("$Revision: 11483 $"):sub(12, -3))
+mod:SetRevision(("$Revision: 12458 $"):sub(12, -3))
 mod:SetCreatureID(83846)
 mod:SetEncounterID(1756)
 mod:SetZone()
@@ -18,19 +17,23 @@ mod:RegisterEventsInCombat(
 local warnColossalBlow			= mod:NewSpellAnnounce(169179, 2)
 local warnEntanglement			= mod:NewSpellAnnounce(169251, 3)
 local warnFontofLife			= mod:NewSpellAnnounce(169120, 3)--Does this need a switch warning too?
-local warnGenesis				= mod:NewSpellAnnounce(169251, 4)
+local warnGenesis				= mod:NewSpellAnnounce(169613, 4)
 
-local specWarnColossalBlow		= mod:NewSpecialWarningSpell(169179, nil, nil, nil, 2)
-local specWarnEntanglement		= mod:NewSpecialWarningSwitch(169251, mod:IsDps())
-local specWarnGenesis			= mod:NewSpecialWarningSwitch(169613)--Everyone. "Switch" is closest generic to "run around stomping flowers"
+local specWarnColossalBlow		= mod:NewSpecialWarningDodge(169179, nil, nil, nil, 2)
+local specWarnEntanglement		= mod:NewSpecialWarningSwitch(169251, "Dps")
+local specWarnGenesis			= mod:NewSpecialWarningSpell(169613)--Everyone. "Switch" is closest generic to "run around stomping flowers"
 
 --Only timers that were consistent, others are all over the place.
 local timerFontOfLife			= mod:NewNextTimer(15, 169120)
-local timerGenesis				= mod:NewNextTimer(60, 169613)
+local timerGenesis				= mod:NewCastTimer(17, 169613)
+local timerGenesisCD			= mod:NewNextTimer(60.5, 169613)
+
+local voiceColossalBlow			= mod:NewVoice(169179)
+local voiceGenesis				= mod:NewVoice(169613)
 
 function mod:OnCombatStart(delay)
-	timerFontOfLife:Start(-delay)
-	timerGenesis:Start(30-delay)
+	--timerFontOfLife:Start(-delay)
+	--timerGenesisCD:Start(25-delay)
 end
 
 function mod:SPELL_CAST_START(args)
@@ -38,17 +41,13 @@ function mod:SPELL_CAST_START(args)
 	if spellId == 169179 then
 		warnColossalBlow:Show()
 		specWarnColossalBlow:Show()
-		sndWOP:Play("shockwave")
+		voiceColossalBlow:Play("shockwave")
 	elseif spellId == 169613 then
 		warnGenesis:Show()
 		specWarnGenesis:Show()
 		timerGenesis:Start()
-		sndWOP:Play("169613")
-		sndWOP:Schedule(10, "countfive")
-		sndWOP:Schedule(11, "countfour")
-		sndWOP:Schedule(12, "countthree")
-		sndWOP:Schedule(13, "counttwo")
-		sndWOP:Schedule(14, "countone")
+		timerGenesisCD:Start()
+		voiceGenesis:Play("169613")
 	end
 end
 

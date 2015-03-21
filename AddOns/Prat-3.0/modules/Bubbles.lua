@@ -186,8 +186,9 @@ Prat:AddModuleToLoad(function()
 	icons_name = "显示团队图标", -- Needs review
 	module_desc = "聊天泡泡相关自定义", -- Needs review
 	module_name = "泡泡", -- Needs review
-	-- shorten_desc = "",
-	-- shorten_name = "",
+	shorten_desc = [=[缩短每个聊天气泡至一行. 鼠标移过气泡时展开文本.
+]=], -- Needs review
+	shorten_name = "缩短气泡", -- Needs review
 }
 
   )
@@ -346,9 +347,9 @@ Prat:AddModuleToLoad(function()
 
       -- If the mouse is over, then expand the bubble
       if frame:IsMouseOver() then
-        fontstring:SetWordWrap(1)
+        fontstring:SetWordWrap(true)
       elseif wrap == 1 then
-        fontstring:SetWordWrap(0)
+        fontstring:SetWordWrap(false)
       end
     end
 

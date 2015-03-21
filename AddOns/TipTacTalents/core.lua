@@ -1,5 +1,3 @@
-local L = LibStub("AceLocale-3.0"):GetLocale("TipTacTalents") 
-
 local gtt = GameTooltip;
 
 -- String Constants
@@ -159,7 +157,7 @@ gtt:HookScript("OnTooltipSetUnit",function(self,...)
 			ttt.nextUpdate = (lastInspectTime > INSPECT_FREQ) and INSPECT_DELAY or (INSPECT_FREQ - lastInspectTime + INSPECT_DELAY);
 			ttt:Show();
 			if (not cacheLoaded) then
-				self:AddLine(TALENTS_PREFIX..L["Loading..."]);
+				self:AddLine(TALENTS_PREFIX.."Loading...");
 			end
 		end
 	end

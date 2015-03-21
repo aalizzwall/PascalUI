@@ -24,6 +24,15 @@ L= DBM:GetModLocalization(1216)
 -----------------------
 L= DBM:GetModLocalization(1225)
 
+-------------
+--  Auch Trash  --
+-------------
+L = DBM:GetModLocalization("AuchTrash")
+
+L:SetGeneralLocalization({
+	name =	"Trash von Auchindoun"
+})
+
 -----------------------
 -- <<<Bloodmaul Slag Mines>>> --
 -----------------------
@@ -47,6 +56,15 @@ L= DBM:GetModLocalization(887)
 -----------------------
 L= DBM:GetModLocalization(889)
 
+-------------
+--  BSM Trash  --
+-------------
+L = DBM:GetModLocalization("BSMTrash")
+
+L:SetGeneralLocalization({
+	name =	"Trash der Blutschlägermine"
+})
+
 -----------------------
 -- <<<Grimrail Depot>>> --
 -----------------------
@@ -61,14 +79,23 @@ L= DBM:GetModLocalization(1138)
 L= DBM:GetModLocalization(1163)
 
 L:SetWarningLocalization({
-	warnGrenadeDown			= "%s dropped",
-	warnMortarDown			= "%s dropped"
+	warnGrenadeDown			= "%s aufsammelbar",
+	warnMortarDown			= "%s aufsammelbar"
 })
 
 -----------------------
 -- Thunderlord General --
 -----------------------
 L= DBM:GetModLocalization(1133)
+
+-------------
+--  GRD Trash  --
+-------------
+L = DBM:GetModLocalization("GRDTrash")
+
+L:SetGeneralLocalization({
+	name =	"Trash des Grimmgleisdepots"
+})
 
 -----------------------
 -- <<<Iron Docks>>> --
@@ -117,7 +144,7 @@ L= DBM:GetModLocalization(1208)
 L= DBM:GetModLocalization(1209)
 
 L:SetMiscLocalization({
-	Pull	= "Xeri'tac begins unleashing Toxic Spiderlings down on you!"
+	Pull	= "Xeri'tac lässt Giftspinnlinge auf Euch niederregnen!"
 })
 
 -----------------------
@@ -171,6 +198,25 @@ L= DBM:GetModLocalization(967)
 -----------------------
 L= DBM:GetModLocalization(968)
 
+L:SetWarningLocalization({
+	warnAdd			= DBM_CORE_AUTO_ANNOUNCE_TEXTS.spell:format("Schildkonstrukt der Himmelsnadel"),
+	specWarnAdd		= DBM_CORE_AUTO_SPEC_WARN_TEXTS.switch:format("Schildkonstrukt der Himmelsnadel")
+})
+
+L:SetOptionLocalization({
+	warnAdd			= "Zeige Warnung für Schildkonstrukt der Himmelsnadel",
+	specWarnAdd		= "Spezialwarnung für Zielwechsel auf Schildkonstrukt der Himmelsnadel"
+})
+
+-------------
+--  Skyreach Trash  --
+-------------
+L = DBM:GetModLocalization("SkyreachTrash")
+
+L:SetGeneralLocalization({
+	name =	"Trash der Himmelsnadel"
+})
+
 -----------------------
 -- <<<Upper Blackrock Spire>>> --
 -----------------------
@@ -200,9 +246,18 @@ L= DBM:GetModLocalization(1229)
 L= DBM:GetModLocalization(1234)
 
 L:SetTimerLocalization({
-	timerZaelaReturns	= "Zaela Returns"
+	timerZaelaReturns	= "Zaela kommt zurück"
 })
 
 L:SetOptionLocalization({
-	timerZaelaReturns	= "Show timer for when Zaela returns"
+	timerZaelaReturns	= "Zeige Zeit bis Zaela zurückkommt"
+})
+
+-------------
+--  UBRS Trash  --
+-------------
+L = DBM:GetModLocalization("UBRSTrash")
+
+L:SetGeneralLocalization({
+	name =	"Trash der Oberen Schwarzfelsspitze"
 })

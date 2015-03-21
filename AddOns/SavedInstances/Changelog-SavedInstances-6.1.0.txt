@@ -1,0 +1,23 @@
+------------------------------------------------------------------------
+r423 | oscarucb | 2015-02-26 12:03:19 +0000 (Thu, 26 Feb 2015) | 1 line
+Changed paths:
+   A /tags/6.1.0 (from /trunk:422)
+
+Tagging as 6.1.0
+------------------------------------------------------------------------
+r422 | oscarucb | 2015-02-26 11:10:40 +0000 (Thu, 26 Feb 2015) | 3 lines
+Changed paths:
+   M /trunk/SavedInstances.lua
+   M /trunk/SavedInstances.toc
+
+fix ticket 188: lua error on killing Drov
+toc bump
+
+------------------------------------------------------------------------
+r420 | oscarucb | 2015-02-20 18:48:27 +0000 (Fri, 20 Feb 2015) | 2 lines
+Changed paths:
+   M /trunk/SavedInstances.lua
+
+fix LFR: Blackrock Foundry boss display
+
+------------------------------------------------------------------------

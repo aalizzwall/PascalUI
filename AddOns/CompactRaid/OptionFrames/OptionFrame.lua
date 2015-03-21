@@ -365,13 +365,13 @@ local function InitOptionData(db, chardb)
 	end
 
 	-- Initialize addon data
-	LoadOption("scale", 100, 25, 300)
-	LoadOption("width", 67, 24, 120)
+	LoadOption("scale", 100, 20, 300)
+	LoadOption("width", 64, 24, 120)
 	LoadOption("height", 36, 24, 120)
-	LoadOption("spacing", 2, 0, 10)
+	LoadOption("spacing", 1, 0, 10)
 	LoadOption("outrangeAlpha", 40, 0, 100)
 	LoadOptionColor("unitBkColor", 0, 0, 0)
-	
+
 	LoadOption("hidePrivIcons")
 	LoadOption("hideRoleIcon")
 	LoadOption("hideRaidIcon")
@@ -386,12 +386,12 @@ local function InitOptionData(db, chardb)
 	LoadOption("showRaidPets", nil, nil, nil, 1)
 	LoadOption("showFriendlyNpc", nil, nil, nil, 1)
 
-	LoadOption("powerBarHeight", 2, 0, 10)
+	LoadOption("powerBarHeight", 1, 0, 10)
 
 	LoadOption("clickDownMode")
 	LoadOption("showtooltip", 1, 0, 2)
 
-	LoadOption("nameWidthLimit", 100, 0, 100)
+	LoadOption("nameWidthLimit", 75, 0, 100)
 	LoadOption("nameHeight", 12, 4, 20)
 	LoadOption("nameXOffset", 0, -20, 20)
 	LoadOption("nameYOffset", 0, -20, 20)
@@ -410,12 +410,12 @@ local function InitOptionData(db, chardb)
 	LoadOption("raidFilter")
 
 	LoadOption("containerAlpha", 75, 0, 100)
-	LoadOption("containerBorderSize", 5, 0, 24)
+	LoadOption("containerBorderSize", 12, 0, 24)
 
-	LoadOption("hideBuffs")
-	LoadOption("hideDebuffs")
+	LoadOption("showBuffs")
+	LoadOption("showDebuffs")
 	LoadOption("onlyDispellable")
-	LoadOption("hideDispels")
+	LoadOption("showDispels")
 end
 
 addon:RegisterEventCallback("OnInitialize", InitOptionData)

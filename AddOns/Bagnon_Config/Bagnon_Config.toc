@@ -1,12 +1,14 @@
-## Interface: 60000
+## Interface: 60100
 ## Title: Bagnon Config
 ## Notes: Load on demand configuration for Bagnon
-## Title-zhTW: |cFF2DA267[背包]|r |cFF99FF66[Bagnon]|r 背包整合設定介面
-## Notes-zhTW: 提供 Bagnon 設定介面。
 ## Author: Tuller & Jaliborc (João Cardoso)
 ## Dependencies: Bagnon
 ## LoadOnDemand: 1
+## Version: 6.1.0
+
+..\Bagnon\libs\Poncho-1.0\Poncho-1.0.xml
+..\Bagnon\libs\Sushi-3.0\Sushi-3.0.xml
 
 localization\localization.xml
-widgets\widgets.xml
-panels\panels.xml
+group.lua
+panels.lua

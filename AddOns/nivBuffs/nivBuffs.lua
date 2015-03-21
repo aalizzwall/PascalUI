@@ -103,7 +103,7 @@ local defaults = {
 	borderBrightness = 0,				-- brightness of the default non-colored icon border ( 0 -> black, 1 -> white )
 	blinkTime = 6,						-- a buff/debuff icon will blink when it expires in less than x seconds, set to 0 to disable
 	blinkSpeed = 2,						-- blinking speed as number of blink cycles per second
-	useButtonFacade = false,				-- toggle ButtonFacade support
+	useButtonFacade = true,				-- toggle ButtonFacade support
 
 	-- position of duration text
 	-- possible values are "TOP", "BOTTOM", "LEFT" or "RIGHT"

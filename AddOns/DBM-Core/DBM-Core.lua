@@ -15,8 +15,7 @@
 --    * ruRU: TOM_RUS					http://www.curseforge.com/profiles/TOM_RUS/
 --    * zhTW: Whyv						ultrashining@gmail.com
 --    * koKR: nBlueWiz					everfinale@gmail.com
---    * frFR: leiyla					http://forums.elitistjerks.com/user/616557-leiyla/
---    * zhCN: oliver1452				http://forums.elitistjerks.com/user/623698-oliver1452/
+--    * zhCN: Mini Dragon				projecteurs@gmail.com
 --
 -- The former/inactive-translators:
 --    * deDE: Tandanu					http://www.deadlybossmods.com
@@ -26,7 +25,9 @@
 --    * zhTW: Azael/kc10577				paul.poon.kw@gmail.com
 --    * esES: Snamor/1nn7erpLaY      	romanscat@hotmail.com
 --    * zhCN: Diablohu					http://www.dreamgen.cn | diablohudream@gmail.com
+--    * zhCN: oliver1452				http://forums.elitistjerks.com/user/623698-oliver1452/
 --    * esES/esMX: Sueñalobos			alcortesm@gmail.com
+--    * frFR: leiyla					http://forums.elitistjerks.com/user/616557-leiyla/
 --
 -- Special thanks to:
 --    * Arta
@@ -47,24 +48,15 @@
 --    * Share Alike. If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.
 --
 
---情人节 = 214
---七夕 =  77 
---猜疑 = 妒忌 = 隐瞒 = true,
---承诺 = true;
---光棍节 = ((情人节 - 七夕)<<猜疑<<妒忌<<隐瞒) + ((承诺<<承诺<<承诺<<承诺<<承诺) - 承诺)
 
 -------------------------------
 --  Globals/Default Options  --
 -------------------------------
 DBM = {
-	Revision = tonumber(("$Revision: 11855 $"):sub(12, -3)),
-	DisplayVersion = "6.0.5 VE", -- the string that is shown as version
-	ReleaseRevision = 11829 -- the revision of the latest stable version that is available
+	Revision = tonumber(("$Revision: 13132 $"):sub(12, -3)),
+	DisplayVersion = "6.1.1", -- the string that is shown as version
+	ReleaseRevision = 13132 -- the revision of the latest stable version that is available
 }
-
--- Legacy crap; that stupid "Version" field was never a good idea.
--- Some functions that should be using ReleaseRevision still use this one, so we will just keep it and set to ReleaseRevision
-DBM.Version = tostring(DBM.ReleaseRevision)
 
 -- support for git svn which doesn't support svn keyword expansion
 if not DBM.Revision then
@@ -72,7 +64,13 @@ if not DBM.Revision then
 	DBM.Revision = DBM.ReleaseRevision
 end
 
-DBM_SavedOptions = {}
+-- dual profile setup
+local _, class = UnitClass("player")
+DBM_UseDualProfile = true
+if class == "MAGE" or class == "WARLOCK" and class == "HUNTER" and class == "ROGUE" then
+	DBM_UseDualProfile = false
+end
+DBM_CharSavedRevision = 1
 
 DBM.DefaultOptions = {
 	WarningColors = {
@@ -85,11 +83,15 @@ DBM.DefaultOptions = {
 	SpecialWarningSound = "Sound\\Spells\\PVPFlagTaken.ogg",
 	SpecialWarningSound2 = "Sound\\Creature\\AlgalonTheObserver\\UR_Algalon_BHole01.ogg",
 	SpecialWarningSound3 = "Sound\\Creature\\KilJaeden\\KILJAEDEN02.ogg",
+	SpecialWarningSound4 = "Sound\\Creature\\HoodWolf\\HoodWolfTransformPlayer01.ogg",
 	ModelSoundValue = "Short",
 	ChallengeBest = "Realm",
 	CountdownVoice = "Corsica",
 	CountdownVoice2 = "Kolt",
 	CountdownVoice3 = "Pewsey",
+	ChosenVoicePack = "None",
+	VoiceOverSpecW2 = "DefaultOnly",
+	AlwaysPlayVoice = false,
 	ShowCountdownText = false,
 	RaidWarningPosition = {
 		Point = "TOP",
@@ -106,6 +108,7 @@ DBM.DefaultOptions = {
 	StripServerName = true,
 	ShowCombatLogMessage = true,
 	ShowTranscriptorMessage = true,
+	ShowAllVersions = true,
 	ShowLoadMessage = true,
 	ShowPizzaMessage = true,
 	ShowEngageMessage = true,
@@ -117,25 +120,31 @@ DBM.DefaultOptions = {
 	StatusEnabled = true,
 	WhisperStats = false,
 	HideBossEmoteFrame = true,
-	SpamBlockBossWhispers = false,
+	SpamBlockBossWhispers = true,
 	ShowMinimapButton = false,
-	BlockVersionUpdateNotice = false,
 	ShowSpecialWarnings = true,
 	ShowFlashFrame = true,
-	ShowAdvSWSound = true,
 	CustomSounds = 0,
 	AlwaysShowHealthFrame = false,
 	ShowBigBrotherOnCombatStart = false,
 	FilterTankSpec = true,
+	FilterInterrupt = true,
+	FilterDispel = true,
+	FilterSelfHud = true,
 	AutologBosses = false,
 	AdvancedAutologBosses = false,
 	LogOnlyRaidBosses = false,
 	UseMasterVolume = true,
 	LFDEnhance = true,
 	WorldBossNearAlert = false,
-	AFKHealthWarning = true,
+	RLReadyCheckSound = true,
+	AFKHealthWarning = false,
 	HideObjectivesFrame = true,
+	HideGarrisonUpdates = true,
+	HideGuildChallengeUpdates = true,
+	HideApplicantAlerts = 0,
 	HideTooltips = false,
+	DisableSFX = false,
 	EnableModels = true,
 	RangeFrameFrames = "radar",
 	RangeFrameUpdates = "Average",
@@ -156,21 +165,40 @@ DBM.DefaultOptions = {
 	HPFrameX = -50,
 	HPFrameY = 50,
 	HPFrameMaxEntries = 5,
+	WarningDuration = 4,
+	WarningPoint = "CENTER",
+	WarningX = 0,
+	WarningY = 260,
+	WarningFont = STANDARD_TEXT_FONT,
+	WarningFontSize = 20,
+	WarningFontStyle = "None",
+	WarningFontShadow = true,
+	SpecialWarningDuration = 4,
 	SpecialWarningPoint = "CENTER",
 	SpecialWarningX = 0,
 	SpecialWarningY = 75,
 	SpecialWarningFont = STANDARD_TEXT_FONT,
 	SpecialWarningFontSize = 50,
+	SpecialWarningFontStyle = "THICKOUTLINE",
+	SpecialWarningFontShadow = false,
 	SpecialWarningFontCol = {1.0, 0.7, 0.0},--Yellow, with a tint of orange
 	SpecialWarningFlashCol1 = {1.0, 1.0, 0.0},--Yellow
 	SpecialWarningFlashCol2 = {1.0, 0.5, 0.0},--Orange
 	SpecialWarningFlashCol3 = {1.0, 0.0, 0.0},--Red
+	SpecialWarningFlashCol4 = {1.0, 0.0, 1.0},--Purple
 	SpecialWarningFlashDura1 = 0.4,
 	SpecialWarningFlashDura2 = 0.4,
 	SpecialWarningFlashDura3 = 1,
+	SpecialWarningFlashDura4 = 0.7,
 	SpecialWarningFlashAlph1 = 0.3,
 	SpecialWarningFlashAlph2 = 0.3,
 	SpecialWarningFlashAlph3 = 0.4,
+	SpecialWarningFlashAlph4 = 0.4,
+	SpecialWarningFlashRepeat1 = false,
+	SpecialWarningFlashRepeat2 = false,
+	SpecialWarningFlashRepeat3 = true,
+	SpecialWarningFlashRepeat4 = false,
+	SpecialWarningFlashRepeatAmount = 2,--Repeat 2 times, mean 3 flashes (first plus 2 repeat)
 	HealthFrameGrowUp = false,
 	HealthFrameLocked = false,
 	HealthFrameWidth = 200,
@@ -182,9 +210,13 @@ DBM.DefaultOptions = {
 	DontShowFarWarnings = true,
 	DontSendBossWhispers = false,
 	DontSetIcons = false,
+	DontRestoreIcons = false,
 	DontShowRangeFrame = false,
+	DontRestoreRange = false,
 	DontShowInfoFrame = false,
+	DontShowHudMap2 = false,
 	DontShowHealthFrame = false,
+	DontPlayCountdowns = false,
 	DontShowPT2 = false,
 	DontShowPTCountdownText = false,
 	DontPlayPTCountdown = false,
@@ -192,16 +224,18 @@ DBM.DefaultOptions = {
 	DontShowPTNoID = false,
 	DontShowCTCount = false,
 	DontShowFlexMessage = false,
+	--
 	PTCountThreshold = 5,
 	LatencyThreshold = 250,
 	BigBrotherAnnounceToRaid = false,
 	SettingsMessageShown = false,
 	ForumsMessageShown = false,
 	PGMessageShown = false,
+	MCMessageShown = false,
 	AlwaysShowSpeedKillTimer = true,
 	CRT_Enabled = false,
---	HelpMessageShown = false,
-	BugMessageShown = 0,
+	HelpMessageShown2 = false,
+--	BugMessageShown = 0,
 	MoviesSeen = {},
 	MovieFilter = "AfterFirst",
 	LastRevision = 0,
@@ -209,21 +243,33 @@ DBM.DefaultOptions = {
 	DebugMode = false,
 	DebugLevel = 1,
 	RoleSpecAlert = true,
+	CheckGear = true,
 	WorldBossAlert = false,
 	AutoAcceptFriendInvite = false,
 	AutoAcceptGuildInvite = false,
+	FakeBWVersion = false,
 	ChatFrame = "DEFAULT_CHAT_FRAME",
-	ShowLTSpecialWarnings = true, --Add by Mini_Dragon (Brilla@金色平原)
-	LTSpecialWarningFont = STANDARD_TEXT_FONT,
-	LTSpecialWarningFontSize = 50,
-	LTSpecialWarningPoint = "CENTER",
-	LTSpecialWarningX = 0,
-	LTSpecialWarningY = -130,
-	LTSpecialWarningFontColor = {0.0, 1.0, 0.0},
 }
 
 DBM.Bars = DBT:New()
 DBM.Mods = {}
+DBM.ModLists = {}
+DBM.Counts = {
+	{	text	= "Moshne (Male)",	value 	= "Mosh", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Mosh\\", max = 5},
+	{	text	= "Corsica (Female)",value 	= "Corsica", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Corsica\\", max = 10},
+	{	text	= "Koltrane (Male)",value 	= "Kolt", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Kolt\\", max = 10},
+	{	text	= "Pewsey (Male)",value 	= "Pewsey", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Pewsey\\", max = 10},
+	{	text	= "Bear (Male Child)",value = "Bear", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Bear\\", max = 10},
+	{	text	= "HoTS: Default",	value 	= "HoTS_D", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Heroes\\Default\\", max = 5},
+	{	text	= "HoTS: Blackheart",	value 	= "HoTS_B", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Heroes\\Blackheart\\", max = 5},
+	{	text	= "HoTS: Gardens",	value 	= "HoTS_G", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Heroes\\Gardens\\", max = 5},
+	{	text	= "HoTS: Lady of Thorns",	value 	= "HoTS_T", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Heroes\\LadyOfThorns\\", max = 5},
+	{	text	= "HoTS: Necromancer",	value 	= "HoTS_N", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Heroes\\Necromancer\\", max = 5},
+	{	text	= "HoTS: Ravenlord",	value 	= "HoTS_R", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Heroes\\RavenLord\\", max = 5},
+	{	text	= "HoTS: Snake",	value 	= "HoTS_S", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Heroes\\Snake\\", max = 5},
+	{	text	= "Anshlun (ptBR Male)",value = "Anshlun", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Anshlun\\", max = 10},
+	{	text	= "Neryssa (ptBR Female)",value = "Neryssa", path = "Interface\\AddOns\\DBM-Core\\Sounds\\Neryssa\\", max = 10},
+}
 
 ------------------------
 -- Global Identifiers --
@@ -234,7 +280,9 @@ DBM_OPTION_SPACER = newproxy(false)
 --------------
 --  Locals  --
 --------------
-local enabled = true
+local bossModPrototype = {}
+local usedProfile = "Default"
+local dbmIsEnabled = true
 local blockEnable = false
 local cachedGetTime = GetTime()
 local lastCombatStarted = cachedGetTime
@@ -247,30 +295,30 @@ local raid = {}
 local modSyncSpam = {}
 local autoRespondSpam = {}
 local chatPrefix = "<Deadly Boss Mods> "
-local chatPrefixVEM = "<Voice Encounter Mods> "
 local chatPrefixShort = "<DBM> "
-local chatPrefixShortVEM = "<VEM> "
 local ver = ("%s (r%d)"):format(DBM.DisplayVersion, DBM.Revision)
 local mainFrame = CreateFrame("Frame", "DBMMainFrame")
 local newerVersionPerson = {}
 local newerRevisionPerson = {}
 local combatInitialized = false
 local healthCombatInitialized = false
+local pformat
 local schedule
 local unschedule
 local loadOptions
-local loadModOptions
 local checkWipe
 local checkBossHealth
+local checkCustomBossHealth
 local loopCRTimer
 local fireEvent
 local playerName = UnitName("player")
+local playerLevel = UnitLevel("player")
 local playerRealm = GetRealmName()
 local gladStance = GetSpellInfo(156291)
 local connectedServers = GetAutoCompleteRealms()
-local _, class = UnitClass("player")
 local LastInstanceMapID = -1
 local LastGroupSize = 0
+local LastInstanceType = nil
 local queuedBattlefield = {}
 local loadDelay = nil
 local loadDelay2 = nil
@@ -286,6 +334,19 @@ local bossuIdFound = false
 local timerRequestInProgress = false
 local updateNotificationDisplayed = 0
 local tooltipsHidden = false
+local SWFilterDisabed = 3
+local currentSpecGroup = GetActiveSpecGroup()
+local currentSpecID, currentSpecName
+local cSyncSender = {}
+local cSyncReceived = 0
+local eeSyncSender = {}
+local eeSyncReceived = 0
+local canSetIcons = {}
+local iconSetRevision = {}
+local iconSetPerson = {}
+local addsGUIDs = {}
+
+local fakeBWRevision = 12858
 
 local enableIcons = true -- set to false when a raid leader or a promoted player has a newer version of DBM
 local guiRequested = false
@@ -298,6 +359,7 @@ local bannedMods = { -- a list of "banned" (meaning they are replaced by another
 	"DBM-SiegeOfOrgrimmar",--Block legacy version. New version is "DBM-SiegeOfOrgrimmarV2"
 	"DBM-HighMail",
 	"DBM-ProvingGrounds-MoP",--Renamed to DBM-ProvingGrounds in 6.0 version since blizzard updated content for WoD
+	"DBM-VPKiwiBeta",--Renamed to DBM-VPKiwi in final version.
 }
 
 --------------------------------------------------------
@@ -307,23 +369,24 @@ local DBM = DBM
 -- these global functions are accessed all the time by the event handler
 -- so caching them is worth the effort
 local ipairs, pairs, next = ipairs, pairs, next
-local tinsert, tremove, twipe = table.insert, table.remove, table.wipe
+local tinsert, tremove, twipe, tsort = table.insert, table.remove, table.wipe, table.sort
 local type, select = type, select
 local GetTime = GetTime
 local bband = bit.band
 local floor, mhuge, mmin, mmax = math.floor, math.huge, math.min, math.max
 local GetNumGroupMembers, GetRaidRosterInfo = GetNumGroupMembers, GetRaidRosterInfo
+local UnitName, GetUnitName = UnitName, GetUnitName
 local IsInRaid, IsInGroup, IsInInstance = IsInRaid, IsInGroup, IsInInstance
 local UnitAffectingCombat, InCombatLockdown, IsEncounterInProgress = UnitAffectingCombat, InCombatLockdown, IsEncounterInProgress
 local UnitGUID, UnitHealth, UnitHealthMax, UnitBuff = UnitGUID, UnitHealth, UnitHealthMax, UnitBuff
 local UnitExists, UnitIsDead, UnitIsFriend, UnitIsUnit, UnitIsAFK = UnitExists, UnitIsDead, UnitIsFriend, UnitIsUnit, UnitIsAFK
-local GetSpellInfo, EJ_GetSectionInfo = GetSpellInfo, EJ_GetSectionInfo
+local GetSpellInfo, EJ_GetSectionInfo, GetSpellTexture, GetActiveSpecGroup, GetSpellCooldown = GetSpellInfo, EJ_GetSectionInfo, GetSpellTexture, GetActiveSpecGroup, GetSpellCooldown
 local EJ_GetEncounterInfo, EJ_GetCreatureInfo, GetDungeonInfo = EJ_GetEncounterInfo, EJ_GetCreatureInfo, GetDungeonInfo
 local GetInstanceInfo = GetInstanceInfo
 local UnitPosition, GetCurrentMapDungeonLevel, GetMapInfo, GetCurrentMapZone, SetMapToCurrentZone = UnitPosition, GetCurrentMapDungeonLevel, GetMapInfo, GetCurrentMapZone, SetMapToCurrentZone
-local GetSpecialization = GetSpecialization
+local GetSpecialization, GetSpecializationInfo, GetSpecializationInfoByID = GetSpecialization, GetSpecializationInfo, GetSpecializationInfoByID
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation
-local GetPartyAssignment, UnitGroupRolesAssigned = GetPartyAssignment, UnitGroupRolesAssigned
+local GetPartyAssignment, UnitGroupRolesAssigned, UnitIsGroupLeader, UnitIsGroupAssistant, UnitRealmRelationship = GetPartyAssignment, UnitGroupRolesAssigned, UnitIsGroupLeader, UnitIsGroupAssistant, UnitRealmRelationship
 local LoadAddOn, GetAddOnInfo, GetAddOnEnableState, GetAddOnMetadata, GetNumAddOns = LoadAddOn, GetAddOnInfo, GetAddOnEnableState, GetAddOnMetadata, GetNumAddOns
 local PlaySoundFile, PlaySound = PlaySoundFile, PlaySound
 local Ambiguate = Ambiguate
@@ -339,6 +402,15 @@ local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
 local function checkEntry(t, val)
 	for i, v in ipairs(t) do
 		if v == val then
+			return true
+		end
+	end
+	return false
+end
+
+local function findEntry(t, val)
+	for i, v in ipairs(t) do
+		if v and val and val:find(v) then
 			return true
 		end
 	end
@@ -386,7 +458,6 @@ local function strFromTime(time)
 	end
 end
 
-local pformat
 do
 	-- fail-safe format, replaces missing arguments with unknown
 	-- note: doesn't handle cases like %%%s correctly at the moment (should become %unknown, but becomes %%s)
@@ -422,7 +493,7 @@ local BNSendWhisper = sendWhisper
 local function stripServerName(cap)
 	cap = cap:sub(2, -2)
 	if DBM.Options.StripServerName then
-		cap = cap:gsub("%-.*$", "")
+		cap = Ambiguate(cap, "short")
 	end
 	return cap
 end
@@ -498,7 +569,7 @@ do
 			event = event .. "_UNFILTERED"
 			isUnitEvent = false -- not actually a real unit id for this function...
 		end
-		if not registeredEvents[event] or not enabled then return end
+		if not registeredEvents[event] or not dbmIsEnabled then return end
 		for i, v in ipairs(registeredEvents[event]) do
 			local zones = v.zones
 			local handler = v[event]
@@ -821,17 +892,29 @@ do
 		SPELL_DAMAGE = true,
 		SPELL_BUILDING_DAMAGE = true,
 		SPELL_MISSED = true,
+		SPELL_ABSORBED = true,
 		SPELL_HEAL = true,
 		SPELL_ENERGIZE = true,
+		SPELL_PERIODIC_ENERGIZE = true,
 		SPELL_PERIODIC_MISSED = true,
 		SPELL_PERIODIC_DAMAGE = true,
 		SPELL_PERIODIC_DRAIN = true,
 		SPELL_PERIODIC_LEECH = true,
 		SPELL_PERIODIC_ENERGIZE = true,
 		SPELL_DRAIN = true,
-		SPELL_LEECH = true
+		SPELL_LEECH = true,
+		SPELL_CAST_FAILED = true
 	}
 	function DBM:COMBAT_LOG_EVENT_UNFILTERED(timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, ...)
+		--Dirty, but has to be here, because we want to see this debug even if SPELL_CAST_SUCCESS isn't in registeredEvents
+		local firstExtraArg = ...
+		if type(firstExtraArg) == "number" then
+			if firstExtraArg == 181113 then
+				self:Debug("Encounter Spawn spellid Detected: 181113")
+			elseif firstExtraArg == 181089 then
+				self:Debug("Encounter Event spellid Detected: 181089")
+			end
+		end
 		if not registeredEvents[event] then return end
 		local eventSub6 = event:sub(0, 6)
 		if (eventSub6 == "SPELL_" or eventSub6 == "RANGE_") and not unfilteredCLEUEvents[event] then
@@ -913,27 +996,35 @@ do
 			onLoadCallbacks = nil
 			loadOptions()
 --			if not GetAddOnEnableState then--Not 6.0
---				DBM:AddMsg(DBM_CORE_UPDATEREMINDER_MAJORPATCH)
+--				self:AddMsg(DBM_CORE_UPDATEREMINDER_MAJORPATCH)
 --				return
 --			end
 			if GetAddOnEnableState(playerName, "VEM-Core") >= 1 then
-				DBM:AddMsg(DBM_CORE_VEM)
+				self:AddMsg(DBM_CORE_VEM)
+				dbmIsEnabled = false
 				return
 			end
-			DBM.Bars:LoadOptions("DBM")
-			DBM.Arrow:LoadPosition()
-			if not DBM.Options.ShowMinimapButton then self:HideMinimapButton() end
+			if GetAddOnEnableState(playerName, "DBM-Profiles") >= 1 then
+				self:Schedule(10, function() self:AddMsg(DBM_CORE_3RDPROFILES) end)
+				dbmIsEnabled = false
+				return
+			end
+			self.Bars:LoadOptions("DBM")
+			self.Arrow:LoadPosition()
+			if not self.Options.ShowMinimapButton then self:HideMinimapButton() end
 			local soundChannels = tonumber(GetCVar("Sound_NumChannels")) or 24--if set to 24, may return nil, Defaults usually do
 			if soundChannels < 64 then
 				SetCVar("Sound_NumChannels", 64)
 			end
 			self.AddOns = {}
+			self.Voices = { {text = "None",value  = "None"}, }--Create voice table, with default "None" value
+			self.VoiceVersions = {}
 			for i = 1, GetNumAddOns() do
 				local addonName = GetAddOnInfo(i)
 				local enabled = GetAddOnEnableState(playerName, i)
 				if GetAddOnMetadata(i, "X-DBM-Mod") and enabled ~= 0 then
 					if checkEntry(bannedMods, addonName) then
-						DBM:AddMsg("The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
+						self:AddMsg("The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
 					else
 						local mapIdTable = {strsplit(",", GetAddOnMetadata(i, "X-DBM-Mod-MapID") or "")}
 						tinsert(self.AddOns, {
@@ -950,6 +1041,7 @@ do
 							noStatistics	= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-No-Statistics") or 0) == 1,
 							hasMythic		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-Has-Mythic") or 0) == 1,
 							isWorldBoss		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-World-Boss") or 0) == 1,
+							minRevision		= tonumber(GetAddOnMetadata(i, "X-DBM-Mod-MinCoreRevision") or 0),
 							modId			= addonName,
 						})
 						for i = #self.AddOns[#self.AddOns].mapId, 1, -1 do
@@ -978,8 +1070,25 @@ do
 						end
 					end
 				end
+				if GetAddOnMetadata(i, "X-DBM-Voice") and enabled ~= 0 then
+					if checkEntry(bannedMods, addonName) then
+						self:AddMsg("The mod " .. addonName .. " is deprecated and will not be available. Please remove the folder " .. addonName .. " from your Interface" .. (IsWindowsClient() and "\\" or "/") .. "AddOns folder to get rid of this message. Check for an updated version of " .. addonName .. " that is compatible with your game version.")
+					else
+						local voiceValue = GetAddOnMetadata(i, "X-DBM-Voice-ShortName")
+						local voiceVersion = tonumber(GetAddOnMetadata(i, "X-DBM-Voice-Version") or 0)
+						if voiceVersion > 0 then--Do not insert voice version 0 into THIS table. 0 should be used by voice packs that insert only countdown
+							tinsert(self.Voices, { text = GetAddOnMetadata(i, "X-DBM-Voice-Name"), value = voiceValue })
+						end
+						self.VoiceVersions[voiceValue] = voiceVersion
+						self:Schedule(10, self.CheckVoicePackVersion, self, voiceValue)--Still at 1 since the count sounds won't break any mods or affect filter. V2 if support countsound path
+						if GetAddOnMetadata(i, "X-DBM-Voice-HasCount") then--Supports adding countdown options, insert new countdown into table
+							tinsert(self.Counts, { text = GetAddOnMetadata(i, "X-DBM-Voice-Name"), value = "VP:"..voiceValue, path = "Interface\\AddOns\\DBM-VP"..voiceValue.."\\count\\", max = 10})
+						end
+					end
+				end
+				self:Schedule(8, self.CheckVoicePackAvailable, self)
 			end
-			table.sort(self.AddOns, function(v1, v2) return v1.sort < v2.sort end)
+			tsort(self.AddOns, function(v1, v2) return v1.sort < v2.sort end)
 			self:RegisterEvents(
 				"COMBAT_LOG_EVENT_UNFILTERED",
 				"GROUP_ROSTER_UPDATE",
@@ -993,7 +1102,7 @@ do
 				"UNIT_SPELLCAST_SUCCEEDED",
 				"ENCOUNTER_START",
 				"ENCOUNTER_END",
-				--"SPELL_UPDATE_CHARGES",
+				"BOSS_KILL",
 				"UNIT_DIED",
 				"UNIT_DESTROYED",
 				"UNIT_HEALTH mouseover target focus player",
@@ -1004,23 +1113,25 @@ do
 				"CHAT_MSG_MONSTER_SAY",
 				"CHAT_MSG_RAID_BOSS_EMOTE",
 				"RAID_BOSS_EMOTE",
+				"RAID_BOSS_WHISPER",
 				"PLAYER_ENTERING_WORLD",
 				"LFG_ROLE_CHECK_SHOW",
 				"LFG_PROPOSAL_SHOW",
 				"LFG_PROPOSAL_FAILED",
 				"LFG_PROPOSAL_SUCCEEDED",
+				"READY_CHECK",
+				"LFG_LIST_APPLICANT_LIST_UPDATED",
 				"UPDATE_BATTLEFIELD_STATUS",
 				"CINEMATIC_START",
-				"LFG_COMPLETION_REWARD",
-				--"WORLD_STATE_TIMER_START",
-				--"WORLD_STATE_TIMER_STOP",
+				"PLAYER_LEVEL_UP",
 				"CHALLENGE_MODE_START",
 				"CHALLENGE_MODE_RESET",
 				"CHALLENGE_MODE_END",
 				"ACTIVE_TALENT_GROUP_CHANGED",
 				"UPDATE_SHAPESHIFT_FORM",
 				"PARTY_INVITE_REQUEST",
-				"LOADING_SCREEN_DISABLED"
+				"LOADING_SCREEN_DISABLED",
+				"SCENARIO_CRITERIA_UPDATE"
 			)
 			RolePollPopup:UnregisterEvent("ROLE_POLL_BEGIN")
 			self:GROUP_ROSTER_UPDATE()
@@ -1031,6 +1142,9 @@ do
 			self:Schedule(20, function()--Delay UNIT_HEALTH combat start for 20 sec. (not to break Timer Recovery stuff)
 				healthCombatInitialized = true
 			end)
+			if IsInGroup() then
+				self:Schedule(15, self.RequestTimers, self)--Break timer recovery doesn't work if outside the zone when reloadui or relogging (no loadmod). Need request timer here.
+			end
 		end
 	end
 end
@@ -1272,6 +1386,109 @@ function DBM:ForceUpdate()
 	mainFrame:GetScript("OnUpdate")(mainFrame, 0)
 end
 
+---------------
+--  Profile  --
+---------------
+function DBM:CreateProfile(name)
+	if not name or name == "" or name:find(" ") then
+		self:AddMsg(DBM_CORE_PROFILE_CREATE_ERROR)
+		return
+	end
+	if DBM_AllSavedOptions[name] then
+		self:AddMsg(DBM_CORE_PROFILE_CREATE_ERROR_D:format(name))
+		return
+	end
+	-- create profile
+	usedProfile = name
+	DBM_UsedProfile = usedProfile
+	DBM_AllSavedOptions[usedProfile] = DBM_AllSavedOptions[usedProfile] or {}
+	self:AddDefaultOptions(DBM_AllSavedOptions[usedProfile], self.DefaultOptions)
+	self.Options = DBM_AllSavedOptions[usedProfile]
+	-- rearrange position
+	self.Bars:CreateProfile("DBM")
+	self:RepositionFrames()
+	self:AddMsg(DBM_CORE_PROFILE_CREATED:format(name))
+end
+
+function DBM:ApplyProfile(name)
+	if not name or not DBM_AllSavedOptions[name] then 
+		self:AddMsg(DBM_CORE_PROFILE_APPLY_ERROR:format(name or DBM_CORE_UNKNOWN))
+		return
+	end
+	usedProfile = name
+	DBM_UsedProfile = usedProfile
+	self:AddDefaultOptions(DBM_AllSavedOptions[usedProfile], self.DefaultOptions)
+	self.Options = DBM_AllSavedOptions[usedProfile]
+	-- rearrange position
+	self.Bars:ApplyProfile("DBM")
+	self:RepositionFrames()
+	self:AddMsg(DBM_CORE_PROFILE_APPLIED:format(name))
+end
+
+function DBM:CopyProfile(name)
+	if not name or not DBM_AllSavedOptions[name] then 
+		self:AddMsg(DBM_CORE_PROFILE_COPY_ERROR:format(name or DBM_CORE_UNKNOWN))
+		return
+	elseif name == usedProfile then
+		self:AddMsg(DBM_CORE_PROFILE_COPY_ERROR_SELF)
+		return
+	end
+	DBM_AllSavedOptions[usedProfile] = DBM_AllSavedOptions[name]
+	self:AddDefaultOptions(DBM_AllSavedOptions[usedProfile], self.DefaultOptions)
+	self.Options = DBM_AllSavedOptions[usedProfile]
+	-- rearrange position
+	self.Bars:CopyProfile(name, "DBM")
+	self:RepositionFrames()
+	self:AddMsg(DBM_CORE_PROFILE_COPIED:format(name))
+end
+
+function DBM:DeleteProfile(name)
+	if not name or not DBM_AllSavedOptions[name] then
+		self:AddMsg(DBM_CORE_PROFILE_DELETE_ERROR:format(name or DBM_CORE_UNKNOWN))
+		return
+	elseif name == "Default" then-- Default profile cannot be deleted.
+		self:AddMsg(DBM_CORE_PROFILE_CANNOT_DELETE)
+		return
+	end
+	--Delete
+	DBM_AllSavedOptions[name] = nil
+	usedProfile = "Default"--Restore to default
+	DBM_UsedProfile = usedProfile
+	self.Options = DBM_AllSavedOptions[usedProfile]
+	if not self.Options then
+		-- the default profile got lost somehow (maybe WoW crashed and the saved variables file got corrupted)
+		self:CreateProfile("Default")
+	end
+	-- rearrange position
+	self.Bars:DeleteProfile(name, "DBM")
+	self:RepositionFrames()
+	self:AddMsg(DBM_CORE_PROFILE_DELETED:format(name))
+end
+
+function DBM:RepositionFrames()
+	-- rearrange position
+	self:SetRaidWarningPositon()
+	self:UpdateWarningOptions()
+	self:UpdateSpecialWarningOptions()
+	self.Arrow:LoadPosition()
+	if DBMBossHealth then
+		DBMBossHealth:ClearAllPoints()
+		DBMBossHealth:SetPoint(self.Options.HPFramePoint, UIParent, self.Options.HPFramePoint, self.Options.HPFrameX, self.Options.HPFrameY)
+	end
+	if DBMRangeCheck then
+		DBMRangeCheck:ClearAllPoints()
+		DBMRangeCheck:SetPoint(self.Options.RangeFramePoint, UIParent, self.Options.RangeFramePoint, self.Options.RangeFrameX, self.Options.RangeFrameY)
+	end
+	if DBMRangeCheckRadar then
+		DBMInfoFrame:ClearAllPoints()
+		DBMRangeCheckRadar:SetPoint(self.Options.RangeFrameRadarPoint, UIParent, self.Options.RangeFrameRadarPoint, self.Options.RangeFrameRadarX, self.Options.RangeFrameRadarY)
+	end
+	if DBMInfoFrame then
+		DBMInfoFrame:ClearAllPoints()
+		DBMInfoFrame:SetPoint(self.Options.InfoFramePoint, UIParent, self.Options.InfoFramePoint, self.Options.InfoFrameX, self.Options.InfoFrameY)
+	end
+end
+
 ----------------------
 --  Slash Commands  --
 ----------------------
@@ -1429,7 +1646,7 @@ SlashCmdList["DEADLYBOSSMODS"] = function(msg)
 		time = min * 60 + sec
 		DBM:CreatePizzaTimer(time, text, permission, nil, true, true)
 	elseif cmd:sub(0,5) == "break" then
-		if IsInGroup() and (DBM:GetRaidRank(playerName) == 0 or difficultyIndex == 7 or difficultyIndex == 17 or difficultyIndex == 1 or difficultyIndex == 2) or IsEncounterInProgress() then--No break timers if not assistant or if it's LFR (because break timers in LFR are just not cute)
+		if IsInGroup() and (DBM:GetRaidRank(playerName) == 0 or IsPartyLFG()) or IsEncounterInProgress() then--No break timers if not assistant or if it's dungeon/raid finder
 			DBM:AddMsg(DBM_ERROR_NO_PERMISSION)
 			return
 		end
@@ -1510,23 +1727,35 @@ SlashCmdList["DEADLYBOSSMODS"] = function(msg)
 	end
 end
 
-SLASH_DBMRANGE1 = "/range"
-SLASH_DBMRANGE2 = "/distance"
-SlashCmdList["DBMRANGE"] = function(msg)
-	if DBM.RangeCheck:IsShown() then
-		DBM.RangeCheck:Hide()
-	else
-		local r = tonumber(msg)
-		if r and (r < 50) then
-			DBM.RangeCheck:Show(r, nil, true)
+do
+	local function updateRangeFrame(r, reverse)
+		if DBM.RangeCheck:IsShown() then
+			DBM.RangeCheck:Hide(true)
 		else
-			DBM.RangeCheck:Show(10, nil, true)
+			if r and (r < 201) then
+				DBM.RangeCheck:Show(r, nil, true, nil, reverse)
+			else
+				DBM.RangeCheck:Show(10, nil, true, nil, reverse)
+			end
 		end
+	end
+	SLASH_DBMRANGE1 = "/range"
+	SLASH_DBMRANGE2 = "/distance"
+	SLASH_DBMRRANGE1 = "/rrange"
+	SLASH_DBMRRANGE2 = "/rdistance"
+	SlashCmdList["DBMRANGE"] = function(msg)
+		local r = tonumber(msg) or 10
+		updateRangeFrame(r, false)
+	end
+	SlashCmdList["DBMRRANGE"] = function(msg)
+		local r = tonumber(msg) or 10
+		updateRangeFrame(r, true)
 	end
 end
 
 do
 	local sortMe = {}
+	local OutdatedUsers = {}
 
 	local function sort(v1, v2)
 		if v1.revision and not v2.revision then
@@ -1544,25 +1773,36 @@ do
 		for i, v in pairs(raid) do
 			tinsert(sortMe, v)
 		end
-		table.sort(sortMe, sort)
+		tsort(sortMe, sort)
+		twipe(OutdatedUsers)
 		self:AddMsg(DBM_CORE_VERSIONCHECK_HEADER)
 		for i, v in ipairs(sortMe) do
+			local name = v.name
+			local playerColor = RAID_CLASS_COLORS[DBM:GetRaidClass(name)]
+			if playerColor then
+				name = ("|r|cff%.2x%.2x%.2x%s|r|cff%.2x%.2x%.2x"):format(playerColor.r * 255, playerColor.g * 255, playerColor.b * 255, name, 0.41 * 255, 0.8 * 255, 0.94 * 255)
+			end
 			if v.displayVersion and not (v.bwrevision or v.bwarevision) then--DBM, no BigWigs
-				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, "DBM "..v.displayVersion, v.revision))
-				if notify and v.revision < DBM.ReleaseRevision then
+				if self.Options.ShowAllVersions then
+					self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(name, "DBM "..v.displayVersion, v.revision, v.VPVersion or ""), false)--Only display VP version if not running two mods
+				end
+				if notify and v.revision < self.ReleaseRevision then
 					SendChatMessage(chatPrefixShort..DBM_CORE_YOUR_VERSION_OUTDATED, "WHISPER", nil, v.name)
 				end
-			elseif v.displayVersion and (v.bwrevision or v.bwarevision) then--DBM & BigWigs
-				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_TWO:format(v.name, "DBM "..v.displayVersion, v.revision, v.bwarevision and DBM_BIG_WIGS_ALPHA or DBM_BIG_WIGS, v.bwarevision or v.bwrevision))
-			elseif not v.displayVersion and (v.bwrevision or v.bwarevision) then--BigWigs, No DBM
-				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(v.name, v.bwarevision and DBM_BIG_WIGS_ALPHA or DBM_BIG_WIGS, v.bwarevision or v.bwrevision))
+			elseif self.Options.ShowAllVersions and (v.displayVersion and (v.bwrevision or v.bwarevision)) then--DBM & BigWigs
+				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_TWO:format(name, "DBM "..v.displayVersion, v.revision, v.bwarevision and DBM_BIG_WIGS_ALPHA or DBM_BIG_WIGS, v.bwarevision or v.bwrevision), false)
+			elseif self.Options.ShowAllVersions and (not v.displayVersion and (v.bwrevision or v.bwarevision)) then--BigWigs, No DBM
+				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY:format(name, v.bwarevision and DBM_BIG_WIGS_ALPHA or DBM_BIG_WIGS, v.bwarevision or v.bwrevision, ""), false)
 			else
-				self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_NO_DBM:format(v.name))
+				if self.Options.ShowAllVersions then
+					self:AddMsg(DBM_CORE_VERSIONCHECK_ENTRY_NO_DBM:format(name), false)
+				end
 			end
 		end
 		local TotalUsers = #sortMe
 		local NoDBM = 0
 		local NoBigwigs = 0
+		local OldMod = 0
 		for i = #sortMe, 1, -1 do
 			if not sortMe[i].revision then
 				NoDBM = NoDBM + 1
@@ -1570,10 +1810,25 @@ do
 			if not (sortMe[i].bwarevision or sortMe[i].bwrevision) then
 				NoBigwigs = NoBigwigs + 1
 			end
+			--Table sorting sorts dbm to top, bigwigs underneath. Highest version dbm always at top. so sortMe[1]
+			--This check compares all dbm version to highest RELEASE version in raid.
+			if sortMe[i].revision and (sortMe[i].revision < sortMe[1].version) or sortMe[i].bwrevision and (sortMe[i].bwrevision < fakeBWRevision) then
+				OldMod = OldMod + 1
+				local name = sortMe[i].name
+				local playerColor = RAID_CLASS_COLORS[DBM:GetRaidClass(name)]
+				if playerColor then
+					name = ("|r|cff%.2x%.2x%.2x%s|r|cff%.2x%.2x%.2x"):format(playerColor.r * 255, playerColor.g * 255, playerColor.b * 255, name, 0.41 * 255, 0.8 * 255, 0.94 * 255)
+				end
+				tinsert(OutdatedUsers, name)
+			end
 		end
 		local TotalDBM = TotalUsers - NoDBM
 		local TotalBW = TotalUsers - NoBigwigs
-		self:AddMsg(DBM_CORE_VERSIONCHECK_FOOTER:format(TotalDBM, TotalBW))
+		self:AddMsg("---", false)
+		self:AddMsg(DBM_CORE_VERSIONCHECK_FOOTER:format(TotalDBM, TotalBW), false)
+		self:AddMsg(DBM_CORE_VERSIONCHECK_OUTDATED:format(OldMod, #OutdatedUsers > 0 and table.concat(OutdatedUsers, ", ") or NONE), false)
+		twipe(OutdatedUsers)
+		twipe(sortMe)
 		for i = #sortMe, 1, -1 do
 			sortMe[i] = nil
 		end
@@ -1588,19 +1843,24 @@ do
 	end
 	function DBM:ShowLag()
 		for i, v in pairs(raid) do
-			table.insert(sortLag, v)
+			tinsert(sortLag, v)
 		end
-		table.sort(sortLag, sortit)
+		tsort(sortLag, sortit)
 		self:AddMsg(DBM_CORE_LAG_HEADER)
 		for i, v in ipairs(sortLag) do
+			local name = v.name
+			local playerColor = RAID_CLASS_COLORS[DBM:GetRaidClass(name)]
+			if playerColor then
+				name = ("|r|cff%.2x%.2x%.2x%s|r|cff%.2x%.2x%.2x"):format(playerColor.r * 255, playerColor.g * 255, playerColor.b * 255, name, 0.41 * 255, 0.8 * 255, 0.94 * 255)
+			end
 			if v.worldlag then
-				self:AddMsg(DBM_CORE_LAG_ENTRY:format(v.name, v.worldlag, v.homelag))
+				self:AddMsg(DBM_CORE_LAG_ENTRY:format(name, v.worldlag, v.homelag), false)
 			else
-				table.insert(nolagResponse, v.name)
+				tinsert(nolagResponse, v.name)
 			end
 		end
 		if #nolagResponse > 0 then
-			DBM:AddMsg(DBM_CORE_LAG_FOOTER:format(table.concat(nolagResponse, ", ")))
+			self:AddMsg(DBM_CORE_LAG_FOOTER:format(table.concat(nolagResponse, ", ")), false)
 			for i = #nolagResponse, 1, -1 do
 				nolagResponse[i] = nil
 			end
@@ -1625,14 +1885,14 @@ do
 	--Standard Pizza Timer
 	function DBM:CreatePizzaTimer(time, text, broadcast, sender, count, loop, terminate)
 		if terminate then
-			DBM:Unschedule(loopTimer)
+			self:Unschedule(loopTimer)
 			return
 		end
 		if sender and ignore[sender] then return end
 		text = text:sub(1, 16)
 		text = text:gsub("%%t", UnitName("target") or "<no target>")
 		if time < 2 then
-			DBM:AddMsg(DBM_PIZZA_ERROR_USAGE)
+			self:AddMsg(DBM_PIZZA_ERROR_USAGE)
 			return
 		end
 		self.Bars:CreateBar(time, text, "Interface\\Icons\\Spell_Holy_BorrowedTime")
@@ -1646,28 +1906,28 @@ do
 		if sender then self:ShowPizzaInfo(text, sender) end
 		if count then
 			if not fakeMod then
-				fakeMod = DBM:NewMod("CreateCountTimerDummy")
-				DBM:GetModLocalization("CreateCountTimerDummy"):SetGeneralLocalization{ name = DBM_CORE_MINIMAP_TOOLTIP_HEADER }
+				fakeMod = self:NewMod("CreateCountTimerDummy")
+				self:GetModLocalization("CreateCountTimerDummy"):SetGeneralLocalization{ name = DBM_CORE_MINIMAP_TOOLTIP_HEADER }
 				fakeMod.countdown = fakeMod:NewCountdown(0, 0, nil, nil, nil, true)
 			end
-			if not DBM.Options.DontPlayPTCountdown then
+			if not self.Options.DontPlayPTCountdown then
 				fakeMod.countdown:Cancel()
 				fakeMod.countdown:Start(time)
 			end
-			if not DBM.Options.DontShowPTCountdownText then
-				DBM:Unschedule(countDownTextDelay)
+			if not self.Options.DontShowPTCountdownText then
+				self:Unschedule(countDownTextDelay)
 				TimerTracker_OnEvent(TimerTracker, "PLAYER_ENTERING_WORLD")
 				local threshold = DBM.Options.PTCountThreshold
 				if time > threshold then
-					DBM:Schedule(time-threshold, countDownTextDelay, threshold)
+					self:Schedule(time-threshold, countDownTextDelay, threshold)
 				else
 					TimerTracker_OnEvent(TimerTracker, "START_TIMER", 2, time, time)
 				end
 			end
 		end
 		if loop then
-			DBM:Unschedule(loopTimer)--Only one loop timer supported at once doing this, but much cleaner this way
-			DBM:Schedule(time, loopTimer, time, text, broadcast, sender, count)
+			self:Unschedule(loopTimer)--Only one loop timer supported at once doing this, but much cleaner this way
+			self:Schedule(time, loopTimer, time, text, broadcast, sender, count)
 		end
 	end
 
@@ -1677,7 +1937,7 @@ do
 end
 
 function DBM:ShowPizzaInfo(id, sender)
-	if DBM.Options.ShowPizzaMessage then
+	if self.Options.ShowPizzaMessage then
 		self:AddMsg(DBM_PIZZA_SYNC_INFO:format(sender, id))
 	end
 end
@@ -1788,7 +2048,13 @@ do
 --			return
 --		end
 		if GetAddOnEnableState(playerName, "VEM-Core") >= 1 then
-			DBM:AddMsg(DBM_CORE_VEM)
+			self:AddMsg(DBM_CORE_VEM)
+			dbmIsEnabled = false
+			return
+		end
+		if GetAddOnEnableState(playerName, "DBM-Profiles") >= 1 then
+			self:AddMsg(DBM_CORE_3RDPROFILES)
+			dbmIsEnabled = false
 			return
 		end
 		if not IsAddOnLoaded("DBM-GUI") then
@@ -1810,7 +2076,7 @@ do
 				end
 				return false
 			end
-			table.sort(callOnLoad, function(v1, v2) return v1[2] < v2[2] end)
+			tsort(callOnLoad, function(v1, v2) return v1[2] < v2[2] end)
 			for i, v in ipairs(callOnLoad) do v[1]() end
 			collectgarbage("collect")
 		end
@@ -1908,7 +2174,6 @@ end
 do
 	local inRaid = false
 
-	local raidUIds = {}
 	local raidGuids = {}
 	local iconSeter = {}
 
@@ -1924,11 +2189,10 @@ do
 				raid[playerName].class = class
 				raid[playerName].id = "player"
 				raid[playerName].revision = DBM.Revision
-				raid[playerName].version = tonumber(DBM.Version)
+				raid[playerName].version = DBM.ReleaseRevision
 				raid[playerName].displayVersion = DBM.DisplayVersion
 				raid[playerName].locale = GetLocale()
 				raid[playerName].enabledIcons = tostring(not DBM.Options.DontSetIcons)
-				raidUIds["player"] = playerName
 				raidGuids[UnitGUID("player")] = playerName
 			end
 		end)
@@ -1965,17 +2229,16 @@ do
 					raid[name].id = id
 					raid[name].guid = UnitGUID(id) or ""
 					raid[name].updated = true
-					raidUIds[id] = name
 					raidGuids[UnitGUID(id) or ""] = name
 				end
 			end
 			enableIcons = false
-			table.wipe(iconSeter)
+			twipe(iconSeter)
 			for i, v in pairs(raid) do
 				if not v.updated then
-					raidUIds[v.id] = nil
 					raidGuids[v.guid] = nil
 					raid[i] = nil
+					removeEntry(newerVersionPerson, i)
 					fireEvent("raidLeave", i)
 				else
 					v.updated = nil
@@ -1985,7 +2248,7 @@ do
 				end
 			end
 			if #iconSeter > 0 then
-				table.sort(iconSeter, function(a, b) return a > b end)
+				tsort(iconSeter, function(a, b) return a > b end)
 				local elected = iconSeter[1]
 				if playerName == elected:sub(elected:find(" ") + 1) then
 					enableIcons = true
@@ -2007,12 +2270,10 @@ do
 				else
 					id = "party"..i
 				end
-				local name, server = UnitName(id)
-				local shortname = name
-				local rank, _, className = UnitIsGroupLeader(id), UnitClass(id)
-				if server and server ~= ""  then
-					name = name.."-"..server
-				end
+				local name = GetUnitName(id, true)
+				local shortname = UnitName(id)
+				local rank = UnitIsGroupLeader(id) and 2 or 0
+				local _, className = UnitClass(id)
 				if (not raid[name]) and inRaid then
 					fireEvent("partyJoin", name)
 				end
@@ -2020,24 +2281,19 @@ do
 				raid[name].name = name
 				raid[name].shortname = shortname
 				raid[name].guid = UnitGUID(id) or ""
-				if rank then
-					raid[name].rank = 2
-				else
-					raid[name].rank = 0
-				end
+				raid[name].rank = rank
 				raid[name].class = className
 				raid[name].id = id
 				raid[name].updated = true
-				raidUIds[id] = name
 				raidGuids[UnitGUID(id) or ""] = name
 			end
 			enableIcons = false
-			table.wipe(iconSeter)
+			twipe(iconSeter)
 			for i, v in pairs(raid) do
 				if not v.updated then
-					raidUIds[v.id] = nil
 					raidGuids[v.guid] = nil
 					raid[i] = nil
+					removeEntry(newerVersionPerson, i)
 					fireEvent("partyLeave", i)
 				else
 					v.updated = nil
@@ -2047,7 +2303,7 @@ do
 				end
 			end
 			if #iconSeter > 0 then
-				table.sort(iconSeter, function(a, b) return a > b end)
+				tsort(iconSeter, function(a, b) return a > b end)
 				local elected = iconSeter[1]
 				if playerName == elected:sub(elected:find(" ") + 1) then
 					enableIcons = true
@@ -2059,6 +2315,7 @@ do
 			enableIcons = true
 			fireEvent("raidLeave", playerName)
 			twipe(raid)
+			twipe(newerVersionPerson)
 			-- restore playerinfo into raid table on raidleave. (for solo raid)
 			raid[playerName] = {}
 			raid[playerName].name = playerName
@@ -2068,23 +2325,11 @@ do
 			raid[playerName].class = class
 			raid[playerName].id = "player"
 			raid[playerName].revision = DBM.Revision
-			raid[playerName].version = tonumber(DBM.Version)
+			raid[playerName].version = DBM.ReleaseRevision
 			raid[playerName].displayVersion = DBM.DisplayVersion
 			raid[playerName].locale = GetLocale()
-			raidUIds["player"] = playerName
 			raidGuids[UnitGUID("player")] = playerName
 		end
-	end
-
-	--This local function called if uId is not player's uId. (like target, raid1traget)
-	local function getUnitFullName(uId)
-		if not uId then return end
-		local name, server = UnitName(uId)
-		if not name then return end
-		if server and server ~= ""  then
-			name = name.."-"..server
-		end
-		return name
 	end
 
 	function DBM:GROUP_ROSTER_UPDATE()
@@ -2118,7 +2363,7 @@ do
 	end
 
 	function DBM:GetUnitFullName(uId)
-		return raidUIds[uId] or getUnitFullName(uId)
+		return GetUnitName(uId, true)
 	end
 
 	function DBM:GetFullPlayerNameByGUID(guid)
@@ -2190,7 +2435,7 @@ function DBM:GetNumRealGroupMembers()
 	local currentMapId = select(4, UnitPosition("player"))
 	local realGroupMembers = 0
 	if IsInGroup() then
-		for uId in DBM:GetGroupMembers() do
+		for uId in self:GetGroupMembers() do
 			if select(4, UnitPosition(uId)) == currentMapId then
 				realGroupMembers = realGroupMembers + 1
 			end
@@ -2234,7 +2479,7 @@ function DBM:GetBossUnitId(name)
 			return "boss" .. i
 		end
 	end
-	for uId in DBM:GetGroupMembers() do
+	for uId in self:GetGroupMembers() do
 		if UnitName(uId .. "target") == name and not UnitIsPlayer(uId .. "target") then
 			return uId .. "target"
 		end
@@ -2260,202 +2505,558 @@ end
 ---------------
 --  Options  --
 ---------------
-do
-	local function addDefaultOptions(t1, t2)
-		for i, v in pairs(t2) do
-			if t1[i] == nil then
-				t1[i] = v
-			elseif type(v) == "table" and type(t1[i]) == "table" then
-				addDefaultOptions(t1[i], v)
-			end
+function DBM:AddDefaultOptions(t1, t2)
+	for i, v in pairs(t2) do
+		if t1[i] == nil then
+			t1[i] = v
+		elseif type(v) == "table" and type(t1[i]) == "table" then
+			self:AddDefaultOptions(t1[i], v)
 		end
 	end
+end
 
-	local function setRaidWarningPositon()
-		RaidWarningFrame:ClearAllPoints()
-		RaidWarningFrame:SetPoint(DBM.Options.RaidWarningPosition.Point, UIParent, DBM.Options.RaidWarningPosition.Point, DBM.Options.RaidWarningPosition.X, DBM.Options.RaidWarningPosition.Y)
-	end
+function DBM:SetRaidWarningPositon()
+	RaidWarningFrame:ClearAllPoints()
+	RaidWarningFrame:SetPoint(self.Options.RaidWarningPosition.Point, UIParent, self.Options.RaidWarningPosition.Point, self.Options.RaidWarningPosition.X, self.Options.RaidWarningPosition.Y)
+end
 
-	local function migrateSavedOptions()
-		-- reset default special warning font for russian clients due to many reports of problems with cyrillic characters in special warnings
-		if DBM.Options.LastRevision < 7998 then
-			DBM.Options.LastRevision = DBM.Revision
-			if GetLocale() == "ruRU" then
-				DBM.Options.SpecialWarningFont = STANDARD_TEXT_FONT
-			end
+function DBM:LoadModOptions(modId, inCombat, first)
+	local oldSavedVarsName = modId:gsub("-", "").."_SavedVars"
+	local savedVarsName = modId:gsub("-", "").."_AllSavedVars"
+	local savedStatsName = modId:gsub("-", "").."_SavedStats"
+	local fullname = playerName.."-"..playerRealm
+	local profileNum = playerLevel > 9 and DBM_UseDualProfile and currentSpecGroup or 0
+	if not _G[savedVarsName] then _G[savedVarsName] = {} end
+	local savedOptions = _G[savedVarsName][fullname] or {}
+	local savedStats = _G[savedStatsName] or {}
+	local existId = {}
+	for i, id in ipairs(DBM.ModLists[modId]) do
+		existId[id] = true
+		-- init
+		if not savedOptions[id] then savedOptions[id] = {} end
+		local mod = DBM:GetModByName(id)
+		-- migrate old option
+		if _G[oldSavedVarsName] and _G[oldSavedVarsName][id] then
+			self:Debug("LoadModOptions: Found old options, importing")
+			local oldTable = _G[oldSavedVarsName][id]
+			_G[oldSavedVarsName][id] = nil
+			savedOptions[id][profileNum] = oldTable
 		end
-	end
-
-	function loadOptions()
-		DBM.Options = DBM_SavedOptions
-		enabled = DBM.Options.Enabled
-		addDefaultOptions(DBM.Options, DBM.DefaultOptions)
-		-- load special warning options
-		migrateSavedOptions()
-		DBM:UpdateSpecialWarningOptions()
-		-- set this with a short delay to prevent issues with other addons also trying to do the same thing with another position ;)
-		DBM:Schedule(5, setRaidWarningPositon)
-		DBM:Schedule(20, setRaidWarningPositon)--A second attempt after we are sure all other mods are loaded, so we can work around issues with movemanything or other mods.
-	end
-
-	function loadModOptions(modId)
-		local savedOptions = _G[modId:gsub("-", "").."_SavedVars"] or {}
-		local savedStats = _G[modId:gsub("-", "").."_SavedStats"] or {}
-		local existId = {}
-		for i, v in ipairs(DBM.Mods) do
-			if v.modId == modId then
-				existId[v.id] = true
-				-- import old options from mods that were using the encounter ID as number as id
-				-- this was changed to use the string for compatibility reasons (see issues with sync),
-				-- but a user might still have saved options or stats that still use the old id as number
-				if tonumber(v.id) then
-					local oldId = tonumber(v.id)
-					if savedOptions[oldId] then
-						savedOptions[v.id] = savedOptions[oldId]
-						savedOptions[oldId] = nil
-					end
-					if savedStats[oldId] then
-						savedStats[v.id] = savedStats[oldId]
-						savedStats[oldId] = nil
-					end
+		if not savedOptions[id][profileNum] and not first then--previous profile not found. load defaults
+			self:Debug("LoadModOptions: No saved options, creating defaults for profile "..profileNum, 2)
+			local defaultOptions = {}
+			for option, optionValue in pairs(mod.DefaultOptions) do
+				if type(optionValue) == "table" then
+					optionValue = optionValue.value
+				elseif type(optionValue) == "string" then
+					optionValue = mod:GetRoleFlagValue(optionValue)
 				end
-				savedOptions[v.id] = savedOptions[v.id] or v.Options
-				for option, optionValue in pairs(v.Options) do
-					v.DefaultOptions[option] = optionValue
-					if savedOptions[v.id][option] == nil then
-						savedOptions[v.id][option] = optionValue
+				defaultOptions[option] = optionValue 
+			end
+			savedOptions[id][profileNum] = defaultOptions
+		else
+			savedOptions[id][profileNum] = savedOptions[id][profileNum] or mod.Options
+			--check new option
+			for option, optionValue in pairs(mod.DefaultOptions) do
+				if savedOptions[id][profileNum][option] == nil then
+					if type(optionValue) == "table" then
+						optionValue = optionValue.value
+					elseif type(optionValue) == "string" then
+						optionValue = mod:GetRoleFlagValue(optionValue)
 					end
+					savedOptions[id][profileNum][option] = optionValue
 				end
-				--clean unused savedvariables
-				for option, optionValue in pairs(savedOptions[v.id]) do
-					if v.DefaultOptions[option] == nil then
-						savedOptions[v.id][option] = nil
-					end
-				end
-				v.Options = savedOptions[v.id] or {}
-				savedStats[v.id] = savedStats[v.id] or {}
-				local stats = savedStats[v.id]
-				stats.normalKills = stats.normalKills or 0
-				stats.normalPulls = stats.normalPulls or 0
-				stats.heroicKills = stats.heroicKills or 0
-				stats.heroicPulls = stats.heroicPulls or 0
-				stats.challengeKills = stats.challengeKills or 0
-				stats.challengePulls = stats.challengePulls or 0
-				stats.mythicKills = stats.mythicKills or 0
-				stats.mythicPulls = stats.mythicPulls or 0
-				stats.normal25Kills = stats.normal25Kills or 0
-				stats.normal25Kills = stats.normal25Kills or 0
-				stats.normal25Pulls = stats.normal25Pulls or 0
-				stats.heroic25Kills = stats.heroic25Kills or 0
-				stats.heroic25Pulls = stats.heroic25Pulls or 0
-				stats.lfr25Kills = stats.lfr25Kills or 0
-				stats.lfr25Pulls = stats.lfr25Pulls or 0
-				v.stats = stats
-				if v.OnInitialize then v:OnInitialize() end
-				for i, cat in ipairs(v.categorySort) do -- temporary hack
-					if cat == "misc" then
-						tremove(v.categorySort, i)
-						tinsert(v.categorySort, cat)
-						break
+			end
+			--clean unused saved variables (do not work on combat load)
+			if not inCombat then
+				for option, optionValue in pairs(savedOptions[id][profileNum]) do
+					if mod.DefaultOptions[option] == nil then
+						savedOptions[id][profileNum][option] = nil
+					elseif mod.DefaultOptions[option] and (type(mod.DefaultOptions[option]) == "table") then--recover broken dropdown option
+						savedOptions[id][profileNum][option] = mod.DefaultOptions[option].value
 					end
 				end
 			end
 		end
-		--clean unused savedvariables
+		--apply saved option to actual option table
+		mod.Options = savedOptions[id][profileNum]
+		--stats init (only first load)
+		if first then
+			savedStats[id] = savedStats[id] or {}
+			local stats = savedStats[id]
+			stats.normalKills = stats.normalKills or 0
+			stats.normalPulls = stats.normalPulls or 0
+			stats.heroicKills = stats.heroicKills or 0
+			stats.heroicPulls = stats.heroicPulls or 0
+			stats.challengeKills = stats.challengeKills or 0
+			stats.challengePulls = stats.challengePulls or 0
+			stats.mythicKills = stats.mythicKills or 0
+			stats.mythicPulls = stats.mythicPulls or 0
+			stats.normal25Kills = stats.normal25Kills or 0
+			stats.normal25Kills = stats.normal25Kills or 0
+			stats.normal25Pulls = stats.normal25Pulls or 0
+			stats.heroic25Kills = stats.heroic25Kills or 0
+			stats.heroic25Pulls = stats.heroic25Pulls or 0
+			stats.lfr25Kills = stats.lfr25Kills or 0
+			stats.lfr25Pulls = stats.lfr25Pulls or 0
+			mod.stats = stats
+			--run OnInitialize function
+			if mod.OnInitialize then mod:OnInitialize() end
+		end
+	end
+	--clean unused saved variables (do not work on combat load)
+	if not inCombat then
 		for id, table in pairs(savedOptions) do
-			if existId[id] == nil then
+			if not existId[id] and not id:find("talent") then
 				savedOptions[id] = nil
 			end
 		end
 		for id, table in pairs(savedStats) do
-			if existId[id] == nil then
+			if not existId[id] then
 				savedStats[id] = nil
 			end
 		end
-		_G[modId:gsub("-", "").."_SavedVars"] = savedOptions
-		_G[modId:gsub("-", "").."_SavedStats"] = savedStats
+	end
+	_G[savedVarsName][fullname] = savedOptions
+	if profileNum > 0 then
+		_G[savedVarsName][fullname]["talent"..profileNum] = profileNum == 3 and gladStance or currentSpecName
+		self:Debug("LoadModOptions: Finished loading ".._G[savedVarsName][fullname]["talent"..profileNum])
+	end
+	_G[savedStatsName] = savedStats
+	if not first and DBM_GUI and DBM_GUI.currentViewing and DBM_GUI_OptionsFrame:IsShown() then
+		DBM_GUI_OptionsFrame:DisplayFrame(DBM_GUI.currentViewing)
 	end
 end
 
-local lastLFGAlert = 0
-function DBM:LFG_ROLE_CHECK_SHOW()
-	if not UnitIsGroupLeader("player") and DBM.Options.LFDEnhance and GetTime() - lastLFGAlert > 5 then
-		PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master")--Because regular sound uses SFX channel which is too low of volume most of time
-		lastLFGAlert = GetTime()
+function DBM:SpecChanged(force)
+	if not force and not DBM_UseDualProfile then return end
+	--Load Options again.
+	for modId, idTable in pairs(DBM.ModLists) do
+		self:LoadModOptions(modId)
+	end
+end
+
+function DBM:PLAYER_LEVEL_UP()
+	playerLevel = UnitLevel("player")
+	self:SpecChanged()
+end
+
+function DBM:LoadAllModDefaultOption(modId)
+	-- modId is string like "DBM-Highmaul"
+	if not modId or not DBM.ModLists[modId] then return end
+	-- prevent error
+	if not currentSpecID then
+		self:SetCurrentSpecInfo()
+	end
+	-- variable init
+	local savedVarsName = modId:gsub("-", "").."_AllSavedVars"
+	local fullname = playerName.."-"..playerRealm
+	local profileNum = playerLevel > 9 and DBM_UseDualProfile and currentSpecGroup or 0
+	-- prevent nil table error 
+	if not _G[savedVarsName] then _G[savedVarsName] = {} end
+	for i, id in ipairs(DBM.ModLists[modId]) do
+		-- prevent nil table error 
+		if not _G[savedVarsName][fullname][id] then _G[savedVarsName][fullname][id] = {} end
+		-- actual do load default option
+		local mod = DBM:GetModByName(id)
+		local defaultOptions = {}
+		for option, optionValue in pairs(mod.DefaultOptions) do
+			if type(optionValue) == "table" then
+				optionValue = optionValue.value
+			elseif type(optionValue) == "string" then
+				optionValue = mod:GetRoleFlagValue(optionValue)
+			end
+			defaultOptions[option] = optionValue 
+		end
+		mod.Options = {}
+		mod.Options = defaultOptions
+		_G[savedVarsName][fullname][id][profileNum] = {}
+		_G[savedVarsName][fullname][id][profileNum] = mod.Options
+	end
+	self:AddMsg(DBM_CORE_ALLMOD_DEFAULT_LOADED)
+	-- update gui if showing
+	if DBM_GUI and DBM_GUI.currentViewing and DBM_GUI_OptionsFrame:IsShown() then
+		DBM_GUI_OptionsFrame:DisplayFrame(DBM_GUI.currentViewing)
+	end
+end
+
+function DBM:LoadModDefaultOption(mod)
+	-- mod must be table
+	if not mod then return end
+	-- prevent error
+	if not currentSpecID then
+		self:SetCurrentSpecInfo()
+	end
+	-- variable init
+	local savedVarsName = (mod.modId):gsub("-", "").."_AllSavedVars"
+	local fullname = playerName.."-"..playerRealm
+	local profileNum = playerLevel > 9 and DBM_UseDualProfile and currentSpecGroup or 0
+	-- prevent nil table error
+	if not _G[savedVarsName] then _G[savedVarsName] = {} end
+	if not _G[savedVarsName][fullname] then _G[savedVarsName][fullname] = {} end
+	if not _G[savedVarsName][fullname][mod.id] then _G[savedVarsName][fullname][mod.id] = {} end
+	-- do load default
+	local defaultOptions = {}
+	for option, optionValue in pairs(mod.DefaultOptions) do
+		if type(optionValue) == "table" then
+			optionValue = optionValue.value
+		elseif type(optionValue) == "string" then
+			optionValue = mod:GetRoleFlagValue(optionValue)
+		end
+		defaultOptions[option] = optionValue 
+	end
+	mod.Options = {}
+	mod.Options = defaultOptions
+	_G[savedVarsName][fullname][mod.id][profileNum] = {}
+	_G[savedVarsName][fullname][mod.id][profileNum] = mod.Options
+	self:AddMsg(DBM_CORE_MOD_DEFAULT_LOADED)
+	-- update gui if showing
+	if DBM_GUI and DBM_GUI.currentViewing and DBM_GUI_OptionsFrame:IsShown() then
+		DBM_GUI_OptionsFrame:DisplayFrame(DBM_GUI.currentViewing)
+	end
+end
+
+function DBM:CopyAllModOption(modId, sourceName, sourceProfile)
+	-- modId is string like "DBM-Highmaul"
+	if not modId or not sourceName or not sourceProfile or not DBM.ModLists[modId] then return end
+	-- prevent error
+	if not currentSpecID then
+		self:SetCurrentSpecInfo()
+	end
+	-- variable init
+	local savedVarsName = modId:gsub("-", "").."_AllSavedVars"
+	local targetName = playerName.."-"..playerRealm
+	local targetProfile = playerLevel > 9 and DBM_UseDualProfile and currentSpecGroup or 0
+	-- do not copy setting itself
+	if targetName == sourceName and targetProfile == sourceProfile then
+		self:AddMsg(DBM_CORE_MPROFILE_COPY_SELF_ERROR)
+		return
+	end
+	-- prevent nil table error 
+	if not _G[savedVarsName] then _G[savedVarsName] = {} end
+	-- check source is exist
+	if not _G[savedVarsName][sourceName] then
+		self:AddMsg(DBM_CORE_MPROFILE_COPY_S_ERROR)
+		return
+	end
+	local targetOptions = _G[savedVarsName][targetName] or {}
+	for i, id in ipairs(DBM.ModLists[modId]) do
+		-- check source is exist
+		if not _G[savedVarsName][sourceName][id] then
+			self:AddMsg(DBM_CORE_MPROFILE_COPY_S_ERROR)
+			return
+		end
+		if not _G[savedVarsName][sourceName][id][sourceProfile] then
+			self:AddMsg(DBM_CORE_MPROFILE_COPY_S_ERROR)
+			return
+		end
+		-- prevent nil table error 
+		if not _G[savedVarsName][targetName][id] then _G[savedVarsName][targetName][id] = {} end
+		-- copy table
+		_G[savedVarsName][targetName][id][targetProfile] = {}--clear before copy
+		_G[savedVarsName][targetName][id][targetProfile] = _G[savedVarsName][sourceName][id][sourceProfile]
+		--check new option
+		local mod = DBM:GetModByName(id)
+		for option, optionValue in pairs(mod.Options) do
+			if _G[savedVarsName][targetName][id][targetProfile][option] == nil then
+				_G[savedVarsName][targetName][id][targetProfile][option] = optionValue
+			end
+		end
+		-- apply to options table
+		mod.Options = {}
+		mod.Options = _G[savedVarsName][targetName][id][targetProfile]
+	end
+	if targetProfile > 0 then
+		_G[savedVarsName][targetName]["talent"..targetProfile] = currentSpecName
+	end
+	self:AddMsg(DBM_CORE_MPROFILE_COPY_SUCCESS:format(sourceName, sourceProfile))
+	-- update gui if showing
+	if DBM_GUI and DBM_GUI.currentViewing and DBM_GUI_OptionsFrame:IsShown() then
+		DBM_GUI_OptionsFrame:DisplayFrame(DBM_GUI.currentViewing)
+	end
+end
+
+function DBM:CopyAllModSoundOption(modId, sourceName, sourceProfile)
+	-- modId is string like "DBM-Highmaul"
+	if not modId or not sourceName or not sourceProfile or not DBM.ModLists[modId] then return end
+	-- prevent error
+	if not currentSpecID then
+		self:SetCurrentSpecInfo()
+	end
+	-- variable init
+	local savedVarsName = modId:gsub("-", "").."_AllSavedVars"
+	local targetName = playerName.."-"..playerRealm
+	local targetProfile = playerLevel > 9 and DBM_UseDualProfile and currentSpecGroup or 0
+	-- do not copy setting itself
+	if targetName == sourceName and targetProfile == sourceProfile then
+		self:AddMsg(DBM_CORE_MPROFILE_COPYS_SELF_ERROR)
+		return
+	end
+	-- prevent nil table error 
+	if not _G[savedVarsName] then _G[savedVarsName] = {} end
+	-- check source is exist
+	if not _G[savedVarsName][sourceName] then
+		self:AddMsg(DBM_CORE_MPROFILE_COPYS_S_ERROR)
+		return
+	end
+	local targetOptions = _G[savedVarsName][targetName] or {}
+	for i, id in ipairs(DBM.ModLists[modId]) do
+		-- check source is exist
+		if not _G[savedVarsName][sourceName][id] then
+			self:AddMsg(DBM_CORE_MPROFILE_COPYS_S_ERROR)
+			return
+		end
+		if not _G[savedVarsName][sourceName][id][sourceProfile] then
+			self:AddMsg(DBM_CORE_MPROFILE_COPYS_S_ERROR)
+			return
+		end
+		-- prevent nil table error 
+		if not _G[savedVarsName][targetName][id] then _G[savedVarsName][targetName][id] = {} end
+		-- copy table
+		for option, optionValue in pairs(_G[savedVarsName][sourceName][id][sourceProfile]) do
+			if option:find("SpecialWarningSound") then
+				_G[savedVarsName][targetName][id][targetProfile][option] = optionValue
+			end
+		end
+		-- apply to options table
+		local mod = DBM:GetModByName(id)
+		mod.Options = {}
+		mod.Options = _G[savedVarsName][targetName][id][targetProfile]
+	end
+	if targetProfile > 0 then
+		_G[savedVarsName][targetName]["talent"..targetProfile] = currentSpecName
+	end
+	self:AddMsg(DBM_CORE_MPROFILE_COPYS_SUCCESS:format(sourceName, sourceProfile))
+	-- update gui if showing
+	if DBM_GUI and DBM_GUI.currentViewing and DBM_GUI_OptionsFrame:IsShown() then
+		DBM_GUI_OptionsFrame:DisplayFrame(DBM_GUI.currentViewing)
+	end
+end
+
+function DBM:DeleteAllModOption(modId, name, profile)
+	-- modId is string like "DBM-Highmaul"
+	if not modId or not name or not profile or not DBM.ModLists[modId] then return end
+	-- prevent error
+	if not currentSpecID then
+		self:SetCurrentSpecInfo()
+	end
+	-- variable init
+	local savedVarsName = modId:gsub("-", "").."_AllSavedVars"
+	local fullname = playerName.."-"..playerRealm
+	local profileNum = playerLevel > 9 and DBM_UseDualProfile and currentSpecGroup or 0
+	-- cannot delete current profile.
+	if fullname == name and profileNum == profile then
+		self:AddMsg(DBM_CORE_MPROFILE_DELETE_SELF_ERROR)
+		return
+	end
+	-- prevent nil table error
+	if not _G[savedVarsName] then _G[savedVarsName] = {} end
+	if not _G[savedVarsName][name] then
+		self:AddMsg(DBM_CORE_MPROFILE_DELETE_S_ERROR)
+		return
+	end
+	for i, id in ipairs(DBM.ModLists[modId]) do
+		-- prevent nil table error
+		if not _G[savedVarsName][name][id] then
+			self:AddMsg(DBM_CORE_MPROFILE_DELETE_S_ERROR)
+			return
+		end
+		-- delete
+		_G[savedVarsName][name][id][profile] = nil
+	end
+	_G[savedVarsName][name]["talent"..profile] = nil
+	self:AddMsg(DBM_CORE_MPROFILE_DELETE_SUCCESS:format(name, profile))
+end
+
+function DBM:ClearAllStats(modId)
+	-- modId is string like "DBM-Highmaul"
+	if not modId or not DBM.ModLists[modId] then return end
+	-- variable init
+	local savedStatsName = modId:gsub("-", "").."_SavedStats"
+	-- prevent nil table error 
+	if not _G[savedStatsName] then _G[savedStatsName] = {} end
+	for i, id in ipairs(DBM.ModLists[modId]) do
+		local mod = self:GetModByName(id)
+		-- prevent nil table error
+		local defaultStats = {}
+		defaultStats.normalKills = 0
+		defaultStats.normalPulls = 0
+		defaultStats.heroicKills = 0
+		defaultStats.heroicPulls = 0
+		defaultStats.challengeKills = 0
+		defaultStats.challengePulls = 0
+		defaultStats.mythicKills = 0
+		defaultStats.mythicPulls = 0
+		defaultStats.normal25Kills = 0
+		defaultStats.normal25Kills = 0
+		defaultStats.normal25Pulls = 0
+		defaultStats.heroic25Kills = 0
+		defaultStats.heroic25Pulls = 0
+		defaultStats.lfr25Kills = 0
+		defaultStats.lfr25Pulls = 0
+		mod.stats = {}
+		mod.stats = defaultStats
+		_G[savedStatsName][id] = {}
+		_G[savedStatsName][id] = defaultStats
+	end
+	self:AddMsg(DBM_CORE_ALLMOD_STATS_RESETED)
+	DBM_GUI:UpdateModList()
+end
+
+do
+	function loadOptions()
+		--init
+		if not DBM_AllSavedOptions then DBM_AllSavedOptions = {} end
+		usedProfile = DBM_UsedProfile or usedProfile
+		if not usedProfile or (usedProfile ~= "Default" and not DBM_AllSavedOptions[usedProfile]) then
+			-- DBM.Option is not loaded. so use print function
+			print(DBM_CORE_PROFILE_NOT_FOUND)
+			usedProfile = "Default"
+		end
+		DBM_UsedProfile = usedProfile
+		--migrate old options
+		if DBM_SavedOptions and not DBM_AllSavedOptions[usedProfile] then
+			DBM_AllSavedOptions[usedProfile] = DBM_SavedOptions
+		end
+		DBM.Options = DBM_AllSavedOptions[usedProfile] or {}
+		dbmIsEnabled = DBM.Options.Enabled or true
+		DBM:AddDefaultOptions(DBM.Options, DBM.DefaultOptions)
+		DBM_AllSavedOptions[usedProfile] = DBM.Options
+
+		-- force enable dual profile (change default)
+		if DBM_CharSavedRevision < 12976 then
+			if class ~= "MAGE" and class ~= "WARLOCK" and class ~= "HUNTER" and class ~= "ROGUE" then
+				DBM_UseDualProfile = true
+			end
+		end
+		DBM_CharSavedRevision = DBM.Revision
+
+		-- load special warning options
+		DBM:UpdateWarningOptions()
+		DBM:UpdateSpecialWarningOptions()
+		-- set this with a short delay to prevent issues with other addons also trying to do the same thing with another position ;)
+		DBM:Schedule(5, DBM.SetRaidWarningPositon, DBM)
+		DBM:Schedule(20, DBM.SetRaidWarningPositon, DBM)--A second attempt after we are sure all other mods are loaded, so we can work around issues with movemanything or other mods.
+		--Fix old options that use .wav instead of .ogg, to prevent no sounds bug as of 6.1+
+		--Check file paths for .wav, but make sure file path does not contain Interface\\AddOns, because wav there is still valid. Only blizzard .wav is gone.
+		if DBM.Options.RaidWarningSound:find(".wav") then DBM.Options.RaidWarningSound = DBM.DefaultOptions.RaidWarningSound end
+		if DBM.Options.SpecialWarningSound:find(".wav") then DBM.Options.SpecialWarningSound = DBM.DefaultOptions.SpecialWarningSound end
+		if DBM.Options.SpecialWarningSound2:find(".wav") then DBM.Options.SpecialWarningSound2 = DBM.DefaultOptions.SpecialWarningSound2 end
+		if DBM.Options.SpecialWarningSound3:find(".wav") then DBM.Options.SpecialWarningSound3 = DBM.DefaultOptions.SpecialWarningSound3 end
+		if DBM.Options.SpecialWarningSound4:find(".wav") then DBM.Options.SpecialWarningSound4 = DBM.DefaultOptions.SpecialWarningSound4 end
+	end
+end
+
+do
+	local lastLFGAlert = 0
+	function DBM:LFG_ROLE_CHECK_SHOW()
+		if not UnitIsGroupLeader("player") and self.Options.LFDEnhance and GetTime() - lastLFGAlert > 5 then
+			PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master")--Because regular sound uses SFX channel which is too low of volume most of time
+			lastLFGAlert = GetTime()
+		end
 	end
 end
 
 function DBM:LFG_PROPOSAL_SHOW()
-	DBM.Bars:CreateBar(40, DBM_LFG_INVITE, "Interface\\Icons\\Spell_Holy_BorrowedTime")
-	if DBM.Options.LFDEnhance then
+	self.Bars:CreateBar(40, DBM_LFG_INVITE, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+	if self.Options.LFDEnhance then
 		PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master")--Because regular sound uses SFX channel which is too low of volume most of time
 	end
 end
 
 function DBM:LFG_PROPOSAL_FAILED()
-	DBM.Bars:CancelBar(DBM_LFG_INVITE)
+	self.Bars:CancelBar(DBM_LFG_INVITE)
 end
 
 function DBM:LFG_PROPOSAL_SUCCEEDED()
-	DBM.Bars:CancelBar(DBM_LFG_INVITE)
+	self.Bars:CancelBar(DBM_LFG_INVITE)
+end
+
+function DBM:READY_CHECK()
+	if self.Options.RLReadyCheckSound and not BINDING_HEADER_oRA3 then--readycheck sound, if ora3 not installed (bad to have 2 mods do it)
+		PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master")--Because regular sound uses SFX channel which is too low of volume most of time
+	end
+end
+
+do
+	local function stopQueueButtonDelay()
+		QueueStatusMinimapButton.EyeHighlightAnim:Stop()
+	end
+	function DBM:LFG_LIST_APPLICANT_LIST_UPDATED(hasNewPending, hasNewPendingWithData)
+		if QueueStatusMinimapButton:IsShown() and (self.Options.HideApplicantAlerts == 2 and not UnitIsGroupLeader("player", LE_PARTY_CATEGORY_HOME)) or (self.Options.HideApplicantAlerts >= 1 and GetNumGroupMembers() == 40) then
+			QueueStatusMinimapButton.EyeHighlightAnim:Stop()
+			self:Unschedule(stopQueueButtonDelay)
+			self:Schedule(1, stopQueueButtonDelay, self)
+			QueueStatusMinimapButton.EyeHighlightAnim:Stop()--Force stop the animation loop
+		end
+	end
 end
 
 function DBM:ACTIVE_TALENT_GROUP_CHANGED()
-	if IsInGroup() then
-		DBM:RoleCheck(false)
+	local lastSpecID = currentSpecID
+	self:SetCurrentSpecInfo()
+	if currentSpecID ~= lastSpecID then--Don't fire specchanged unless spec actually has changed.
+		self:SpecChanged()
+		if IsInGroup() then
+			self:RoleCheck(false)
+		end
 	end
 end
 
 function DBM:UPDATE_SHAPESHIFT_FORM()
-	if IsInGroup() and class == "WARRIOR" and DBM:AntiSpam(0.5, "STANCE") then--check for stance changes for prot warriors that might be specced into Gladiator Stance
-		DBM:RoleCheck(true)
+	if class == "WARRIOR" and self:AntiSpam(0.5, "STANCE") then--check for stance changes for prot warriors that might be specced into Gladiator Stance
+		self:ACTIVE_TALENT_GROUP_CHANGED()
 	end
 end
 
-local function AcceptPartyInvite()
-	AcceptGroup()
-	for i=1, STATICPOPUP_NUMDIALOGS do
-		local whichDialog = _G["StaticPopup"..i].which
-		if whichDialog == "PARTY_INVITE" or whichDialog == "PARTY_INVITE_XREALM" then
-			_G["StaticPopup"..i].inviteAccepted = 1
-			StaticPopup_Hide(whichDialog)
-			break
+do
+	local function AcceptPartyInvite()
+		AcceptGroup()
+		for i=1, STATICPOPUP_NUMDIALOGS do
+			local whichDialog = _G["StaticPopup"..i].which
+			if whichDialog == "PARTY_INVITE" or whichDialog == "PARTY_INVITE_XREALM" then
+				_G["StaticPopup"..i].inviteAccepted = 1
+				StaticPopup_Hide(whichDialog)
+				break
+			end
 		end
 	end
-end
-function DBM:PARTY_INVITE_REQUEST(sender)
-	--First off, if you are in queue for something, lets not allow guildies or friends boot you from it.
- 	if (IsInInstance() and not C_Garrison:IsOnGarrisonMap()) or GetLFGMode(1) or GetLFGMode(2) or GetLFGMode(3) or GetLFGMode(4) or GetLFGMode(5) then return end
- 	--First check realID
- 	if DBM.Options.AutoAcceptFriendInvite then
-		local _, numBNetOnline = BNGetNumFriends()
-		for i = 1, numBNetOnline do
-			local presenceID, _, _, _, _, _, _, isOnline = BNGetFriendInfo(i)
-			local friendIndex = BNGetFriendIndex(presenceID)--Check if they are on more than one client at once (very likely with new launcher)
-			for i=1, BNGetNumFriendToons(friendIndex) do
-				local _, toonName, client = BNGetFriendToonInfo(friendIndex, i)
-				if toonName and client == BNET_CLIENT_WOW then--Check if toon name exists and if client is wow. If yes to both, we found right client
-					if toonName == sender then--Now simply see if this is sender
-						AcceptPartyInvite()
-						return
+
+	function DBM:PARTY_INVITE_REQUEST(sender)
+		--First off, if you are in queue for something, lets not allow guildies or friends boot you from it.
+		if (IsInInstance() and not C_Garrison:IsOnGarrisonMap()) or GetLFGMode(1) or GetLFGMode(2) or GetLFGMode(3) or GetLFGMode(4) or GetLFGMode(5) then return end
+		--First check realID
+		if self.Options.AutoAcceptFriendInvite then
+			local _, numBNetOnline = BNGetNumFriends()
+			for i = 1, numBNetOnline do
+				local presenceID, _, _, _, _, _, _, isOnline = BNGetFriendInfo(i)
+				local friendIndex = BNGetFriendIndex(presenceID)--Check if they are on more than one client at once (very likely with new launcher)
+				for i=1, BNGetNumFriendToons(friendIndex) do
+					local _, toonName, client = BNGetFriendToonInfo(friendIndex, i)
+					if toonName and client == BNET_CLIENT_WOW then--Check if toon name exists and if client is wow. If yes to both, we found right client
+						if toonName == sender then--Now simply see if this is sender
+							AcceptPartyInvite()
+							return
+						end
 					end
 				end
 			end
 		end
-	end
-	--Second check guildies
- 	if DBM.Options.AutoAcceptGuildInvite then
-		local _, numOnlineGuildMembers = GetNumGuildMembers()
-		for i=1, numOnlineGuildMembers do
-			--At this time, it's not easy to tell an officer from a non officer
-			--since a guild might have ranks 1-3 or even 1-4 be officers/leader while another might only be 1-2
-			--therefor, this feature is just a "yes/no" for if sender is a guildy
-			local name, rank, rankIndex = GetGuildRosterInfo(i)
-			if not name then break end
-			name = Ambiguate(name, "none")
-			if sender == name then
-				AcceptPartyInvite()
-				return
+		--Second check guildies
+		if self.Options.AutoAcceptGuildInvite then
+			local totalMembers, numOnlineGuildMembers, numOnlineAndMobileMembers = GetNumGuildMembers()
+			local scanTotal = GetGuildRosterShowOffline() and totalMembers or numOnlineAndMobileMembers
+			for i=1, scanTotal do
+				--At this time, it's not easy to tell an officer from a non officer
+				--since a guild might have ranks 1-3 or even 1-4 be officers/leader while another might only be 1-2
+				--therefor, this feature is just a "yes/no" for if sender is a guildy
+				local name, rank, rankIndex = GetGuildRosterInfo(i)
+				if not name then break end
+				name = Ambiguate(name, "none")
+				if sender == name then
+					AcceptPartyInvite()
+					return
+				end
 			end
 		end
 	end
@@ -2463,16 +3064,16 @@ end
 
 function DBM:PLAYER_REGEN_ENABLED()
 	if loadDelay then
-		DBM:Debug("loadDelay is activating LoadMod again")
-		DBM:LoadMod(loadDelay)
+		self:Debug("loadDelay is activating LoadMod again")
+		self:LoadMod(loadDelay)
 	end
 	if loadDelay2 then
-		DBM:Debug("loadDelay2 is activating LoadMod again")
-		DBM:LoadMod(loadDelay2)
+		self:Debug("loadDelay2 is activating LoadMod again")
+		self:LoadMod(loadDelay2)
 	end
 	if guiRequested and not IsAddOnLoaded("DBM-GUI") then
 		guiRequested = false
-		DBM:LoadGUI()
+		self:LoadGUI()
 	end
 end
 
@@ -2480,34 +3081,31 @@ function DBM:UPDATE_BATTLEFIELD_STATUS()
 	for i = 1, 2 do
 		if GetBattlefieldStatus(i) == "confirm" then
 			queuedBattlefield[i] = select(2, GetBattlefieldStatus(i))
-			DBM.Bars:CreateBar(85, queuedBattlefield[i], "Interface\\Icons\\Spell_Holy_BorrowedTime")	-- need to confirm the timer
-			if DBM.Options.LFDEnhance then
+			self.Bars:CreateBar(85, queuedBattlefield[i], "Interface\\Icons\\Spell_Holy_BorrowedTime")	-- need to confirm the timer
+			if self.Options.LFDEnhance then
 				PlaySoundFile("Sound\\interface\\levelup2.ogg", "Master")--Because regular sound uses SFX channel which is too low of volume most of time
 			end
 		elseif queuedBattlefield[i] then
-			DBM.Bars:CancelBar(queuedBattlefield[i])
+			self.Bars:CancelBar(queuedBattlefield[i])
 			queuedBattlefield[i] = nil
 		end
 	end
 end
 
 function DBM:CINEMATIC_START()
-	DBM:Debug("CINEMATIC_START fired")
-	if not IsInInstance() or C_Garrison:IsOnGarrisonMap() or DBM.Options.MovieFilter == "Never" then return end
-	DBM:Debug("CINEMATIC_START: in valid zone, checking settings")
+	if not IsInInstance() or C_Garrison:IsOnGarrisonMap() or self.Options.MovieFilter == "Never" then return end
 	SetMapToCurrentZone()
 	local currentFloor = GetCurrentMapDungeonLevel() or 0
-	if DBM.Options.MovieFilter == "Block" or DBM.Options.MovieFilter == "AfterFirst" and DBM.Options.MoviesSeen[LastInstanceMapID..currentFloor] then
+	if self.Options.MovieFilter == "Block" or self.Options.MovieFilter == "AfterFirst" and self.Options.MoviesSeen[LastInstanceMapID..currentFloor] then
 		CinematicFrame_CancelCinematic()
-		DBM:Debug("CINEMATIC_START should be canceling movie")
 	else
-		DBM.Options.MoviesSeen[LastInstanceMapID..currentFloor] = true
-		DBM:Debug("CINEMATIC_START should be allowing movie to play since it's first time")
+		self.Options.MoviesSeen[LastInstanceMapID..currentFloor] = true
 	end
 end
 
-function DBM:LFG_COMPLETION_REWARD()
-	if #inCombat > 0 and C_Scenario.IsInScenario() then
+function DBM:SCENARIO_CRITERIA_UPDATE()
+	local _, currentStage, numStages = C_Scenario.GetInfo()
+	if #inCombat > 0 and currentStage > numStages and C_Scenario.IsInScenario() then
 		for i = #inCombat, 1, -1 do
 			local v = inCombat[i]
 			if v.inScenario then
@@ -2517,38 +3115,9 @@ function DBM:LFG_COMPLETION_REWARD()
 	end
 end
 
---[[
-function DBM:WORLD_STATE_TIMER_START()
-	if DBM.Options.ChallengeBest == "None" or not C_Scenario.IsChallengeMode() then return end
-	local maps = GetChallengeModeMapTable()
-	for i = 1, 9 do
-		local _, mapID = GetChallengeModeMapInfo(maps[i])
-		if LastInstanceMapID == mapID then
-			local guildBest, realmBest = GetChallengeBestTime(mapID)
-			local lastTime, bestTime, medal = GetChallengeModeMapPlayerStats(maps[i])
-			if bestTime and DBM.Options.ChallengeBest == "Personal" then
-				DBM.Bars:CreateBar(ceil(bestTime / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
-			elseif guildBest and DBM.Options.ChallengeBest == "Guild" then
-				DBM.Bars:CreateBar(ceil(guildBest / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
-			elseif realmBest and DBM.Options.ChallengeBest == "Realm" then
-				DBM.Bars:CreateBar(ceil(realmBest / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
-			end
-			break
-		end
-	end
-end
-
-function DBM:WORLD_STATE_TIMER_STOP()
-	if (DBM.Options.ChallengeBest == "None") or not C_Scenario.IsChallengeMode() then return end
-	if DBM.Bars:GetBar(DBM_SPEED_CLEAR_TIMER_TEXT) then
-		DBM.Bars:CancelBar(DBM_SPEED_CLEAR_TIMER_TEXT)
-	end
-end
---]]
-
 function DBM:CHALLENGE_MODE_START(mapID)
-	DBM:Debug("CHALLENGE_MODE_START fired for mapID "..mapID)
-	if DBM.Options.ChallengeBest == "None" then return end
+	self:Debug("CHALLENGE_MODE_START fired for mapID "..mapID)
+	if self.Options.ChallengeBest == "None" then return end
 	local maps = GetChallengeModeMapTable()--Hopefully this returns WoD CMs and not MoP ones. or maybe it returns all of them?
 	for i = 1, 8 do--Either giong to be 8 for WoD, or 17 if it includes mop+wod
 		local _, mapIDVerify = GetChallengeModeMapInfo(maps[i])--Even though we get mapid from CHALLENGE_MODE_START, we still need CM index since GetChallengeModeMapPlayerStats doesn't take mapID :\
@@ -2556,11 +3125,11 @@ function DBM:CHALLENGE_MODE_START(mapID)
 			local guildBest, realmBest = GetChallengeBestTime(mapID)
 			local lastTime, bestTime, medal = GetChallengeModeMapPlayerStats(maps[i])
 			if bestTime and DBM.Options.ChallengeBest == "Personal" then
-				DBM.Bars:CreateBar(ceil(bestTime / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+				self.Bars:CreateBar(ceil(bestTime / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
 			elseif guildBest and DBM.Options.ChallengeBest == "Guild" then
-				DBM.Bars:CreateBar(ceil(guildBest / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+				self.Bars:CreateBar(ceil(guildBest / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
 			elseif realmBest and DBM.Options.ChallengeBest == "Realm" then
-				DBM.Bars:CreateBar(ceil(realmBest / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+				self.Bars:CreateBar(ceil(realmBest / 1000), DBM_SPEED_CLEAR_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
 			end
 			break
 		end
@@ -2568,19 +3137,19 @@ function DBM:CHALLENGE_MODE_START(mapID)
 end
 
 function DBM:CHALLENGE_MODE_RESET()
-	DBM:Debug("CHALLENGE_MODE_RESET fired")
-	if DBM.Options.ChallengeBest == "None" then return end
-	if DBM.Bars:GetBar(DBM_SPEED_CLEAR_TIMER_TEXT) then
-		DBM.Bars:CancelBar(DBM_SPEED_CLEAR_TIMER_TEXT)
+	self:Debug("CHALLENGE_MODE_RESET fired")
+	if self.Options.ChallengeBest == "None" then return end
+	if self.Bars:GetBar(DBM_SPEED_CLEAR_TIMER_TEXT) then
+		self.Bars:CancelBar(DBM_SPEED_CLEAR_TIMER_TEXT)
 	end
 end
 
 --This event may not exist at all in game, just combat log, will have to verify.
 function DBM:CHALLENGE_MODE_END(mapID, success, medal, completionTime)
-	DBM:Debug("CHALLENGE_MODE_END fired for mapID "..mapID)
-	if DBM.Options.ChallengeBest == "None" then return end
-	if DBM.Bars:GetBar(DBM_SPEED_CLEAR_TIMER_TEXT) then
-		DBM.Bars:CancelBar(DBM_SPEED_CLEAR_TIMER_TEXT)
+	self:Debug("CHALLENGE_MODE_END fired for mapID "..mapID)
+	if self.Options.ChallengeBest == "None" then return end
+	if self.Bars:GetBar(DBM_SPEED_CLEAR_TIMER_TEXT) then
+		self.Bars:CancelBar(DBM_SPEED_CLEAR_TIMER_TEXT)
 	end
 end
 
@@ -2612,12 +3181,14 @@ do
 		LastInstanceMapID = mapID
 		LastGroupSize = instanceGroupSize
 		difficultyIndex = difficulty
-		if instanceType == "none" then
+		if instanceType == "none" or C_Garrison:IsOnGarrisonMap() then
+			LastInstanceType = "none"
 			if not targetEventsRegistered then
-				DBM:RegisterShortTermEvents("UPDATE_MOUSEOVER_UNIT", "UNIT_TARGET_UNFILTERED")
+				DBM:RegisterShortTermEvents("UPDATE_MOUSEOVER_UNIT", "UNIT_TARGET_UNFILTERED", "SCENARIO_UPDATE")
 				targetEventsRegistered = true
 			end
 		else
+			LastInstanceType = instanceType
 			if targetEventsRegistered then
 				DBM:UnregisterShortTermEvents()
 				targetEventsRegistered = false
@@ -2633,24 +3204,34 @@ do
 		if not DBM.Options.PGMessageShown and LastInstanceMapID == 1148 and not GetAddOnInfo("DBM-ProvingGrounds") then
 			DBM.Options.PGMessageShown = true
 			DBM:AddMsg(DBM_CORE_PROVINGGROUNDS_AD)
+		elseif not DBM.Options.MCMessageShown and LastInstanceMapID == 409 and not GetAddOnInfo("DBM-MC") then
+			DBM.Options.MCMessageShown = true
+			DBM:AddMsg(DBM_CORE_MOLTENCORE_AD)
 		end
 	end
 	--Faster and more accurate loading for instances, but useless outside of them
 	function DBM:LOADING_SCREEN_DISABLED()
-		DBM:Debug("LOADING_SCREEN_DISABLED fired")
+		self:Debug("LOADING_SCREEN_DISABLED fired")
 		FixForShittyComputers()
-		DBM:Schedule(3, FixForShittyComputers, DBM)
+		self:Unschedule(FixForShittyComputers)
+		self:Schedule(5, FixForShittyComputers, DBM)
 	end
 
 	function DBM:LoadModsOnDemand(checkTable, checkValue)
-		for i, v in ipairs(DBM.AddOns) do
+		self:Debug("LoadModsOnDemand fired")
+		for i, v in ipairs(self.AddOns) do
 			local modTable = v[checkTable]
 			local enabled = GetAddOnEnableState(playerName, v.modId)
-			if enabled ~= 0 and not IsAddOnLoaded(v.modId) and modTable and checkEntry(modTable, checkValue) then
-				self:LoadMod(v)
+			--self:Debug(v.modId.." is "..enabled, 2)
+			if not IsAddOnLoaded(v.modId) and modTable and checkEntry(modTable, checkValue) then
+				if enabled ~= 0 then
+					self:LoadMod(v)
+				else
+					self:Debug("Not loading "..v.name.." because it is not enabled")
+				end
 			end
 		end
-		DBM:ScenarioCheck()--Do not filter. Because ScenarioCheck function includes filter.
+		self:ScenarioCheck()--Do not filter. Because ScenarioCheck function includes filter.
 	end
 end
 
@@ -2659,7 +3240,7 @@ function DBM:ScenarioCheck()
 	if combatInfo[LastInstanceMapID] then
 		for i, v in ipairs(combatInfo[LastInstanceMapID]) do
 			if (v.type == "scenario") and checkEntry(v.msgs, LastInstanceMapID) then
-				DBM:StartCombat(v.mod, 0, "LOADING_SCREEN_DISABLED")
+				self:StartCombat(v.mod, 0, "LOADING_SCREEN_DISABLED")
 			end
 		end
 	end
@@ -2672,15 +3253,21 @@ end
 	--Outdoor bosses will try to ignore check, if they fail, well, then we need to try and find ways to make the mods that can't load in combat smaller or load faster.
 function DBM:LoadMod(mod, force)
 	if type(mod) ~= "table" then
-		DBM:Debug("LoadMod failed because mod table not valid")
+		self:Debug("LoadMod failed because mod table not valid")
 		return false
 	end
 	if mod.isWorldBoss and not IsInInstance() and not force then
-		DBM:Debug("LoadMod denied for "..mod.name.." because world boss mods don't load this way", 2)
+		self:Debug("LoadMod denied for "..mod.name.." because world boss mods don't load this way", 2)
 		return
 	end--Don't load world boss mod this way.
+	if mod.minRevision > DBM.Revision then
+		if DBM:AntiSpam(60, "VER_MISMATCH") then--Throttle message in case person keeps trying to load mod (or it's a world boss player keeps targeting
+			self:AddMsg(DBM_CORE_LOAD_MOD_VER_MISMATCH:format(mod.name))
+		end
+		return
+	end
 	if InCombatLockdown() and not IsEncounterInProgress() and IsInInstance() then
-		DBM:Debug("LoadMod delayed do to combat")
+		self:Debug("LoadMod delayed do to combat")
 		if not loadDelay then--Prevent duplicate DBM_CORE_LOAD_MOD_COMBAT message.
 			self:AddMsg(DBM_CORE_LOAD_MOD_COMBAT:format(tostring(mod.name)))
 		end
@@ -2691,31 +3278,26 @@ function DBM:LoadMod(mod, force)
 		end
 		return
 	end
+	if not currentSpecID then
+		self:SetCurrentSpecInfo()
+	end
+	EJ_SetDifficulty(difficultyIndex)--Work around blizzard crash bug where other mods (like Boss) screw with Ej difficulty value, which makes EJ_GetSectionInfo crash the game when called with invalid difficulty index set.
+	self:Debug("LoadAddOn should have fired for "..mod.name)
 	local loaded, reason = LoadAddOn(mod.modId)
-	DBM:Debug("LoadMod should have fired LoadAddOn for "..mod.name)
 	if not loaded then
 		if reason then
 			self:AddMsg(DBM_CORE_LOAD_MOD_ERROR:format(tostring(mod.name), tostring(_G["ADDON_"..reason or ""])))
 		else
-			DBM:Debug("LoadAddOn failed and did not give reason")
+			self:Debug("LoadAddOn failed and did not give reason")
 --			self:AddMsg(DBM_CORE_LOAD_MOD_ERROR:format(tostring(mod.name), DBM_CORE_UNKNOWN)) -- wtf, this should never happen....(but it does happen sometimes if you reload your UI in an instance...)
 		end
 		return false
 	else
-		if DBM.Options.ShowLoadMessage then--Make load option optional for advanced users, option is NOT in the GUI.
+		self:Debug("LoadAddOn should have succeeded for "..mod.name, 2)
+		if self.Options.ShowLoadMessage then--Make load option optional for advanced users, option is NOT in the GUI.
 			self:AddMsg(DBM_CORE_LOAD_MOD_SUCCESS:format(tostring(mod.name)))
 		end
-		loadModOptions(mod.modId)
-		for i, v in ipairs(DBM.Mods) do -- load the hasHeroic/oneFormat attributes from the toc into all boss mods as required by the GetDifficulty() method
-			if v.modId == mod.modId then
-				v.type = mod.type
-				v.oneFormat = mod.oneFormat
-				v.hasLFR = mod.hasLFR
-				v.hasChallenge = mod.hasChallenge
-				v.noHeroic = mod.noHeroic
-				v.hasMythic = mod.hasMythic
-			end
-		end
+		self:LoadModOptions(mod.modId, InCombatLockdown(), true)
 		if DBM_GUI then
 			DBM_GUI:UpdateModList()
 		end
@@ -2724,14 +3306,7 @@ function DBM:LoadMod(mod, force)
 			RequestChallengeModeMapInfo()
 			RequestChallengeModeLeaders(mapID)
 		end
-		if instanceType == "pvp" and IsAddOnLoaded("DBM-PvP") then--Is a battleground and pvp mods are installed
-			if DBM:GetModByName("z30") and DBM:GetModByName("z30").revision >= 3 then--They are loaded and correct revision
-				--Do nothing
-			else--They either aren't loaded or are wrong revision. in either case, it means they have old pvp mods installed that don't load correctly or are out of date
-				--Not the new stand alone pvp mods these are old ones and user needs to remove them or install updated package
-				self:AddMsg(DBM_CORE_OUTDATED_PVP_MODS)
-			end
-		elseif instanceType ~="pvp" and #inCombat == 0 and IsInGroup() then--do timer recovery only mod load
+		if instanceType ~= "pvp" and #inCombat == 0 and IsInGroup() then--do timer recovery only mod load
 			local doRequest = false
 			if IsEncounterInProgress() then
 				doRequest = true
@@ -2748,12 +3323,12 @@ function DBM:LoadMod(mod, force)
 			if doRequest then
 				timerRequestInProgress = true
 				-- Request timer to 3 person to prevent failure.
-				DBM:Schedule(8, DBM.RequestTimers, DBM)
-				DBM:Schedule(10, DBM.RequestTimers, DBM)
-				DBM:Schedule(12, DBM.RequestTimers, DBM)
-				DBM:Schedule(12.5, function() timerRequestInProgress = false end)
+				self:Schedule(8, self.RequestTimers, self)
+				self:Schedule(10, self.RequestTimers, self)
+				self:Schedule(12, self.RequestTimers, self)
+				self:Schedule(12.5, function() timerRequestInProgress = false end)
 			else
-				DBM:Schedule(6, DBM.RequestTimers, DBM)--Do once for break timer out of combat
+				self:Schedule(6, self.RequestTimers, self)--Do once for break timer out of combat
 			end
 		end
 		if not InCombatLockdown() then--We loaded in combat because a raid boss was in process, but lets at least delay the garbage collect so at least load mod is half as bad, to do our best to avoid "script ran too long"
@@ -2768,51 +3343,44 @@ function DBM:LoadMod(mod, force)
 	end
 end
 
-local function loadModByUnit(uId)
-	if not uId then
-		uId = "mouseover"
-	else
-		uId = uId.."target"
-	end
-	if IsInInstance() or not UnitIsFriend("player", uId) and UnitIsDead("player") or UnitIsDead(uId) then return end--If you're in an instance no reason to waste cpu. If THE BOSS dead, no reason to load a mod for it. To prevent rare lua error, needed to filter on player dead.
-	local guid = UnitGUID(uId)
-	if guid and DBM:IsCreatureGUID(guid) then
-		local cId = DBM:GetCIDFromGUID(guid)
-		for bosscId, addon in pairs(loadcIds) do
-			local enabled = GetAddOnEnableState(playerName, addon)
-			if cId and bosscId and cId == bosscId and not IsAddOnLoaded(addon) and enabled ~= 0 then
-				for i, v in ipairs(DBM.AddOns) do
-					if v.modId == addon then
-						DBM:LoadMod(v, true)
-						break
+do
+	local function loadModByUnit(uId)
+		if not uId then
+			uId = "mouseover"
+		else
+			uId = uId.."target"
+		end
+		if IsInInstance() or not UnitIsFriend("player", uId) and UnitIsDead("player") or UnitIsDead(uId) then return end--If you're in an instance no reason to waste cpu. If THE BOSS dead, no reason to load a mod for it. To prevent rare lua error, needed to filter on player dead.
+		local guid = UnitGUID(uId)
+		if guid and DBM:IsCreatureGUID(guid) then
+			local cId = DBM:GetCIDFromGUID(guid)
+			for bosscId, addon in pairs(loadcIds) do
+				local enabled = GetAddOnEnableState(playerName, addon)
+				if cId and bosscId and cId == bosscId and not IsAddOnLoaded(addon) and enabled ~= 0 then
+					for i, v in ipairs(DBM.AddOns) do
+						if v.modId == addon then
+							DBM:LoadMod(v, true)
+							break
+						end
 					end
 				end
 			end
 		end
 	end
-end
 
---Loading routeens hacks for world bosses based on target or mouseover.
-function DBM:UPDATE_MOUSEOVER_UNIT()
-	loadModByUnit()
-end
+	--Loading routeens hacks for world bosses based on target or mouseover.
+	function DBM:UPDATE_MOUSEOVER_UNIT()
+		loadModByUnit()
+	end
 
-function DBM:UNIT_TARGET_UNFILTERED(uId)
-	loadModByUnit(uId)
+	function DBM:UNIT_TARGET_UNFILTERED(uId)
+		loadModByUnit(uId)
+	end
 end
 
 -----------------------------
 --  Handle Incoming Syncs  --
 -----------------------------
-
-local cSyncSender = {}
-local cSyncReceived = 0
-local eeSyncSender = {}
-local eeSyncReceived = 0
-local canSetIcons = {}
-local iconSetRevision = {}
-local iconSetPerson = {}
-local addsGUIDs = {}
 
 do
 	local function checkForActualPull()
@@ -2853,9 +3421,15 @@ do
 
 	syncHandlers["C"] = function(sender, delay, mod, modRevision, startHp, dbmRevision)
 		if sender == playerName then return end
-		local _, instanceType = GetInstanceInfo()
-		if instanceType == "pvp" then return end
-		if instanceType == "none" and (not UnitAffectingCombat("player") or #inCombat > 0) then return end--Ignore world boss pulls if you aren't fighting them. Also ignore world boss pull if already in combat.
+		if LastInstanceType == "pvp" then return end
+		if LastInstanceType == "none" and (not UnitAffectingCombat("player") or #inCombat > 0) then--world boss
+			local senderuId = DBM:GetRaidUnitId(sender)
+			if not senderuId then return end--Should never happen, but just in case. If happens, MANY "C" syncs are sent. losing 1 no big deal.
+			local playerZone, senderZone = select(4, UnitPosition("player")), select(4, UnitPosition(senderuId))
+			if playerZone ~= senderZone then return end--not same zone
+			local range = DBM.RangeCheck:GetDistance("player", senderuId)--Same zone, so check range
+			if not range or range > 60 then return end
+		end
 		if not cSyncSender[sender] then
 			cSyncSender[sender] = true
 			cSyncReceived = cSyncReceived + 1
@@ -2937,6 +3511,7 @@ do
 			DBM:GetModLocalization("PullTimerCountdownDummy"):SetGeneralLocalization{ name = DBM_CORE_MINIMAP_TOOLTIP_HEADER }
 			dummyMod.countdown = dummyMod:NewCountdown(0, 0, nil, nil, nil, true)
 			dummyMod.text = dummyMod:NewAnnounce("%s", 1, 2457)
+			dummyMod.geartext = dummyMod:NewSpecialWarning("  %s  ", nil, nil, nil, 3)
 		end
 		--Cancel any existing pull timers before creating new ones, we don't want double countdowns or mismatching blizz countdown text (cause you can't call another one if one is in progress)
 		if not DBM.Options.DontShowPT2 and DBM.Bars:GetBar(DBM_CORE_TIMER_PULL) then
@@ -2970,6 +3545,23 @@ do
 			dummyMod.text:Schedule(timer, DBM_CORE_ANNOUNCE_PULL_NOW)
 		end
 		DBM:StartLogging(timer, checkForActualPull)
+		if DBM.Options.CheckGear then
+			local bagilvl, equippedilvl = GetAverageItemLevel()
+			local difference = bagilvl - equippedilvl
+			local weapon = GetInventoryItemLink("player", 16)
+			local fishingPole = false
+			if weapon then
+				local _, _, _, _, _, _, type = GetItemInfo(weapon)
+				if type and type == DBM_CORE_GEAR_FISHING_POLE then
+					fishingPole = true
+				end
+			end
+			if IsInRaid() and difference >= 40 then
+				dummyMod.geartext:Show(DBM_CORE_GEAR_WARNING:format(floor(difference)))
+			elseif IsInRaid() and (not weapon or fishingPole) then
+				dummyMod.geartext:Show(DBM_CORE_GEAR_WARNING_WEAPON)
+			end
+		end
 	end
 	
 	syncHandlers["BT"] = function(sender, timer)
@@ -3020,8 +3612,9 @@ do
 		end
 	end
 	
-	syncHandlers["BTR"] = function(sender, timer)
+	whisperSyncHandlers["BTR2"] = function(sender, timer)
 		if #inCombat >= 1 then return end
+		if DBM.Bars:GetBar(DBM_CORE_TIMER_BREAK) then return end--Already recovered. Prevent duplicate recovery
 		timer = tonumber(timer or 0)
 		if not dummyMod2 then
 			dummyMod2 = DBM:NewMod("BreakTimerCountdownDummy")
@@ -3044,7 +3637,7 @@ do
 			end
 		end
 		if not DBM.Options.DontShowPTText then
-			dummyMod2.text:Show(DBM_CORE_BREAK_START:format(timer/60, sender))
+			dummyMod2.text:Show(DBM_CORE_BREAK_START:format(floor(timer/60*100)/100, sender))
 			if timer/60 > 10 then dummyMod2.text:Schedule(timer - 10*60, DBM_CORE_BREAK_MIN:format(10)) end
 			if timer/60 > 5 then dummyMod2.text:Schedule(timer - 5*60, DBM_CORE_BREAK_MIN:format(5)) end
 			if timer/60 > 2 then dummyMod2.text:Schedule(timer - 2*60, DBM_CORE_BREAK_MIN:format(2)) end
@@ -3054,7 +3647,21 @@ do
 	end
 
 	local function SendVersion()
-		sendSync("V", ("%d\t%s\t%s\t%s\t%s"):format(DBM.Revision, DBM.Version, DBM.DisplayVersion, GetLocale(), tostring(not DBM.Options.DontSetIcons)))
+		if DBM.Options.FakeBWVersion then
+			SendAddonMessage("BigWigs", ("VR:%d"):format(fakeBWRevision), IsInGroup(2) and "INSTANCE_CHAT" or "RAID")--Pretending to be bigwigs, don't send dbm version information
+			return
+		end
+		--(Note, faker isn't to screw with bigwigs nor is theirs to screw with dbm, but rathor raid leaders who don't let people run WTF they want to run)
+		local VPVersion
+		local VoicePack = DBM.Options.ChosenVoicePack
+		if VoicePack ~= "None" then
+			VPVersion = "/ VP"..VoicePack..": v"..DBM.VoiceVersions[VoicePack]
+		end
+		if VPVersion then
+			sendSync("V", ("%d\t%s\t%s\t%s\t%s\t%s"):format(DBM.Revision, tostring(DBM.ReleaseRevision), DBM.DisplayVersion, GetLocale(), tostring(not DBM.Options.DontSetIcons), VPVersion))
+		else
+			sendSync("V", ("%d\t%s\t%s\t%s\t%s"):format(DBM.Revision, tostring(DBM.ReleaseRevision), DBM.DisplayVersion, GetLocale(), tostring(not DBM.Options.DontSetIcons)))
+		end
 	end
 
 	-- TODO: is there a good reason that version information is broadcasted and not unicasted?
@@ -3075,37 +3682,31 @@ do
 		end
 	end
 
-	syncHandlers["V"] = function(sender, revision, version, displayVersion, locale, iconEnabled)
+	syncHandlers["V"] = function(sender, revision, version, displayVersion, locale, iconEnabled, VPVersion)
 		revision, version = tonumber(revision), tonumber(version)
 		if revision and version and displayVersion and raid[sender] then
 			raid[sender].revision = revision
 			raid[sender].version = version
 			raid[sender].displayVersion = displayVersion
+			raid[sender].VPVersion = VPVersion
 			raid[sender].locale = locale
 			raid[sender].enabledIcons = iconEnabled or "false"
-			DBM:Debug("Received version info from "..sender.." : Rev - "..revision..", Ver - "..version..", Rev Diff - "..(revision - DBM.Revision), 2)
-			if version > tonumber(DBM.Version) then -- Update reminder
+			DBM:Debug("Received version info from "..sender.." : Rev - "..revision..", Ver - "..version..", Rev Diff - "..(revision - DBM.Revision), 3)
+			if version > DBM.ReleaseRevision and LastInstanceType ~= "pvp" then -- Update reminder
 				if not checkEntry(newerVersionPerson, sender) then
 					newerVersionPerson[#newerVersionPerson + 1] = sender
-					DBM:Debug("Newer version detected from "..sender.." : Rev - "..revision..", Ver - "..version..", Rev Diff - "..(revision - DBM.Revision), 2)
+					DBM:Debug("Newer version detected from "..sender.." : Rev - "..revision..", Ver - "..version..", Rev Diff - "..(revision - DBM.Revision), 3)
 				end
 				if #newerVersionPerson < 4 then
 					if #newerVersionPerson == 2 and updateNotificationDisplayed < 2 then--Only requires 2 for update notification.
 						--Find min revision.
 						updateNotificationDisplayed = 2
-						local revDifference = mmin((raid[newerVersionPerson[1]].revision - DBM.Revision), (raid[newerVersionPerson[2]].revision - DBM.Revision))
-						if not DBM.Options.BlockVersionUpdateNotice or revDifference > 200 then
-							DBM:ShowUpdateReminder(displayVersion, version)
-						else
-							DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER:match("([^\n]*)"))
-							DBM:AddMsg(DBM_CORE_UPDATEREMINDER_HEADER:match("\n(.*)"):format(displayVersion, version))
-							DBM:AddMsg(("|HDBM:update:%s:%s|h|cff3588ff[%s]"):format(displayVersion, version, DBM_CORE_UPDATEREMINDER_URL or "http://www.deadlybossmods.com"))
-						end
+						DBM:ShowUpdateReminder(displayVersion, version)
 					elseif #newerVersionPerson == 3 then--Requires 3 for force disable.
 						--Find min revision.
 						local revDifference = mmin((raid[newerVersionPerson[1]].revision - DBM.Revision), (raid[newerVersionPerson[2]].revision - DBM.Revision), (raid[newerVersionPerson[3]].revision - DBM.Revision))
 						--The following code requires at least THREE people to send that higher revision (I just upped it from 2). That should be more than adaquate, especially since there is also a display version validator now too (that had to be writen when bigwigs was sending bad revisions few versions back)
-						if revDifference > 300 then--WTF? Sorry but your DBM is being turned off until you update. Grossly out of date mods cause fps loss, freezes, lua error spam, or just very bad information, if mod is not up to date with latest changes. All around undesirable experience to put yourself or other raid mates through
+						if revDifference > 250 then--WTF? Sorry but your DBM is being turned off until you update. Grossly out of date mods cause fps loss, freezes, lua error spam, or just very bad information, if mod is not up to date with latest changes. All around undesirable experience to put yourself or other raid mates through
 							if updateNotificationDisplayed < 3 then
 								updateNotificationDisplayed = 3
 								DBM:AddMsg(DBM_CORE_UPDATEREMINDER_DISABLE:format(revDifference))
@@ -3162,6 +3763,16 @@ do
 		if time and text then
 			DBM:CreatePizzaTimer(time, text, nil, sender, true)
 		end
+	end
+	
+	syncHandlers["RBW3"] = function(sender, spellId, spellName)
+		if sender == playerName then return end
+		if not spellName then spellName = UNKNOWN end
+		local message = "RAID_BOSS_WHISPER on "..sender.." with spell of "..spellName.." ("..spellId..")"
+		if DBM.Options.DebugLevel > 2 or (Transcriptor and Transcriptor:IsLogging()) then
+			DBM:Debug(message)
+		end
+		--fireEvent("DBM_Announce", message)
 	end
 
 	-- beware, ugly and missplaced code ahead
@@ -3252,10 +3863,9 @@ do
 			-- okay, send data
 			local sentData = false
 			for i = 1, GetNumSavedInstances() do
-				local name, id, _, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, _, _, progress = GetSavedInstanceInfo(i)
-				local longId = ("%x%x"):format(instanceIDMostSig, id) -- used as unique id by then default UI, so it's probably the "real" id
+				local name, id, _, difficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, textDiff, _, progress = GetSavedInstanceInfo(i)
 				if (locked or extended) and isRaid then -- only report locked raid instances
-					SendAddonMessage("D4", "II\tData\t" .. name .. "\t" .. longId .. "\t" .. difficulty .. "\t" .. maxPlayers .. "\t" .. (progress or 0), "WHISPER", sender)
+					SendAddonMessage("D4", "II\tData\t" .. name .. "\t" .. id .. "\t" .. difficulty .. "\t" .. maxPlayers .. "\t" .. (progress or 0) .. "\t" .. textDiff, "WHISPER", sender)
 					sentData = true
 				end
 			end
@@ -3281,6 +3891,7 @@ do
 				if IsInInstance() then return end--Simple filter, if you are inside an instance, just filter it, if not in instance, good to go.
 				local bossName = EJ_GetEncounterInfo(modId) or UNKNOWN
 				local difficultyName = UNKNOWN
+				difficulty = tonumber(difficulty)
 				if difficulty == 16 then
 					difficultyName = PLAYER_DIFFICULTY6
 				elseif difficulty == 15 then
@@ -3299,6 +3910,7 @@ do
 				if IsInInstance() then return end--Simple filter, if you are inside an instance, just filter it, if not in instance, good to go.
 				local bossName = EJ_GetEncounterInfo(modId) or UNKNOWN
 				local difficultyName = UNKNOWN
+				difficulty = tonumber(difficulty)
 				if difficulty == 16 then
 					difficultyName = PLAYER_DIFFICULTY6
 				elseif difficulty == 15 then
@@ -3315,7 +3927,7 @@ do
 		end
 
 		syncHandlers["WBE"] = function(sender, modId, realm, health, ver, name)
-			if not ver or not (ver == "7") then return end--Ignore old versions
+			if not ver or not (ver == "8") then return end--Ignore old versions
 			if lastBossEngage[modId..realm] and (GetTime() - lastBossEngage[modId..realm] < 30) then return end--We recently got a sync about this boss on this realm, so do nothing.
 			lastBossEngage[modId..realm] = GetTime()
 			if realm == playerRealm and DBM.Options.WorldBossAlert and not IsEncounterInProgress() then
@@ -3325,7 +3937,7 @@ do
 		end
 		
 		syncHandlers["WBD"] = function(sender, modId, realm, ver, name)
-			if not ver or not (ver == "7") then return end--Ignore old versions
+			if not ver or not (ver == "8") then return end--Ignore old versions
 			if lastBossDefeat[modId..realm] and (GetTime() - lastBossDefeat[modId..realm] < 30) then return end
 			lastBossDefeat[modId..realm] = GetTime()
 			if realm == playerRealm and DBM.Options.WorldBossAlert and not IsEncounterInProgress() then
@@ -3335,7 +3947,7 @@ do
 		end
 
 		whisperSyncHandlers["WBE"] = function(sender, modId, realm, health, ver, name)
-			if not ver or not (ver == "7") then return end--Ignore old versions
+			if not ver or not (ver == "8") then return end--Ignore old versions
 			if lastBossEngage[modId..realm] and (GetTime() - lastBossEngage[modId..realm] < 30) then return end
 			lastBossEngage[modId..realm] = GetTime()
 			if realm == playerRealm and DBM.Options.WorldBossAlert and not IsEncounterInProgress() then
@@ -3346,7 +3958,7 @@ do
 		end
 		
 		whisperSyncHandlers["WBD"] = function(sender, modId, realm, ver, name)
-			if not ver or not (ver == "7") then return end--Ignore old versions
+			if not ver or not (ver == "8") then return end--Ignore old versions
 			if lastBossDefeat[modId..realm] and (GetTime() - lastBossDefeat[modId..realm] < 30) then return end
 			lastBossDefeat[modId..realm] = GetTime()
 			if realm == playerRealm and DBM.Options.WorldBossAlert and not IsEncounterInProgress() then
@@ -3364,7 +3976,7 @@ do
 
 		local updateInstanceInfo, showResults
 
-		whisperSyncHandlers["II"] = function(sender, result, name, id, diff, maxPlayers, progress)
+		whisperSyncHandlers["II"] = function(sender, result, name, id, diff, maxPlayers, progress, textDiff)
 			if GetTime() - lastRequest > 62 or not results then
 				return
 			end
@@ -3376,11 +3988,17 @@ do
 			diff = tonumber(diff or 0) or 0
 			maxPlayers = tonumber(maxPlayers or 0) or 0
 			progress = tonumber(progress or 0) or 0
+			textDiff = textDiff or ""
 
 			-- count responses
 			if not results.responses[sender] then
 				results.responses[sender] = result
 				numResponses = numResponses + 1
+			end
+
+			-- get localized difficulty text
+			if textDiff ~= "" then
+				results.difftext[diff] = textDiff
 			end
 
 			if result == "Data" then
@@ -3392,8 +4010,13 @@ do
 					diff = diff,
 					maxPlayers = maxPlayers,
 				}
-				results.data[instanceId].ids[id] = results.data[instanceId].ids[id] or { progress = progress }
-				tinsert(results.data[instanceId].ids[id], sender)
+				if diff == 5 or diff == 6 or diff == 16 then
+					results.data[instanceId].ids[id] = results.data[instanceId].ids[id] or { progress = progress, haveid = true }
+					tinsert(results.data[instanceId].ids[id], sender)
+				else
+					results.data[instanceId].ids[progress] = results.data[instanceId].ids[progress] or { progress = progress }
+					tinsert(results.data[instanceId].ids[progress], sender)
+				end
 			end
 
 			if numResponses >= expectedResponses then -- unlikely, lol
@@ -3408,13 +4031,24 @@ do
 		end
 
 		function showResults()
+			local resultCount = 0
 			-- TODO: you could catch some localized instances by observing IDs if there are multiple players with the same instance ID but a different name ;) (not that useful if you are trying to get a fresh instance)
-			DBM:AddMsg(DBM_INSTANCE_INFO_RESULTS)
+			DBM:AddMsg(DBM_INSTANCE_INFO_RESULTS, false)
+			DBM:AddMsg("---", false)
 			for i, v in pairs(results.data) do
-				DBM:AddMsg(DBM_INSTANCE_INFO_DETAIL_HEADER:format(v.name, v.maxPlayers, v.diff))
+				resultCount = resultCount + 1
+				DBM:AddMsg(DBM_INSTANCE_INFO_DETAIL_HEADER:format(v.name, (results.difftext[v.diff] or v.diff)), false)
 				for id, v in pairs(v.ids) do
-					DBM:AddMsg(DBM_INSTANCE_INFO_DETAIL_INSTANCE:format(id, v.progress, table.concat(v, ", ")))
+					if v.haveid then
+						DBM:AddMsg(DBM_INSTANCE_INFO_DETAIL_INSTANCE:format(id, v.progress, table.concat(v, ", ")), false)
+					else
+						DBM:AddMsg(DBM_INSTANCE_INFO_DETAIL_INSTANCE2:format(v.progress, table.concat(v, ", ")), false)
+					end
 				end
+				DBM:AddMsg("---", false)
+			end
+			if resultCount == 0 then
+				DBM:AddMsg(DBM_INSTANCE_INFO_NOLOCKOUT, false)
 			end
 			local denied = {}
 			local away = {}
@@ -3434,13 +4068,13 @@ do
 				removeEntry(noResponse, i)
 			end
 			if #denied > 0 then
-				DBM:AddMsg(DBM_INSTANCE_INFO_STATS_DENIED:format(table.concat(denied, ", ")))
+				DBM:AddMsg(DBM_INSTANCE_INFO_STATS_DENIED:format(table.concat(denied, ", ")), false)
 			end
 			if #away > 0 then
-				DBM:AddMsg(DBM_INSTANCE_INFO_STATS_AWAY:format(table.concat(away, ", ")))
+				DBM:AddMsg(DBM_INSTANCE_INFO_STATS_AWAY:format(table.concat(away, ", ")), false)
 			end
 			if #noResponse > 0 then
-				DBM:AddMsg(DBM_INSTANCE_INFO_STATS_NO_RESPONSE:format(table.concat(noResponse, ", ")))
+				DBM:AddMsg(DBM_INSTANCE_INFO_STATS_NO_RESPONSE:format(table.concat(noResponse, ", ")), false)
 			end
 			results = nil
 		end
@@ -3477,7 +4111,7 @@ do
 		local function getNumDBMUsers() -- without ourselves
 			local r = 0
 			for i, v in pairs(raid) do
-				if v.revision and v.name ~= playerName and UnitIsConnected(DBM:GetRaidUnitId(v.name)) then
+				if v.revision and v.name ~= playerName and UnitIsConnected(v.id) then
 					r = r + 1
 				end
 			end
@@ -3487,7 +4121,7 @@ do
 		function updateInstanceInfo(timeRemaining, dontAddShowResultNowButton)
 			local numResponses, sent, denied, away = getResponseStats()
 			local dbmUsers = getNumDBMUsers()
-			DBM:AddMsg(DBM_INSTANCE_INFO_STATUS_UPDATE:format(numResponses, dbmUsers, sent, denied, timeRemaining))
+			DBM:AddMsg(DBM_INSTANCE_INFO_STATUS_UPDATE:format(numResponses, dbmUsers, sent, denied, timeRemaining), false)
 			if not dontAddShowResultNowButton then
 				if dbmUsers - numResponses <= 7 then -- waiting for 7 or less players, show their names and the early result option
 					-- copied from above, todo: implement a smarter way of keeping track of stuff like this
@@ -3504,13 +4138,13 @@ do
 					--[[
 					-- this looked like the easiest way (for some reason?) to create the player string when writing this code -.-
 					local function dup(...) if select("#", ...) == 0 then return else return ..., ..., dup(select(2, ...)) end end
-					DBM:AddMsg(DBM_INSTANCE_INFO_SHOW_RESULTS:format(("|Hplayer:%s|h[%s]|h| "):rep(#noResponse):format(dup(unpack(noResponse)))))
+					DBM:AddMsg(DBM_INSTANCE_INFO_SHOW_RESULTS:format(("|Hplayer:%s|h[%s]|h| "):rep(#noResponse):format(dup(unpack(noResponse)))), false)
 					]]
 					-- code that one can actually read
 					for i, v in ipairs(noResponse) do
 						noResponse[i] = ("|Hplayer:%s|h[%s]|h|"):format(v, v)
 					end
-					DBM:AddMsg(DBM_INSTANCE_INFO_SHOW_RESULTS:format(table.concat(noResponse, ", ")))
+					DBM:AddMsg(DBM_INSTANCE_INFO_SHOW_RESULTS:format(table.concat(noResponse, ", ")), false)
 				end
 			end
 		end
@@ -3523,6 +4157,8 @@ do
 				responses = { -- who responded to our request?
 				},
 				data = { -- the actual data
+				},
+				difftext = {
 				}
 			}
 			numResponses = 0
@@ -3585,11 +4221,20 @@ do
 		if prefix == "D4" and msg and (channel == "PARTY" or channel == "RAID" or channel == "INSTANCE_CHAT" or channel == "WHISPER" or channel == "GUILD") then
 			sender = Ambiguate(sender, "none")
 			handleSync(channel, sender, strsplit("\t", msg))
-		elseif prefix == "BigWigs" and msg and (channel == "PARTY" or channel == "RAID" or channel == "INSTANCE_CHAT" or channel == "WHISPER" and self:GetRaidUnitId(sender)) then
+		elseif prefix == "BigWigs" and msg and (channel == "PARTY" or channel == "RAID" or channel == "INSTANCE_CHAT") then
 			local bwPrefix, bwMsg = msg:match("^(%u-):(.+)")
-			if bwPrefix and (bwPrefix == "VR" or bwPrefix == "VRA") then--We only care about version prefixes so only pass those prefixes on
-				sender = Ambiguate(sender, "none")
-				handleSync(channel, sender, bwPrefix, bwMsg)
+			if bwPrefix then
+				if bwPrefix == "VR" or bwPrefix == "VRA" then--Version information prefixes
+					sender = Ambiguate(sender, "none")
+					handleSync(channel, sender, bwPrefix, bwMsg)
+					bwMsg = tonumber(bwMsg) or 0
+					if bwPrefix == "VR" then--Only upgrade to latest release version found
+						if bwMsg > fakeBWRevision then fakeBWRevision = bwMsg end--Newer revision found, upgrade!
+					end
+				elseif prefix == "VQ" then--Version request prefix
+					self:Unschedule(SendVersion)
+					self:Schedule(3, SendVersion)
+				end
 			end
 		end
 	end
@@ -3745,7 +4390,7 @@ do
 		if not combatInitialized then return end
 		if combatInfo[LastInstanceMapID] then
 			for i, v in ipairs(combatInfo[LastInstanceMapID]) do
-				if (v.type == "combat" and not v.noRegenDetection) or v.type == "combat_yell" or v.type == "combat_emote" or v.type == "combat_say" then--this will be faster than string.find
+				if v.type:find("combat") and not v.noRegenDetection then
 					if v.multiMobPullDetection then
 						for _, mob in ipairs(v.multiMobPullDetection) do
 							if checkForPull(mob, v) then
@@ -3758,8 +4403,17 @@ do
 				end
 			end
 		end
-		if DBM.Options.AFKHealthWarning and not IsEncounterInProgress() and UnitIsAFK("player") and self:AntiSpam(5, "AFK") then--You are afk and losing health, some griever is trying to kill you while you are afk/tabbed out.
-			PlaySoundFile("Sound\\Creature\\CThun\\CThunYouWillDIe.ogg", "master")--So fire an alert sound to save yourself from this person's behavior.
+		if self.Options.AFKHealthWarning and not IsEncounterInProgress() and UnitIsAFK("player") and self:AntiSpam(5, "AFK") then--You are afk and losing health, some griever is trying to kill you while you are afk/tabbed out.
+			local voice = DBM.Options.ChosenVoicePack
+			local path = "Sound\\Creature\\CThun\\CThunYouWillDIe.ogg"
+			if voice ~= "None" then 
+				path = "Interface\\AddOns\\DBM-VP"..voice.."\\checkhp.ogg"
+			end
+			if DBM.Options.UseMasterVolume then
+				PlaySoundFile(path, "Master")
+			else
+				PlaySoundFile(path)
+			end
 		end
 	end
 
@@ -3769,41 +4423,54 @@ do
 		local i = 1
 		repeat
 			local bossUnitId = "boss"..i
-			local bossExists = UnitExists(bossUnitId)
-			local bossGUID = bossExists and not UnitIsDead(bossUnitId) and UnitGUID(bossUnitId) -- check for UnitIsVisible maybe?
+			local bossGUID = not UnitIsDead(bossUnitId) and UnitGUID(bossUnitId) -- check for UnitIsVisible maybe?
 			local bossCId = bossGUID and DBM:GetCIDFromGUID(bossGUID)
 			if bossCId and (type(cId) == "number" and cId == bossCId or type(cId) == "table" and checkEntry(cId, bossCId)) then
 				return true
 			end
 			i = i + 1
-		until not bossExists
+		until not bossGUID
 	end
 
 	function DBM:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
 		if timerRequestInProgress then return end--do not start ieeu combat if timer request is progressing. (not to break Timer Recovery stuff)
 		if combatInfo[LastInstanceMapID] then
 			for i, v in ipairs(combatInfo[LastInstanceMapID]) do
-				if v.type == "combat" and isBossEngaged(v.multiMobPullDetection or v.mob) then
+				if v.type:find("combat") and isBossEngaged(v.multiMobPullDetection or v.mob) then
 					self:StartCombat(v.mod, 0, "IEEU")
 				end
 			end
 		end
 	end
 	
-	function DBM:UNIT_TARGETABLE_CHANGED()
+	function DBM:SCENARIO_UPDATE()
+		if not C_Garrison:IsOnGarrisonMap() then return end
+		local name = C_Scenario.GetInfo()
+		if not name then return end-- fix false mod load when visiting other player garrision.
+		local enabled = GetAddOnEnableState(playerName, "DBM-WorldEvents")
+		if not IsAddOnLoaded("DBM-WorldEvents") and enabled ~= 0 then
+			for i, v in ipairs(self.AddOns) do
+				if v.modId == "DBM-WorldEvents" then
+					self:LoadMod(v, true)
+					break
+				end
+			end
+		end
+	end
+	
+	function DBM:UNIT_TARGETABLE_CHANGED(uId)
 		if DBM.Options.DebugLevel > 2 or (Transcriptor and Transcriptor:IsLogging()) then
-			self:Debug("UNIT_TARGETABLE_CHANGED event fired")
+			local active = UnitExists(uId) and "true" or "false"
+			self:Debug("UNIT_TARGETABLE_CHANGED event fired for "..UnitName(uId)..". Active: "..active)
 		end
 	end
 
-	--TODO, waste less cpu and register Unit event somehow. DBMs register events code is so conviluted though that it's difficult to add without tons of work.
-	--This may be spammy but only for debug mode. It's very important for raid testing though. i've had too many bosses where even though I tested boss
-	--And I have transcriptor log, i still don't know which event is right one sometimes. It's important to SEE which event is firing during an exact moment of a fight.
+	--TODO, waste less cpu and register Unit only events for boss1-5
 	function DBM:UNIT_SPELLCAST_SUCCEEDED(uId, spellName, _, _, spellId)
 		if not (uId == "boss1" or uId == "boss2" or uId == "boss3" or uId == "boss4" or uId == "boss5") then return end
-		if DBM.Options.DebugLevel > 2 or (Transcriptor and Transcriptor:IsLogging()) then
-			self:Debug("UNIT_SPELLCAST_SUCCEEDED fired: "..UnitName(uId).."'s "..spellName.."("..spellId..")")
-		end
+		--Changed, only fire for debug level 3 period. transcriptor running now only forces RBW2 and UTC.
+		--This event is way too spammy to see every time transcriptor running. Only want from time to time
+		self:Debug("UNIT_SPELLCAST_SUCCEEDED fired: "..UnitName(uId).."'s "..spellName.."("..spellId..")", 3)
 	end
 
 	function DBM:ENCOUNTER_START(encounterID, name, difficulty, size)
@@ -3862,6 +4529,10 @@ do
 			end
 		end
 	end
+	
+	function DBM:BOSS_KILL(encounterID, name)
+		self:Debug("BOSS_KILL event fired: "..encounterID.." "..name)
+	end
 
 	local function checkExpressionList(exp, str)
 		for i, v in ipairs(exp) do
@@ -3879,7 +4550,7 @@ do
 			for i, v in ipairs(combatInfo[LastInstanceMapID]) do
 				if v.type == type and checkEntry(v.msgs, msg) or v.type == type .. "_regex" and checkExpressionList(v.msgs, msg) then
 					DBM:StartCombat(v.mod, 0, "MONSTER_MESSAGE")
-				elseif v.type == "combat_" .. type and checkEntry(v.msgs, msg) then
+				elseif v.type == "combat_" .. type .. "find" and findEntry(v.msgs, msg) or v.type == "combat_" .. type and checkEntry(v.msgs, msg) then
 					if IsInInstance() then--Indoor boss that uses both combat and yell for combat, so in other words (such as hodir), don't require "target" of boss for yell like scanForCombat does for World Bosses
 						DBM:StartCombat(v.mod, 0, "MONSTER_MESSAGE")
 					else--World Boss
@@ -3919,6 +4590,19 @@ do
 		onMonsterMessage("emote", msg)
 		return self:FilterRaidBossEmote(msg, ...)
 	end
+	
+	function DBM:RAID_BOSS_WHISPER(msg)
+		--Make it easier for devs to detect whispers they are unable to see
+		--TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t You have been branded by |cFFF00000|Hspell:156238|h[Arcane Wrath]|h|r!"
+		if IsInGroup() then
+			SendAddonMessage("Transcriptor", msg, IsInGroup(2) and "INSTANCE_CHAT" or IsInRaid() and "RAID" or "PARTY")--Send any emote to transcriptor, even if no spellid
+			if msg:find("spell:") then--Sync spellid based ones for dbm dev purposes still
+				local spellId = string.match(msg, "spell:(%d+)") or UNKNOWN
+				local spellName = string.match(msg, "h%[(.-)%]|h") or UNKNOWN
+				sendSync("RBW3", spellId.."\t"..spellName)
+			end
+		end
+	end
 
 	function DBM:CHAT_MSG_MONSTER_SAY(msg)
 		return onMonsterMessage("say", msg)
@@ -3931,7 +4615,6 @@ end
 
 function checkWipe(confirm)
 	if #inCombat > 0 then
-		local _, instanceType = GetInstanceInfo()
 		if not savedDifficulty or not difficultyText or not difficultyIndex then--prevent error if savedDifficulty or difficultyText is nil
 			savedDifficulty, difficultyText, difficultyIndex = DBM:GetCurrentInstanceDifficulty()
 		end
@@ -3951,7 +4634,7 @@ function checkWipe(confirm)
 			wipe = 0
 		elseif savedDifficulty == "worldboss" and UnitIsDeadOrGhost("player") then -- On dead or ghost, unit combat status detection would be fail. If you ghost in instance, that means wipe. But in worldboss, ghost means not wipe. So do not wipe.
 			wipe = 0
-		elseif bossuIdFound and instanceType == "raid" then -- Combat started by IEEU and no boss exist and no EncounterProgress marked, that means wipe
+		elseif bossuIdFound and LastInstanceType == "raid" then -- Combat started by IEEU and no boss exist and no EncounterProgress marked, that means wipe
 			wipe = 2
 			for i = 1, 5 do
 				if UnitExists("boss"..i) then
@@ -4003,478 +4686,270 @@ function checkBossHealth()
 	end
 end
 
+function checkCustomBossHealth(mod)
+	mod:CustomHealthUpdate()
+	DBM:Schedule(1, checkCustomBossHealth, mod)
+end
+
 function loopCRTimer(timer, mod)
-	local crTimer = mod:NewTimer(timer, DBM_COMBAT_RES_TIMER_TEXT, "Interface\\Icons\\Spell_Nature_Reincarnation")
+	local crTimer = mod:NewTimer(timer, DBM_COMBAT_RES_TIMER_TEXT, "Interface\\Icons\\Spell_Nature_Reincarnation", nil, false)
 	crTimer:Start()
 	DBM:Schedule(timer, loopCRTimer, timer, mod)
 end
 
-local statVarTable = {
-	--6.0
-	["event5"] = "normal",
-	["event20"] = "lfr25",
-	["event40"] = "lfr25",
-	["normal5"] = "normal",
-	["heroic5"] = "heroic",
-	["challenge5"] = "challenge",
-	["lfr"] = "lfr25",
-	["normal"] = "normal",
-	["heroic"] = "heroic",
-	["mythic"] = "mythic",
-	["worldboss"] = "normal",
-	--Legacy
-	["lfr25"] = "lfr25",
-	["normal10"] = "normal",
-	["normal25"] = "normal25",
-	["heroic10"] = "heroic",
-	["heroic25"] = "heroic25",
-}
+do
+	local statVarTable = {
+		--6.0
+		["event5"] = "normal",
+		["event20"] = "lfr25",
+		["event40"] = "lfr25",
+		["normal5"] = "normal",
+		["heroic5"] = "heroic",
+		["challenge5"] = "challenge",
+		["lfr"] = "lfr25",
+		["normal"] = "normal",
+		["heroic"] = "heroic",
+		["mythic"] = "mythic",
+		["worldboss"] = "normal",
+		--Legacy
+		["lfr25"] = "lfr25",
+		["normal10"] = "normal",
+		["normal25"] = "normal25",
+		["heroic10"] = "heroic",
+		["heroic25"] = "heroic25",
+	}
 
-
-
-function DBM:StartCombat(mod, delay, event, synced, syncedStartHp)
-	if not mod.inCombat then
-		if event then
-			self:Debug("StartCombat called by : "..event)
-		else
-			self:Debug("StartCombat called by individual mod or unknown reason.")
-		end
-	end
-	cSyncSender = {}
-	cSyncReceived = 0
-	if not checkEntry(inCombat, mod) then
-		if not mod.Options.Enabled then return end
-		if not mod.combatInfo then return end
-		if mod.combatInfo.noCombatInVehicle and UnitInVehicle("player") then -- HACK
-			return
-		end
-		--HACK: makes sure that we don't detect a false pull if the event fires again when the boss dies...
-		if mod.lastKillTime and GetTime() - mod.lastKillTime < (mod.reCombatTime or 120) and event ~= "LOADING_SCREEN_DISABLED" then return end
-		if mod.lastWipeTime and GetTime() - mod.lastWipeTime < (mod.reCombatTime2 or 20) and event ~= "LOADING_SCREEN_DISABLED" then return end
-		--check completed. starting combat
-		tinsert(inCombat, mod)
-		if mod.inCombatOnlyEvents and not mod.inCombatOnlyEventsRegistered then
-			mod.inCombatOnlyEventsRegistered = 1
-			mod:RegisterEvents(unpack(mod.inCombatOnlyEvents))
-		end
-		--Fix for "attempt to perform arithmetic on field 'stats' (a nil value)"
-		if not mod.stats then
-			self:AddMsg(DBM_CORE_BAD_LOAD)--Warn user that they should reload ui soon as they leave combat to get their mod to load correctly as soon as possible
-			mod.ignoreBestkill = true--Force this to true so we don't check any more occurances of "stats"
-		elseif event == "TIMER_RECOVERY" then --add a lag time to delay when TIMER_RECOVERY
-			delay = delay + select(4, GetNetStats()) / 1000
-		end
-		--set mod default info
-		savedDifficulty, difficultyText, difficultyIndex, LastGroupSize = DBM:GetCurrentInstanceDifficulty()
-		local name = mod.combatInfo.name
-		local modId = mod.id
-		if C_Scenario.IsInScenario() and (mod.type == "SCENARIO") then
-			mod.inScenario = true
-		end
-		mod.inCombat = true
-		mod.blockSyncs = nil
-		mod.combatInfo.pull = GetTime() - (delay or 0)
-		bossuIdFound = (event or "") == "IEEU"
-		if mod.minCombatTime then
-			self:Schedule(mmax((mod.minCombatTime - delay), 3), checkWipe)
-		else
-			self:Schedule(3, checkWipe)
-		end
-		--get boss hp at pull
-		if syncedStartHp and syncedStartHp < 1 then
-			syncedStartHp = syncedStartHp * 100
-		end
-		local startHp = syncedStartHp or mod:GetBossHP(mod.mainBoss or mod.combatInfo.mob or -1) or 0
-		--check boss engaged first?
-		if (savedDifficulty == "worldboss" and startHp < 98) or (event == "UNIT_HEALTH" and delay > 4) or event == "TIMER_RECOVERY" then--Boss was not full health when engaged, disable combat start timer and kill record
-			mod.ignoreBestkill = true
-		elseif mod.inScenario then
-			local _, currentStage, numStages = C_Scenario.GetInfo()
-			if currentStage > 1 and numStages > 1 then
-				mod.ignoreBestkill = true
-			end
-		else--Reset ignoreBestkill after wipe
-			mod.ignoreBestkill = false
-		end
-		--show health frame
-		if (DBM.Options.AlwaysShowHealthFrame or mod.Options.HealthFrame) and not mod.inScenario then
-			if not DBM.BossHealth:IsShown() then
-				DBM.BossHealth:Show(mod.localization.general.name)
-			else-- pulled other boss during combat, set header text.
-				DBM.BossHealth:SetHeaderText(BOSS)
-			end
-			if mod.bossHealthInfo then
-				for i = 1, #mod.bossHealthInfo, 2 do
-					DBM.BossHealth:AddBoss(mod.bossHealthInfo[i], mod.bossHealthInfo[i + 1])
-				end
+	function DBM:StartCombat(mod, delay, event, synced, syncedStartHp)
+		if not mod.inCombat then
+			if event then
+				self:Debug("StartCombat called by : "..event..". LastInstanceMapID is "..LastInstanceMapID)
 			else
-				DBM.BossHealth:AddBoss(mod.combatInfo.mob, mod.localization.general.name)
-			end
-		--boss health info update scheduler if boss health frame is not enabled.
-		elseif not mod.inScenario then
-			self:Schedule(1, checkBossHealth)
-		end
-		--process global options
-		self:ToggleRaidBossEmoteFrame(1)
-		self:StartLogging(0, nil)
-		if DBM.Options.HideObjectivesFrame and not (mod.type == "SCENARIO") then
-			if ObjectiveTrackerFrame:IsVisible() then
-				ObjectiveTrackerFrame:Hide()
-				watchFrameRestore = true
+				self:Debug("StartCombat called by individual mod or unknown reason. LastInstanceMapID is "..LastInstanceMapID)
 			end
 		end
-		if DBM.Options.HideTooltips and not mod.inScenario then
-			--Better or cleaner way?
-			tooltipsHidden = true
-			GameTooltip.Temphide = function() GameTooltip:Hide() end; GameTooltip:SetScript("OnShow", GameTooltip.Temphide)
-		end
-		fireEvent("pull", mod, delay, synced, startHp)
-		--serperate timer recovery and normal start.
-		if event ~= "TIMER_RECOVERY" then
-			--add pull count
-			if mod.stats then
-				if not mod.stats[statVarTable[savedDifficulty].."Pulls"] then mod.stats[statVarTable[savedDifficulty].."Pulls"] = 0 end
-				mod.stats[statVarTable[savedDifficulty].."Pulls"] = mod.stats[statVarTable[savedDifficulty].."Pulls"] + 1
+		cSyncSender = {}
+		cSyncReceived = 0
+		if not checkEntry(inCombat, mod) then
+			if not mod.Options.Enabled then return end
+			if not mod.combatInfo then return end
+			if mod.combatInfo.noCombatInVehicle and UnitInVehicle("player") then -- HACK
+				return
 			end
-			--show speed timer
-			if (DBM.Options.AlwaysShowSpeedKillTimer or mod.Options.SpeedKillTimer) and mod.stats and not mod.ignoreBestkill then
-				local bestTime = mod.stats[statVarTable[savedDifficulty].."BestTime"]
-				if bestTime and bestTime > 0 then
-					local speedTimer = mod:NewTimer(bestTime, DBM_SPEED_KILL_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime")
-					speedTimer:Start()
+			--HACK: makes sure that we don't detect a false pull if the event fires again when the boss dies...
+			if mod.lastKillTime and GetTime() - mod.lastKillTime < (mod.reCombatTime or 120) and event ~= "LOADING_SCREEN_DISABLED" then return end
+			if mod.lastWipeTime and GetTime() - mod.lastWipeTime < (event == "ENCOUNTER_START" and 3 or mod.reCombatTime2 or 20) and event ~= "LOADING_SCREEN_DISABLED" then return end
+			--check completed. starting combat
+			tinsert(inCombat, mod)
+			if mod.inCombatOnlyEvents and not mod.inCombatOnlyEventsRegistered then
+				mod.inCombatOnlyEventsRegistered = 1
+				mod:RegisterEvents(unpack(mod.inCombatOnlyEvents))
+			end
+			--Fix for "attempt to perform arithmetic on field 'stats' (a nil value)"
+			if not mod.stats then
+				self:AddMsg(DBM_CORE_BAD_LOAD)--Warn user that they should reload ui soon as they leave combat to get their mod to load correctly as soon as possible
+				mod.ignoreBestkill = true--Force this to true so we don't check any more occurances of "stats"
+			elseif event == "TIMER_RECOVERY" then --add a lag time to delay when TIMER_RECOVERY
+				delay = delay + select(4, GetNetStats()) / 1000
+			end
+			--set mod default info
+			savedDifficulty, difficultyText, difficultyIndex, LastGroupSize = self:GetCurrentInstanceDifficulty()
+			local name = mod.combatInfo.name
+			local modId = mod.id
+			if C_Scenario.IsInScenario() and (mod.addon.type == "SCENARIO") then
+				mod.inScenario = true
+			end
+			mod.inCombat = true
+			mod.blockSyncs = nil
+			mod.combatInfo.pull = GetTime() - (delay or 0)
+			bossuIdFound = (event or "") == "IEEU"
+			if mod.minCombatTime then
+				self:Schedule(mmax((mod.minCombatTime - delay), 3), checkWipe)
+			else
+				self:Schedule(3, checkWipe)
+			end
+			--get boss hp at pull
+			if syncedStartHp and syncedStartHp < 1 then
+				syncedStartHp = syncedStartHp * 100
+			end
+			local startHp = syncedStartHp or mod:GetBossHP(mod.mainBoss or mod.combatInfo.mob or -1) or 100
+			--check boss engaged first?
+			if (savedDifficulty == "worldboss" and startHp < 98) or (event == "UNIT_HEALTH" and delay > 4) or event == "TIMER_RECOVERY" then--Boss was not full health when engaged, disable combat start timer and kill record
+				mod.ignoreBestkill = true
+			elseif mod.inScenario then
+				local _, currentStage, numStages = C_Scenario.GetInfo()
+				if currentStage > 1 and numStages > 1 then
+					mod.ignoreBestkill = true
+				end
+			else--Reset ignoreBestkill after wipe
+				mod.ignoreBestkill = false
+			end
+			--show health frame
+			if not mod.inScenario then
+				if self.Options.HideTooltips then
+					--Better or cleaner way?
+					tooltipsHidden = true
+					GameTooltip.Temphide = function() GameTooltip:Hide() end; GameTooltip:SetScript("OnShow", GameTooltip.Temphide)
+				end
+				if self.Options.DisableSFX and GetCVar("Sound_EnableSFX") == "1" then
+					self.Options.sfxDisabled = true
+					SetCVar("Sound_EnableSFX", 0)
+				end
+				if (self.Options.AlwaysShowHealthFrame or mod.Options.HealthFrame) then
+					if not self.BossHealth:IsShown() then
+						self.BossHealth:Show(mod.localization.general.name)
+					else-- pulled other boss during combat, set header text.
+						self.BossHealth:SetHeaderText(BOSS)
+					end
+					if mod.bossHealthInfo then
+						if mod.bossHealthInfo[2] and type(mod.bossHealthInfo[2]) == "number" then
+							for i = 1, #mod.bossHealthInfo do--boss name gets from UnitName
+								self.BossHealth:AddBoss(mod.bossHealthInfo[i])
+							end
+						else
+							for i = 1, #mod.bossHealthInfo, 2 do
+								self.BossHealth:AddBoss(mod.bossHealthInfo[i], mod.bossHealthInfo[i + 1])
+							end
+						end
+					else
+						self.BossHealth:AddBoss(mod.combatInfo.mob, mod.localization.general.name)
+					end
+				--boss health info update scheduler if boss health frame is not enabled.
+				elseif not mod.CustomHealthUpdate then
+					self:Schedule(1, checkBossHealth)
+				end
+				--this function must be scheduled if boss health frame enabled.
+				if mod.CustomHealthUpdate then
+					self:Schedule(1, checkCustomBossHealth, mod)
 				end
 			end
-			if DBM.Options.CRT_Enabled and difficultyIndex >= 14 then--14-17 difficulties, all of the difficulty sizes of WoD.
-				local time = 90/LastGroupSize
-				time = time * 60
-				loopCRTimer(time, mod)
+			--process global options
+			self:HideBlizzardEvents(1)
+			self:StartLogging(0, nil)
+			if self.Options.HideObjectivesFrame and mod.addon.type ~= "SCENARIO" and GetNumTrackedAchievements() == 0 then
+				if ObjectiveTrackerFrame:IsVisible() then
+					ObjectiveTrackerFrame:Hide()
+					watchFrameRestore = true
+				end
+				--When hiding objectives frame in challenge modes, start our own timer to show medal time remaining
+				local _, elapsedTime, worldTimerType = GetWorldElapsedTime(1)--Should always be 1, with only one world state timer active. if it's not, use GetWorldElapsedTimers() to find correct one
+				if worldTimerType == 2 then--Challenge mode
+					local bronze, silver, gold = GetChallengeModeMapTimes(LastInstanceMapID)
+					local remaining
+					if elapsedTime < gold then
+						remaining = gold - elapsedTime
+						self.Bars:CreateBar(remaining, CHALLENGE_MODE_MEDAL3, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+					elseif elapsedTime < silver then
+						remaining = silver - elapsedTime
+						self.Bars:CreateBar(remaining, CHALLENGE_MODE_MEDAL2, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+					elseif elapsedTime < bronze then
+						remaining = bronze - elapsedTime
+						self.Bars:CreateBar(remaining, CHALLENGE_MODE_MEDAL1, "Interface\\Icons\\Spell_Holy_BorrowedTime")
+					end
+				end
 			end
-			--update boss left
-			if mod.numBoss then
-				mod.vb.bossLeft = mod.numBoss
-			end
-			--elect icon person
-			if mod.findFastestComputer and not DBM.Options.DontSetIcons then
-				if DBM:GetRaidRank() > 0 then
-					local optionName = mod.findFastestComputer[1]
-					if #mod.findFastestComputer == 1 and mod.Options[optionName] then
-						sendSync("IS", UnitGUID("player").."\t"..DBM.Revision.."\t"..optionName)
-					else
+			fireEvent("pull", mod, delay, synced, startHp)
+			--serperate timer recovery and normal start.
+			if event ~= "TIMER_RECOVERY" then
+				--add pull count
+				if mod.stats then
+					if not mod.stats[statVarTable[savedDifficulty].."Pulls"] then mod.stats[statVarTable[savedDifficulty].."Pulls"] = 0 end
+					mod.stats[statVarTable[savedDifficulty].."Pulls"] = mod.stats[statVarTable[savedDifficulty].."Pulls"] + 1
+				end
+				--show speed timer
+				if (self.Options.AlwaysShowSpeedKillTimer or mod.Options.SpeedKillTimer) and mod.stats and not mod.ignoreBestkill then
+					local bestTime = mod.stats[statVarTable[savedDifficulty].."BestTime"]
+					if bestTime and bestTime > 0 then
+						local speedTimer = mod:NewTimer(bestTime, DBM_SPEED_KILL_TIMER_TEXT, "Interface\\Icons\\Spell_Holy_BorrowedTime", nil, false)
+						speedTimer:Start()
+					end
+				end
+				if self.Options.CRT_Enabled and difficultyIndex >= 14 and difficultyIndex < 18 then--14-17 difficulties. Normal, Heroic, Mythic, LFR
+					local time = 90/LastGroupSize
+					time = time * 60
+					loopCRTimer(time, mod)
+				end
+				--update boss left
+				if mod.numBoss then
+					mod.vb.bossLeft = mod.numBoss
+				end
+				--elect icon person
+				if mod.findFastestComputer and not self.Options.DontSetIcons then
+					if self:GetRaidRank() > 0 then
+						local optionName = mod.findFastestComputer[1]
+						if #mod.findFastestComputer == 1 and mod.Options[optionName] then
+							sendSync("IS", UnitGUID("player").."\t"..DBM.Revision.."\t"..optionName)
+						else
+							for i = 1, #mod.findFastestComputer do
+								local option = mod.findFastestComputer[i]
+								if mod.Options[option] then
+									sendSync("IS", UnitGUID("player").."\t"..DBM.Revision.."\t"..option)
+								end
+							end
+						end
+					elseif not IsInGroup() then
 						for i = 1, #mod.findFastestComputer do
 							local option = mod.findFastestComputer[i]
 							if mod.Options[option] then
-								sendSync("IS", UnitGUID("player").."\t"..DBM.Revision.."\t"..option)
-							end
-						end
-					end
-				elseif not IsInGroup() then
-					for i = 1, #mod.findFastestComputer do
-						local option = mod.findFastestComputer[i]
-						if mod.Options[option] then
-							canSetIcons[option] = true
-						end
-					end
-				end
-			end
-			--call OnCombatStart
-			if mod.OnCombatStart and not mod.ignoreBestkill then
-				mod:OnCombatStart(delay or 0, event == "PLAYER_REGEN_DISABLED_AND_MESSAGE")
-			end
-			--send "C" sync
-			if not synced then
-				sendSync("C", (delay or 0).."\t"..modId.."\t"..(mod.revision or 0).."\t"..startHp.."\t"..DBM.Revision)
-			end
-			--show bigbrother check
-			if DBM.Options.ShowBigBrotherOnCombatStart and BigBrother and type(BigBrother.ConsumableCheck) == "function" then
-				if DBM.Options.BigBrotherAnnounceToRaid then
-					BigBrother:ConsumableCheck("RAID")
-				else
-					BigBrother:ConsumableCheck("SELF")
-				end
-			end
-			--show enage message
-			if DBM.Options.ShowEngageMessage then
-				if mod.ignoreBestkill and (savedDifficulty == "worldboss") then--Should only be true on in progress field bosses, not in progress raid bosses we did timer recovery on.
-					self:AddMsg(DBM_CORE_COMBAT_STARTED_IN_PROGRESS:format(difficultyText..name))
-				elseif mod.ignoreBestkill and mod.inScenario then
-					self:AddMsg(DBM_CORE_SCENARIO_STARTED_IN_PROGRESS:format(difficultyText..name))
-				else
-					if mod.type == "SCENARIO" then
-						self:AddMsg(DBM_CORE_SCENARIO_STARTED:format(difficultyText..name))
-					else
-						self:AddMsg(DBM_CORE_COMBAT_STARTED:format(difficultyText..name))
-						if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then--Only send relevant content, not guild beating down lich king or LFR.
-							if InGuildParty() then--Guild Group
-								SendAddonMessage("D4", "GCB\t"..modId.."\t2\t"..difficultyIndex, "GUILD")
+								canSetIcons[option] = true
 							end
 						end
 					end
 				end
-			end
-			--stop pull count
-			local dummyMod = self:GetModByName("PullTimerCountdownDummy")
-			if dummyMod then--stop pull timer, warning, countdowns
-				dummyMod.countdown:Cancel()
-				dummyMod.text:Cancel()
-				DBM.Bars:CancelBar(DBM_CORE_TIMER_PULL)
-				TimerTracker_OnEvent(TimerTracker, "PLAYER_ENTERING_WORLD")
-			end
-			--show hotfix notify
-			if mod.hotfixNoticeRev then
-				sendSync("HF", modId.."\t"..mod.hotfixNoticeRev)
-			end
-		elseif DBM.Options.ShowRecoveryMessage then--show timer recovery message
-			self:AddMsg(DBM_CORE_COMBAT_STATE_RECOVERED:format(difficultyText..name, strFromTime(delay)))
-		end
-		if savedDifficulty == "worldboss" and not mod.noWBEsync then
-			if lastBossEngage[modId..playerRealm] and (GetTime() - lastBossEngage[modId..playerRealm] < 30) then return end--Someone else synced in last 10 seconds so don't send out another sync to avoid needless sync spam.
-			lastBossEngage[modId..playerRealm] = GetTime()--Update last engage time, that way we ignore our own sync
-			if IsInGuild() then
-				SendAddonMessage("D4", "WBE\t"..modId.."\t"..playerRealm.."\t"..startHp.."\t7\t"..name, "GUILD")--Even guild syncs send realm so we can keep antispam the same across realid as well.
-			end
-			local _, numBNetOnline = BNGetNumFriends()
-			for i = 1, numBNetOnline do
-				local sameRealm = false
-				local presenceID, _, _, _, _, _, client, isOnline = BNGetFriendInfo(i)
-				if isOnline and client == BNET_CLIENT_WOW then
-					local _, _, _, userRealm = BNGetToonInfo(presenceID)
- 					if connectedServers then
-						for i = 1, #connectedServers do
- 	 						if userRealm == connectedServers[i] then
- 	 							sameRealm = true
- 	 							break
- 	 						end
-						end
+				--call OnCombatStart
+				if mod.OnCombatStart and not mod.ignoreBestkill then
+					mod:OnCombatStart(delay or 0, event == "PLAYER_REGEN_DISABLED_AND_MESSAGE")
+				end
+				--send "C" sync
+				if not synced then
+					sendSync("C", (delay or 0).."\t"..modId.."\t"..(mod.revision or 0).."\t"..startHp.."\t"..DBM.Revision)
+				end
+				--show bigbrother check
+				if self.Options.ShowBigBrotherOnCombatStart and BigBrother and type(BigBrother.ConsumableCheck) == "function" then
+					if self.Options.BigBrotherAnnounceToRaid then
+						BigBrother:ConsumableCheck("RAID")
 					else
-						if userRealm == playerRealm then
-							sameRealm = true
-						end
-					end
-					if sameRealm then
-						BNSendGameData(presenceID, "D4", "WBE\t"..modId.."\t"..userRealm.."\t"..startHp.."\t7\t"..name)--Just send users realm for pull, so we can eliminate connectedServers checks on sync handler
+						BigBrother:ConsumableCheck("SELF")
 					end
 				end
-			end
-		end
-	end
-end
-
-function DBM:UNIT_HEALTH(uId)
-	local cId = DBM:GetCIDFromGUID(UnitGUID(uId))
-	local health
-	if UnitHealthMax(uId) ~= 0 then
-		health = UnitHealth(uId) / UnitHealthMax(uId) * 100
-	end
-	if not health or health < 5 then return end -- no worthy of combat start if health is below 5%
-	if InCombatLockdown() then
-		if cId ~= 0 and not bossHealth[cId] and bossIds[cId] and UnitAffectingCombat(uId) and healthCombatInitialized then -- StartCombat by UNIT_HEALTH.
-			if combatInfo[LastInstanceMapID] then
-				for i, v in ipairs(combatInfo[LastInstanceMapID]) do
-					if v.mod.Options.Enabled and not v.mod.disableHealthCombat and (v.type == "combat" or v.type == "combat_yell" or v.type == "combat_emote" or v.type == "combat_say") and (v.multiMobPullDetection and checkEntry(v.multiMobPullDetection, cId) or v.mob == cId) then
-						-- Delay set, > 97% = 0.5 (consider as normal pulling), max dealy limited to 20s.
-						self:StartCombat(v.mod, health > 97 and 0.5 or mmin(GetTime() - lastCombatStarted, 20), "UNIT_HEALTH", nil, health)
-					end
-				end
-			end
-		end
-		if DBM.Options.AFKHealthWarning and UnitIsUnit(uId, "player") and (health < 85) and not IsEncounterInProgress() and UnitIsAFK("player") and self:AntiSpam(5, "AFK") then--You are afk and losing health, some griever is trying to kill you while you are afk/tabbed out.
-			PlaySoundFile("Sound\\Creature\\CThun\\CThunYouWillDIe.ogg", "master")--So fire an alert sound to save yourself from this person's behavior.
-		end
-	end
-end
-
-function DBM:EndCombat(mod, wipe)
-	if removeEntry(inCombat, mod) then
-		local scenario = mod.type == "SCENARIO"
-		if mod.inCombatOnlyEvents and mod.inCombatOnlyEventsRegistered then
-			-- unregister all events except for SPELL_AURA_REMOVED events (might still be needed to remove icons etc...)
-			mod:UnregisterInCombatEvents()
-			self:Schedule(2, mod.UnregisterInCombatEvents, mod, true) -- 2 seconds should be enough for all auras to fade
-			self:Schedule(2.1, mod.Stop, mod) -- Remove accident started timers.
-			mod.inCombatOnlyEventsRegistered = nil
-		end
-		mod:Stop()
-		if enableIcons and not DBM.Options.DontSetIcons then
-			-- restore saved previous icon
-			for uId, icon in pairs(mod.iconRestore) do
-				SetRaidTarget(uId, icon)
-			end
-			twipe(mod.iconRestore)
-		end
-		mod.inCombat = false
-		mod.blockSyncs = true
-		if mod.combatInfo.killMobs then
-			for i, v in pairs(mod.combatInfo.killMobs) do
-				mod.combatInfo.killMobs[i] = true
-			end
-		end
-		if not savedDifficulty or not difficultyText or not difficultyIndex then--prevent error if savedDifficulty or difficultyText is nil
-			savedDifficulty, difficultyText, difficultyIndex = DBM:GetCurrentInstanceDifficulty()
-		end
-		if not mod.stats then--This will be nil if the mod for this intance failed to load fully because "script ran too long" (it tried to load in combat and failed)
-			self:AddMsg(DBM_CORE_BAD_LOAD)--Warn user that they should reload ui soon as they leave combat to get their mod to load correctly as soon as possible
-			return--Don't run any further, stats are nil on a bad load so rest of this code will also error out.
-		end
-		local name = mod.combatInfo.name
-		local modId = mod.id
-		if wipe then
-			mod.lastWipeTime = GetTime()
-			--Fix for "attempt to perform arithmetic on field 'pull' (a nil value)" (which was actually caused by stats being nil, so we never did getTime on pull, fixing one SHOULD fix the other)
-			local thisTime = GetTime() - mod.combatInfo.pull
-			local wipeHP = ("%d%%"):format(mod.highesthealth and mod:GetHighestBossHealth() or mod:GetLowestBossHealth())
-			local totalPulls = mod.stats[statVarTable[savedDifficulty].."Pulls"]
-			local totalKills = mod.stats[statVarTable[savedDifficulty].."Kills"]
-			if thisTime < 30 then -- Normally, one attempt will last at least 30 sec.
-				totalPulls = totalPulls - 1
-				if DBM.Options.ShowWipeMessage then
-					if scenario then
-						self:AddMsg(DBM_CORE_SCENARIO_ENDED_AT:format(difficultyText..name, strFromTime(thisTime)))
+				--show enage message
+				if self.Options.ShowEngageMessage then
+					if mod.ignoreBestkill and (savedDifficulty == "worldboss") then--Should only be true on in progress field bosses, not in progress raid bosses we did timer recovery on.
+						self:AddMsg(DBM_CORE_COMBAT_STARTED_IN_PROGRESS:format(difficultyText..name))
+					elseif mod.ignoreBestkill and mod.inScenario then
+						self:AddMsg(DBM_CORE_SCENARIO_STARTED_IN_PROGRESS:format(difficultyText..name))
 					else
-						self:AddMsg(DBM_CORE_COMBAT_ENDED_AT:format(difficultyText..name, wipeHP, strFromTime(thisTime)))
-						--No reason to GCE it here, so omited on purpose.
-					end
-				end
-			else
-				if DBM.Options.ShowWipeMessage then
-					if scenario then
-						self:AddMsg(DBM_CORE_SCENARIO_ENDED_AT_LONG:format(difficultyText..name, strFromTime(thisTime), totalPulls - totalKills))
-					else
-						self:AddMsg(DBM_CORE_COMBAT_ENDED_AT_LONG:format(difficultyText..name, wipeHP, strFromTime(thisTime), totalPulls - totalKills))
-						if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
-							if InGuildParty() then--Guild Group
-								SendAddonMessage("D4", "GCE\t"..modId.."\t2\t1\t"..strFromTime(thisTime).."\t"..wipeHP.."\t"..difficultyIndex, "GUILD")
+						if mod.addon.type == "SCENARIO" then
+							self:AddMsg(DBM_CORE_SCENARIO_STARTED:format(difficultyText..name))
+						else
+							self:AddMsg(DBM_CORE_COMBAT_STARTED:format(difficultyText..name))
+							if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then--Only send relevant content, not guild beating down lich king or LFR.
+								if InGuildParty() then--Guild Group
+									SendAddonMessage("D4", "GCB\t"..modId.."\t2\t"..difficultyIndex, "GUILD")
+								end
 							end
 						end
 					end
 				end
-			end
-
-			local msg
-			for k, v in pairs(autoRespondSpam) do
-				if DBM.Options.WhisperStats then
-					if scenario then
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_WIPE_STATS:format(playerName, difficultyText..(name or ""), totalPulls - totalKills)
-					else
-						local hpText = wipeHP
-						if mod.vb.phase then
-							hpText = hpText.." ("..SCENARIO_STAGE:format(mod.vb.phase)..")"
-						end
-						if mod.numBoss then
-							local bossesKilled = mod.numBoss - mod.vb.bossLeft
-							hpText = hpText.." ("..BOSSES_KILLED:format(bossesKilled, mod.numBoss)..")"
-						end
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_WIPE_STATS_AT:format(playerName, difficultyText..(name or ""), hpText, totalPulls - totalKills)
-					end
-				else
-					if scenario then
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_WIPE:format(playerName, difficultyText..(name or ""))
-					else
-						local hpText = wipeHP
-						if mod.vb.phase then
-							hpText = hpText.." ("..SCENARIO_STAGE:format(mod.vb.phase)..")"
-						end
-						if mod.numBoss then
-							local bossesKilled = mod.numBoss - mod.vb.bossLeft
-							hpText = hpText.." ("..BOSSES_KILLED:format(bossesKilled, mod.numBoss)..")"
-						end
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_WIPE_AT:format(playerName, difficultyText..(name or ""), hpText)
-					end
+				--stop pull count
+				local dummyMod = self:GetModByName("PullTimerCountdownDummy")
+				if dummyMod then--stop pull timer, warning, countdowns
+					dummyMod.countdown:Cancel()
+					dummyMod.text:Cancel()
+					self.Bars:CancelBar(DBM_CORE_TIMER_PULL)
+					TimerTracker_OnEvent(TimerTracker, "PLAYER_ENTERING_WORLD")
 				end
-				sendWhisper(k, msg)
-			end
-			fireEvent("wipe", mod)
-		else
-			mod.lastKillTime = GetTime()
-			local thisTime = GetTime() - (mod.combatInfo.pull or 0)
-			local lastTime = mod.stats[statVarTable[savedDifficulty].."LastTime"]
-			local bestTime = mod.stats[statVarTable[savedDifficulty].."BestTime"]
-			if not mod.stats[statVarTable[savedDifficulty].."Kills"] or mod.stats[statVarTable[savedDifficulty].."Kills"] < 0 then mod.stats[statVarTable[savedDifficulty].."Kills"] = 0 end
-			--Fix logical error i've seen where for some reason we have more kills then pulls for boss as seen by - stats for wipe messages.
-			if mod.stats[statVarTable[savedDifficulty].."Kills"] > mod.stats[statVarTable[savedDifficulty].."Pulls"] then mod.stats[statVarTable[savedDifficulty].."Kills"] = mod.stats[statVarTable[savedDifficulty].."Pulls"] end
-			mod.stats[statVarTable[savedDifficulty].."Kills"] = mod.stats[statVarTable[savedDifficulty].."Kills"] + 1
-			if not mod.ignoreBestkill and mod.combatInfo.pull then
-				mod.stats[statVarTable[savedDifficulty].."LastTime"] = thisTime
-				--Just to prevent pre mature end combat calls from broken mods from saving bad time stats.
-				if bestTime and bestTime > 0 and bestTime < 1.5 then
-					mod.stats[statVarTable[savedDifficulty].."BestTime"] = thisTime
-				else
-					mod.stats[statVarTable[savedDifficulty].."BestTime"] = mmin(bestTime or mhuge, thisTime)
+				--show hotfix notify
+				if mod.hotfixNoticeRev then
+					sendSync("HF", modId.."\t"..mod.hotfixNoticeRev)
 				end
+			elseif self.Options.ShowRecoveryMessage then--show timer recovery message
+				self:AddMsg(DBM_CORE_COMBAT_STATE_RECOVERED:format(difficultyText..name, strFromTime(delay)))
 			end
-			local totalKills = mod.stats[statVarTable[savedDifficulty].."Kills"]
-			if DBM.Options.ShowKillMessage then
-				local msg = ""
-				if not mod.combatInfo.pull then--was a bad pull so we ignored thisTime, should never happen
-					if scenario then
-						msg = DBM_CORE_SCENARIO_COMPLETE:format(difficultyText..name, DBM_CORE_UNKNOWN)
-					else
-						msg = DBM_CORE_BOSS_DOWN:format(difficultyText..name, DBM_CORE_UNKNOWN)
-					end
-				elseif mod.ignoreBestkill then--Should never happen in a scenario so no need for scenario check.
-					if scenario then
-						msg = DBM_CORE_SCENARIO_COMPLETE_I:format(difficultyText..name, totalKills)
-					else
-						msg = DBM_CORE_BOSS_DOWN_I:format(difficultyText..name, totalKills)
-					end
-				elseif not lastTime then
-					if scenario then
-						msg = DBM_CORE_SCENARIO_COMPLETE:format(difficultyText..name, strFromTime(thisTime))
-					else
-						msg = DBM_CORE_BOSS_DOWN:format(difficultyText..name, strFromTime(thisTime))
-						if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
-							if InGuildParty() then--Guild Group
-								SendAddonMessage("D4", "GCE\t"..modId.."\t2\t0\t"..strFromTime(thisTime).."\t"..difficultyIndex, "GUILD")
-							end
-						end
-					end
-				elseif thisTime < (bestTime or mhuge) then
-					if scenario then
-						msg = DBM_CORE_SCENARIO_COMPLETE_NR:format(difficultyText..name, strFromTime(thisTime), strFromTime(bestTime), totalKills)
-					else
-						msg = DBM_CORE_BOSS_DOWN_NR:format(difficultyText..name, strFromTime(thisTime), strFromTime(bestTime), totalKills)
-						if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
-							if InGuildParty() then--Guild Group
-								SendAddonMessage("D4", "GCE\t"..modId.."\t2\t0\t"..strFromTime(thisTime).."\t"..difficultyIndex, "GUILD")
-							end
-						end
-					end
-				else
-					if scenario then
-						msg = DBM_CORE_SCENARIO_COMPLETE_L:format(difficultyText..name, strFromTime(thisTime), strFromTime(lastTime), strFromTime(bestTime), totalKills)
-					else
-						msg = DBM_CORE_BOSS_DOWN_L:format(difficultyText..name, strFromTime(thisTime), strFromTime(lastTime), strFromTime(bestTime), totalKills)
-						if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
-							if InGuildParty() then--Guild Group
-								SendAddonMessage("D4", "GCE\t"..modId.."\t2\t0\t"..strFromTime(thisTime).."\t"..difficultyIndex, "GUILD")
-							end
-						end
-					end
-				end
-				self:Schedule(1, DBM.AddMsg, DBM, msg)
-			end
-			local msg
-			for k, v in pairs(autoRespondSpam) do
-				if DBM.Options.WhisperStats then
-					if scenario then
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_KILL_STATS:format(playerName, difficultyText..(name or ""), totalKills)
-					else
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_KILL_STATS:format(playerName, difficultyText..(name or ""), totalKills)
-					end
-				else
-					if scenario then
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_KILL:format(playerName, difficultyText..(name or ""))
-					else
-						msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_KILL:format(playerName, difficultyText..(name or ""))
-					end
-				end
-				sendWhisper(k, msg)
-			end
-			fireEvent("kill", mod)
 			if savedDifficulty == "worldboss" and not mod.noWBEsync then
-				if lastBossDefeat[modId..playerRealm] and (GetTime() - lastBossDefeat[modId..playerRealm] < 30) then return end--Someone else synced in last 10 seconds so don't send out another sync to avoid needless sync spam.
-				lastBossDefeat[modId..playerRealm] = GetTime()--Update last defeat time before we send it, so we don't handle our own sync
+				if lastBossEngage[modId..playerRealm] and (GetTime() - lastBossEngage[modId..playerRealm] < 30) then return end--Someone else synced in last 10 seconds so don't send out another sync to avoid needless sync spam.
+				lastBossEngage[modId..playerRealm] = GetTime()--Update last engage time, that way we ignore our own sync
 				if IsInGuild() then
-					SendAddonMessage("D4", "WBD\t"..modId.."\t"..playerRealm.."\t7\t"..name, "GUILD")--Even guild syncs send realm so we can keep antispam the same across realid as well.
+					SendAddonMessage("D4", "WBE\t"..modId.."\t"..playerRealm.."\t"..startHp.."\t8\t"..name, "GUILD")--Even guild syncs send realm so we can keep antispam the same across realid as well.
 				end
 				local _, numBNetOnline = BNGetNumFriends()
 				for i = 1, numBNetOnline do
@@ -4482,12 +4957,12 @@ function DBM:EndCombat(mod, wipe)
 					local presenceID, _, _, _, _, _, client, isOnline = BNGetFriendInfo(i)
 					if isOnline and client == BNET_CLIENT_WOW then
 						local _, _, _, userRealm = BNGetToonInfo(presenceID)
- 						if connectedServers then
+						if connectedServers then
 							for i = 1, #connectedServers do
- 	 							if userRealm == connectedServers[i] then
- 	 								sameRealm = true
- 	 								break
- 	 							end
+								if userRealm == connectedServers[i] then
+									sameRealm = true
+									break
+								end
 							end
 						else
 							if userRealm == playerRealm then
@@ -4495,50 +4970,313 @@ function DBM:EndCombat(mod, wipe)
 							end
 						end
 						if sameRealm then
-							BNSendGameData(presenceID, "D4", "WBD\t"..modId.."\t"..userRealm.."\t7\t"..name)
+							BNSendGameData(presenceID, "D4", "WBE\t"..modId.."\t"..userRealm.."\t"..startHp.."\t8\t"..name)--Just send users realm for pull, so we can eliminate connectedServers checks on sync handler
 						end
 					end
 				end
 			end
 		end
-		if mod.OnCombatEnd then mod:OnCombatEnd(wipe) end
-		if #inCombat == 0 then--prevent error if you pulled multiple boss. (Earth, Wind and Fire)
-			self:Schedule(10, DBM.StopLogging, DBM)--small delay to catch kill/died combatlog events
-			self:ToggleRaidBossEmoteFrame(0)
-			self:Unschedule(checkBossHealth)
-			self:Unschedule(loopCRTimer)
-			DBM.BossHealth:Hide()
-			DBM.Arrow:Hide(true)
-			if DBM.Options.HideObjectivesFrame and watchFrameRestore and not scenario then
-				ObjectiveTrackerFrame:Show()
-				watchFrameRestore = false
-			end
-			if tooltipsHidden then
-				--Better or cleaner way?
-				tooltipsHidden = false
-				GameTooltip:SetScript("OnShow", GameTooltip.Show)
-			end
-			--cache table
-			twipe(autoRespondSpam)
-			twipe(bossHealth)
-			twipe(bossHealthuIdCache)
-			twipe(bossuIdCache)
-			--sync table
-			twipe(canSetIcons)
-			twipe(iconSetRevision)
-			twipe(iconSetPerson)
-			twipe(addsGUIDs)
-			bossuIdFound = false
-			eeSyncSender = {}
-			eeSyncReceived = 0
-			DBM:CreatePizzaTimer(time, "", nil, nil, nil, nil, true)--Auto Terminate infinite loop timers on combat end
-		elseif DBM.BossHealth:IsShown() then
-			if mod.bossHealthInfo then
-				for i = 1, #mod.bossHealthInfo, 2 do
-					DBM.BossHealth:RemoveBoss(mod.bossHealthInfo[i])
+	end
+
+	function DBM:UNIT_HEALTH(uId)
+		local cId = self:GetCIDFromGUID(UnitGUID(uId))
+		local health
+		if UnitHealthMax(uId) ~= 0 then
+			health = UnitHealth(uId) / UnitHealthMax(uId) * 100
+		end
+		if not health or health < 5 then return end -- no worthy of combat start if health is below 5%
+		if InCombatLockdown() then
+			if cId ~= 0 and not bossHealth[cId] and bossIds[cId] and UnitAffectingCombat(uId) and healthCombatInitialized then -- StartCombat by UNIT_HEALTH.
+				if combatInfo[LastInstanceMapID] then
+					for i, v in ipairs(combatInfo[LastInstanceMapID]) do
+						if v.mod.Options.Enabled and not v.mod.disableHealthCombat and v.type:find("combat") and (v.multiMobPullDetection and checkEntry(v.multiMobPullDetection, cId) or v.mob == cId) then
+							-- Delay set, > 97% = 0.5 (consider as normal pulling), max dealy limited to 20s.
+							self:StartCombat(v.mod, health > 97 and 0.5 or mmin(GetTime() - lastCombatStarted, 20), "UNIT_HEALTH", nil, health)
+						end
+					end
 				end
+			end
+			if self.Options.AFKHealthWarning and UnitIsUnit(uId, "player") and (health < 85) and not IsEncounterInProgress() and UnitIsAFK("player") and self:AntiSpam(5, "AFK") then--You are afk and losing health, some griever is trying to kill you while you are afk/tabbed out.
+				PlaySoundFile("Sound\\Creature\\CThun\\CThunYouWillDIe.ogg", "master")--So fire an alert sound to save yourself from this person's behavior.
+			end
+		end
+	end
+
+	function DBM:EndCombat(mod, wipe)
+		if removeEntry(inCombat, mod) then
+			local scenario = mod.addon.type == "SCENARIO"
+			if mod.inCombatOnlyEvents and mod.inCombatOnlyEventsRegistered then
+				-- unregister all events except for SPELL_AURA_REMOVED events (might still be needed to remove icons etc...)
+				mod:UnregisterInCombatEvents()
+				self:Schedule(2, mod.UnregisterInCombatEvents, mod, true) -- 2 seconds should be enough for all auras to fade
+				self:Schedule(2.1, mod.Stop, mod) -- Remove accident started timers.
+				mod.inCombatOnlyEventsRegistered = nil
+			end
+			mod:Stop()
+			if enableIcons and not self.Options.DontSetIcons and not self.Options.DontRestoreIcons then
+				-- restore saved previous icon
+				for uId, icon in pairs(mod.iconRestore) do
+					SetRaidTarget(uId, icon)
+				end
+				twipe(mod.iconRestore)
+			end
+			mod.inCombat = false
+			mod.blockSyncs = true
+			if mod.combatInfo.killMobs then
+				for i, v in pairs(mod.combatInfo.killMobs) do
+					mod.combatInfo.killMobs[i] = true
+				end
+			end
+			if not savedDifficulty or not difficultyText or not difficultyIndex then--prevent error if savedDifficulty or difficultyText is nil
+				savedDifficulty, difficultyText, difficultyIndex = DBM:GetCurrentInstanceDifficulty()
+			end
+			if not mod.stats then--This will be nil if the mod for this intance failed to load fully because "script ran too long" (it tried to load in combat and failed)
+				self:AddMsg(DBM_CORE_BAD_LOAD)--Warn user that they should reload ui soon as they leave combat to get their mod to load correctly as soon as possible
+				return--Don't run any further, stats are nil on a bad load so rest of this code will also error out.
+			end
+			local name = mod.combatInfo.name
+			local modId = mod.id
+			if wipe then
+				mod.lastWipeTime = GetTime()
+				--Fix for "attempt to perform arithmetic on field 'pull' (a nil value)" (which was actually caused by stats being nil, so we never did getTime on pull, fixing one SHOULD fix the other)
+				local thisTime = GetTime() - mod.combatInfo.pull
+				local hp = mod.highesthealth and mod:GetHighestBossHealth() or mod:GetLowestBossHealth()
+				local wipeHP = mod.CustomHealthUpdate and mod:CustomHealthUpdate() or hp and ("%d%%"):format(hp) or DBM_CORE_UNKNOWN
+				local totalPulls = mod.stats[statVarTable[savedDifficulty].."Pulls"]
+				local totalKills = mod.stats[statVarTable[savedDifficulty].."Kills"]
+				if thisTime < 30 then -- Normally, one attempt will last at least 30 sec.
+					totalPulls = totalPulls - 1
+					if self.Options.ShowWipeMessage then
+						if scenario then
+							self:AddMsg(DBM_CORE_SCENARIO_ENDED_AT:format(difficultyText..name, strFromTime(thisTime)))
+						else
+							self:AddMsg(DBM_CORE_COMBAT_ENDED_AT:format(difficultyText..name, wipeHP, strFromTime(thisTime)))
+							--No reason to GCE it here, so omited on purpose.
+						end
+					end
+				else
+					if self.Options.ShowWipeMessage then
+						if scenario then
+							self:AddMsg(DBM_CORE_SCENARIO_ENDED_AT_LONG:format(difficultyText..name, strFromTime(thisTime), totalPulls - totalKills))
+						else
+							self:AddMsg(DBM_CORE_COMBAT_ENDED_AT_LONG:format(difficultyText..name, wipeHP, strFromTime(thisTime), totalPulls - totalKills))
+							if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
+								if InGuildParty() then--Guild Group
+									SendAddonMessage("D4", "GCE\t"..modId.."\t2\t1\t"..strFromTime(thisTime).."\t"..wipeHP.."\t"..difficultyIndex, "GUILD")
+								end
+							end
+						end
+					end
+				end
+
+				local msg
+				for k, v in pairs(autoRespondSpam) do
+					if self.Options.WhisperStats then
+						if scenario then
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_WIPE_STATS:format(playerName, difficultyText..(name or ""), totalPulls - totalKills)
+						else
+							local hpText = wipeHP
+							if mod.vb.phase then
+								hpText = hpText.." ("..SCENARIO_STAGE:format(mod.vb.phase)..")"
+							end
+							if mod.numBoss then
+								local bossesKilled = mod.numBoss - mod.vb.bossLeft
+								hpText = hpText.." ("..BOSSES_KILLED:format(bossesKilled, mod.numBoss)..")"
+							end
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_WIPE_STATS_AT:format(playerName, difficultyText..(name or ""), hpText, totalPulls - totalKills)
+						end
+					else
+						if scenario then
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_WIPE:format(playerName, difficultyText..(name or ""))
+						else
+							local hpText = wipeHP
+							if mod.vb.phase then
+								hpText = hpText.." ("..SCENARIO_STAGE:format(mod.vb.phase)..")"
+							end
+							if mod.numBoss then
+								local bossesKilled = mod.numBoss - mod.vb.bossLeft
+								hpText = hpText.." ("..BOSSES_KILLED:format(bossesKilled, mod.numBoss)..")"
+							end
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_WIPE_AT:format(playerName, difficultyText..(name or ""), hpText)
+						end
+					end
+					sendWhisper(k, msg)
+				end
+				fireEvent("wipe", mod)
 			else
-				DBM.BossHealth:RemoveBoss(mod.combatInfo.mob)
+				mod.lastKillTime = GetTime()
+				local thisTime = GetTime() - (mod.combatInfo.pull or 0)
+				local lastTime = mod.stats[statVarTable[savedDifficulty].."LastTime"]
+				local bestTime = mod.stats[statVarTable[savedDifficulty].."BestTime"]
+				if not mod.stats[statVarTable[savedDifficulty].."Kills"] or mod.stats[statVarTable[savedDifficulty].."Kills"] < 0 then mod.stats[statVarTable[savedDifficulty].."Kills"] = 0 end
+				--Fix logical error i've seen where for some reason we have more kills then pulls for boss as seen by - stats for wipe messages.
+				mod.stats[statVarTable[savedDifficulty].."Kills"] = mod.stats[statVarTable[savedDifficulty].."Kills"] + 1
+				if mod.stats[statVarTable[savedDifficulty].."Kills"] > mod.stats[statVarTable[savedDifficulty].."Pulls"] then mod.stats[statVarTable[savedDifficulty].."Kills"] = mod.stats[statVarTable[savedDifficulty].."Pulls"] end
+				if not mod.ignoreBestkill and mod.combatInfo.pull then
+					mod.stats[statVarTable[savedDifficulty].."LastTime"] = thisTime
+					--Just to prevent pre mature end combat calls from broken mods from saving bad time stats.
+					if bestTime and bestTime > 0 and bestTime < 1.5 then
+						mod.stats[statVarTable[savedDifficulty].."BestTime"] = thisTime
+					else
+						mod.stats[statVarTable[savedDifficulty].."BestTime"] = mmin(bestTime or mhuge, thisTime)
+					end
+				end
+				local totalKills = mod.stats[statVarTable[savedDifficulty].."Kills"]
+				if self.Options.ShowKillMessage then
+					local msg = ""
+					if not mod.combatInfo.pull then--was a bad pull so we ignored thisTime, should never happen
+						if scenario then
+							msg = DBM_CORE_SCENARIO_COMPLETE:format(difficultyText..name, DBM_CORE_UNKNOWN)
+						else
+							msg = DBM_CORE_BOSS_DOWN:format(difficultyText..name, DBM_CORE_UNKNOWN)
+						end
+					elseif mod.ignoreBestkill then--Should never happen in a scenario so no need for scenario check.
+						if scenario then
+							msg = DBM_CORE_SCENARIO_COMPLETE_I:format(difficultyText..name, totalKills)
+						else
+							msg = DBM_CORE_BOSS_DOWN_I:format(difficultyText..name, totalKills)
+						end
+					elseif not lastTime then
+						if scenario then
+							msg = DBM_CORE_SCENARIO_COMPLETE:format(difficultyText..name, strFromTime(thisTime))
+						else
+							msg = DBM_CORE_BOSS_DOWN:format(difficultyText..name, strFromTime(thisTime))
+							if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
+								if InGuildParty() then--Guild Group
+									SendAddonMessage("D4", "GCE\t"..modId.."\t2\t0\t"..strFromTime(thisTime).."\t"..difficultyIndex, "GUILD")
+								end
+							end
+						end
+					elseif thisTime < (bestTime or mhuge) then
+						if scenario then
+							msg = DBM_CORE_SCENARIO_COMPLETE_NR:format(difficultyText..name, strFromTime(thisTime), strFromTime(bestTime), totalKills)
+						else
+							msg = DBM_CORE_BOSS_DOWN_NR:format(difficultyText..name, strFromTime(thisTime), strFromTime(bestTime), totalKills)
+							if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
+								if InGuildParty() then--Guild Group
+									SendAddonMessage("D4", "GCE\t"..modId.."\t2\t0\t"..strFromTime(thisTime).."\t"..difficultyIndex, "GUILD")
+								end
+							end
+						end
+					else
+						if scenario then
+							msg = DBM_CORE_SCENARIO_COMPLETE_L:format(difficultyText..name, strFromTime(thisTime), strFromTime(lastTime), strFromTime(bestTime), totalKills)
+						else
+							msg = DBM_CORE_BOSS_DOWN_L:format(difficultyText..name, strFromTime(thisTime), strFromTime(lastTime), strFromTime(bestTime), totalKills)
+							if difficultyIndex == 14 or difficultyIndex == 15 or difficultyIndex == 16 then
+								if InGuildParty() then--Guild Group
+									SendAddonMessage("D4", "GCE\t"..modId.."\t2\t0\t"..strFromTime(thisTime).."\t"..difficultyIndex, "GUILD")
+								end
+							end
+						end
+					end
+					self:Schedule(1, self.AddMsg, self, msg)
+				end
+				local msg
+				for k, v in pairs(autoRespondSpam) do
+					if self.Options.WhisperStats then
+						if scenario then
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_KILL_STATS:format(playerName, difficultyText..(name or ""), totalKills)
+						else
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_KILL_STATS:format(playerName, difficultyText..(name or ""), totalKills)
+						end
+					else
+						if scenario then
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_SCENARIO_END_KILL:format(playerName, difficultyText..(name or ""))
+						else
+							msg = msg or chatPrefixShort..DBM_CORE_WHISPER_COMBAT_END_KILL:format(playerName, difficultyText..(name or ""))
+						end
+					end
+					sendWhisper(k, msg)
+				end
+				fireEvent("kill", mod)
+				if savedDifficulty == "worldboss" and not mod.noWBEsync then
+					if lastBossDefeat[modId..playerRealm] and (GetTime() - lastBossDefeat[modId..playerRealm] < 30) then return end--Someone else synced in last 10 seconds so don't send out another sync to avoid needless sync spam.
+					lastBossDefeat[modId..playerRealm] = GetTime()--Update last defeat time before we send it, so we don't handle our own sync
+					if IsInGuild() then
+						SendAddonMessage("D4", "WBD\t"..modId.."\t"..playerRealm.."\t8\t"..name, "GUILD")--Even guild syncs send realm so we can keep antispam the same across realid as well.
+					end
+					local _, numBNetOnline = BNGetNumFriends()
+					for i = 1, numBNetOnline do
+						local sameRealm = false
+						local presenceID, _, _, _, _, _, client, isOnline = BNGetFriendInfo(i)
+						if isOnline and client == BNET_CLIENT_WOW then
+							local _, _, _, userRealm = BNGetToonInfo(presenceID)
+							if connectedServers then
+								for i = 1, #connectedServers do
+									if userRealm == connectedServers[i] then
+										sameRealm = true
+										break
+									end
+								end
+							else
+								if userRealm == playerRealm then
+									sameRealm = true
+								end
+							end
+							if sameRealm then
+								BNSendGameData(presenceID, "D4", "WBD\t"..modId.."\t"..userRealm.."\t8\t"..name)
+							end
+						end
+					end
+				end
+			end
+			if mod.OnCombatEnd then mod:OnCombatEnd(wipe) end
+			if #inCombat == 0 then--prevent error if you pulled multiple boss. (Earth, Wind and Fire)
+				self:Schedule(10, self.StopLogging, self)--small delay to catch kill/died combatlog events
+				self:HideBlizzardEvents(0)
+				self:Unschedule(checkBossHealth)
+				self:Unschedule(checkCustomBossHealth)
+				self:Unschedule(loopCRTimer)
+				self.BossHealth:Hide()
+				self.Arrow:Hide(true)
+				if self.Options.HideObjectivesFrame and watchFrameRestore and not scenario then
+					ObjectiveTrackerFrame:Show()
+					watchFrameRestore = false
+					if difficultyIndex == 8 then
+						--Cancel any and all CM medal when unhiding objectives frame
+						self.Bars:CancelBar(CHALLENGE_MODE_MEDAL1)
+						self.Bars:CancelBar(CHALLENGE_MODE_MEDAL2)
+						self.Bars:CancelBar(CHALLENGE_MODE_MEDAL3)
+					end
+				end
+				if tooltipsHidden then
+					--Better or cleaner way?
+					tooltipsHidden = false
+					GameTooltip:SetScript("OnShow", GameTooltip.Show)
+				end
+				if self.Options.sfxDisabled then
+					self.Options.sfxDisabled = nil
+					SetCVar("Sound_EnableSFX", 1)
+				end
+				--cache table
+				twipe(autoRespondSpam)
+				twipe(bossHealth)
+				twipe(bossHealthuIdCache)
+				twipe(bossuIdCache)
+				--sync table
+				twipe(canSetIcons)
+				twipe(iconSetRevision)
+				twipe(iconSetPerson)
+				twipe(addsGUIDs)
+				bossuIdFound = false
+				eeSyncSender = {}
+				eeSyncReceived = 0
+				self:CreatePizzaTimer(time, "", nil, nil, nil, nil, true)--Auto Terminate infinite loop timers on combat end
+			elseif self.BossHealth:IsShown() then
+				if mod.bossHealthInfo then
+					if mod.bossHealthInfo[2] and type(mod.bossHealthInfo[2]) == "number" then
+						for i = 1, #mod.bossHealthInfo do
+							self.BossHealth:RemoveBoss(mod.bossHealthInfo[i])
+						end
+					else
+						for i = 1, #mod.bossHealthInfo, 2 do
+							self.BossHealth:RemoveBoss(mod.bossHealthInfo[i])
+						end
+					end
+				else
+					self.BossHealth:RemoveBoss(mod.combatInfo.mob)
+				end
 			end
 		end
 	end
@@ -4555,9 +5293,10 @@ function DBM:OnMobKill(cId, synced)
 				sendSync("K", cId)
 			end
 			v.combatInfo.killMobs[cId] = false
+			self.BossHealth:RemoveBoss(cId)
 			if v.numBoss then
 				v.vb.bossLeft = (v.vb.bossLeft or v.numBoss) - 1
-				self:Debug("Boss left - "..v.vb.bossLeft.."/"..v.numBoss)
+				self:Debug("Boss left - "..v.vb.bossLeft.."/"..v.numBoss, 2)
 			end
 			local allMobsDown = true
 			for i, v in pairs(v.combatInfo.killMobs) do
@@ -4584,12 +5323,11 @@ do
 
 	function DBM:StartLogging(timer, checkFunc)
 		self:Unschedule(DBM.StopLogging)
-		local _, instanceType = GetInstanceInfo()
-		if DBM.Options.LogOnlyRaidBosses and ((instanceType ~= "raid") or IsPartyLFG()) then return end
-		if DBM.Options.AutologBosses then--Start logging here to catch pre pots.
+		if self.Options.LogOnlyRaidBosses and ((LastInstanceType ~= "raid") or IsPartyLFG()) then return end
+		if self.Options.AutologBosses then--Start logging here to catch pre pots.
 			if not LoggingCombat() then
 				autoLog = true
-				if DBM.Options.ShowCombatLogMessage then
+				if self.Options.ShowCombatLogMessage then
 					self:AddMsg("|cffffff00"..COMBATLOGENABLED.."|r")
 				end
 				LoggingCombat(true)
@@ -4599,10 +5337,10 @@ do
 				end
 			end
 		end
-		if DBM.Options.AdvancedAutologBosses and Transcriptor then
+		if self.Options.AdvancedAutologBosses and Transcriptor then
 			if not Transcriptor:IsLogging() then
 				autoTLog = true
-				if DBM.Options.ShowTranscriptorMessage then
+				if self.Options.ShowTranscriptorMessage then
 					self:AddMsg("|cffffff00"..DBM_CORE_TRANSCRIPTOR_LOG_START.."|r")
 				end
 				Transcriptor:StartLog(1)
@@ -4615,18 +5353,18 @@ do
 	end
 
 	function DBM:StopLogging()
-		if DBM.Options.AutologBosses and LoggingCombat() and autoLog then
+		if self.Options.AutologBosses and LoggingCombat() and autoLog then
 			autoLog = false
-			if DBM.Options.ShowCombatLogMessage then
-				DBM:AddMsg("|cffffff00"..COMBATLOGDISABLED.."|r")
+			if self.Options.ShowCombatLogMessage then
+				self:AddMsg("|cffffff00"..COMBATLOGDISABLED.."|r")
 			end
 			LoggingCombat(false)
 		end
-		if DBM.Options.AdvancedAutologBosses and Transcriptor and autoTLog then
+		if self.Options.AdvancedAutologBosses and Transcriptor and autoTLog then
 			if Transcriptor:IsLogging() then
 				autoTLog = false
-				if DBM.Options.ShowTranscriptorMessage then
-					DBM:AddMsg("|cffffff00"..DBM_CORE_TRANSCRIPTOR_LOG_END.."|r")
+				if self.Options.ShowTranscriptorMessage then
+					self:AddMsg("|cffffff00"..DBM_CORE_TRANSCRIPTOR_LOG_END.."|r")
 				end
 				Transcriptor:StopLog(1)
 			end
@@ -4634,9 +5372,20 @@ do
 	end
 end
 
+function DBM:SetCurrentSpecInfo()
+	if UnitBuff("player", gladStance) then 
+		currentSpecGroup = 3 -- give 3rd spec option only for glad stance.
+		currentSpecID = 74 -- temp id for glad warrior, bliz not uses it
+	else
+		currentSpecGroup = GetActiveSpecGroup()
+		currentSpecID, currentSpecName = GetSpecializationInfo(GetSpecialization() or 1)--give temp first spec id for non-specialization char. no one should use dbm with no specialization, below level 10, should not need dbm.
+		currentSpecID = tonumber(currentSpecID)
+	end
+end
+
 function DBM:GetCurrentInstanceDifficulty()
-	local _, _, difficulty, difficultyName, _, _, _, _, instanceGroupSize = GetInstanceInfo()
-	if difficulty == 0 then
+	local _, instanceType, difficulty, difficultyName, _, _, _, _, instanceGroupSize = GetInstanceInfo()
+	if difficulty == 0 or (difficulty == 1 and instanceType == "none") or C_Garrison:IsOnGarrisonMap() then--draenor field returns 1, causing world boss mod bug.
 		return "worldboss", RAID_INFO_WORLD_BOSS.." - ", difficulty
 	elseif difficulty == 1 then
 		return "normal5", difficultyName.." - ", difficulty, instanceGroupSize
@@ -4681,10 +5430,10 @@ end
 
 function DBM:UNIT_DIED(args)
 	local GUID = args.destGUID
-	if DBM:IsCreatureGUID(GUID) then
-		self:OnMobKill(DBM:GetCIDFromGUID(GUID))
+	if self:IsCreatureGUID(GUID) then
+		self:OnMobKill(self:GetCIDFromGUID(GUID))
 	end
-	if DBM.Options.AFKHealthWarning and GUID == UnitGUID("player") and not IsEncounterInProgress() and UnitIsAFK("player") and self:AntiSpam(5, "AFK") then--You are afk and losing health, some griever is trying to kill you while you are afk/tabbed out.
+	if self.Options.AFKHealthWarning and GUID == UnitGUID("player") and not IsEncounterInProgress() and UnitIsAFK("player") and self:AntiSpam(5, "AFK") then--You are afk and losing health, some griever is trying to kill you while you are afk/tabbed out.
 		PlaySoundFile("Sound\\Creature\\CThun\\CThunYouWillDIe.ogg", "master")--So fire an alert sound to save yourself from this person's behavior.
 	end
 end
@@ -4699,11 +5448,12 @@ do
 	local clientUsed = {}
 
 	function DBM:RequestTimers()
+		self:Debug("RequestTimers Running", 2)
 		local bestClient
 		for i, v in pairs(raid) do
 			-- If bestClient player's realm is not same with your's, timer recovery by bestClient not works at all.
 			-- SendAddonMessage target channel is "WHISPER" and target player is other realm, no msg sends at all. At same realm, message sending works fine. (Maybe bliz bug or SendAddonMessage function restriction?)
-			if v.name ~= playerName and UnitIsConnected(v.id) and (not UnitIsGhost(v.id)) and v.revision and v.revision >= ((bestClient and bestClient.revision) or 0) and not select(2, UnitName(v.id)) and (GetTime() - (clientUsed[v.name] or 0)) > 10 then
+			if v.name ~= playerName and UnitIsConnected(v.id) and (not UnitIsGhost(v.id)) and UnitRealmRelationship(v.id) ~= 2 and v.revision and v.revision >= ((bestClient and bestClient.revision) or 0) and (GetTime() - (clientUsed[v.name] or 0)) > 10 then
 				bestClient = v
 				clientUsed[v.name] = GetTime()
 			end
@@ -4749,6 +5499,7 @@ end
 do
 	local spamProtection = {}
 	function DBM:SendTimers(target)
+		self:Debug("SendTimers requested by "..target, 2)
 		local spamForTarget = spamProtection[target] or 0
 		-- just try to clean up the table, that should keep the hash table at max. 4 entries or something :)
 		for k, v in pairs(spamProtection) do
@@ -4767,9 +5518,9 @@ do
 		if #inCombat < 1 then
 			--Break timer is up, so send that
 			--But only if we are not in combat with a boss
-			if DBM.Bars:GetBar(DBM_CORE_TIMER_BREAK) then
-				local remaining = DBM.Bars:GetBar(DBM_CORE_TIMER_BREAK).totalTime - DBM.Bars:GetBar(DBM_CORE_TIMER_BREAK).timer
-				SendAddonMessage("D4", "BTR\t"..remaining, "WHISPER", target)
+			if self.Bars:GetBar(DBM_CORE_TIMER_BREAK) then
+				local remaining = self.Bars:GetBar(DBM_CORE_TIMER_BREAK).timer
+				SendAddonMessage("D4", "BTR2\t"..remaining, "WHISPER", target)
 			end
 			return
 		end
@@ -4830,10 +5581,12 @@ end
 
 do
 	function DBM:PLAYER_ENTERING_WORLD()
---		self:Schedule(10, function() if not DBM.Options.HelpMessageShown then DBM.Options.HelpMessageShown = true DBM:AddMsg(DBM_CORE_NEED_SUPPORT) end end)
-		self:Schedule(20, function() if not DBM.Options.ForumsMessageShown then DBM.Options.ForumsMessageShown = DBM.ReleaseRevision self:AddMsg(DBM_FORUMS_MESSAGE) end end)
-		self:Schedule(30, function() if not DBM.Options.SettingsMessageShown then DBM.Options.SettingsMessageShown = true self:AddMsg(DBM_HOW_TO_USE_MOD) end end)
-		self:Schedule(40, function() if DBM.Options.BugMessageShown < 1 then DBM.Options.BugMessageShown = 1 self:AddMsg(DBM_CORE_BLIZZ_BUGS) end end)
+		if GetLocale() == "ptBR" or GetLocale() == "frFR" or GetLocale() == "esES" or GetLocale() == "esMX" or GetLocale() == "itIT" then
+			self:Schedule(10, function() if not self.Options.HelpMessageShown2 then self.Options.HelpMessageShown2 = true self:AddMsg(DBM_CORE_NEED_SUPPORT) end end)
+		end
+		self:Schedule(20, function() if not self.Options.ForumsMessageShown then self.Options.ForumsMessageShown = self.ReleaseRevision self:AddMsg(DBM_FORUMS_MESSAGE) end end)
+		self:Schedule(30, function() if not self.Options.SettingsMessageShown then self.Options.SettingsMessageShown = true self:AddMsg(DBM_HOW_TO_USE_MOD) end end)
+--		self:Schedule(40, function() if DBM.Options.BugMessageShown < 1 then DBM.Options.BugMessageShown = 1 self:AddMsg(DBM_CORE_BLIZZ_BUGS) end end)
 		if type(RegisterAddonMessagePrefix) == "function" then
 			if not RegisterAddonMessagePrefix("D4") then -- main prefix for DBM4
 				self:AddMsg("Error: unable to register DBM addon message prefix (reached client side addon message filter limit), synchronization will be unavailable") -- TODO: confirm that this actually means that the syncs won't show up
@@ -4841,6 +5594,14 @@ do
 			if not RegisterAddonMessagePrefix("BigWigs") then
 				self:AddMsg("Error: unable to register BigWigs addon message prefix (reached client side addon message filter limit), BigWigs version checks will be unavailable")
 			end
+		end
+		if self.Options.sfxDisabled then--Check if sound was disabled by previous session and not re-enabled.
+			self.Options.sfxDisabled = nil
+			SetCVar("Sound_EnableSFX", 1)
+		end
+		if self.Options.RestoreRange then self.Options.RestoreRange = nil end--User DCed while this was true, clear it
+		if not DBMHudMap then--User updated from a version without HudMap, then reloaded ui. This is a no go.
+			self:Schedule(35, function() self:AddMsg(DBM_CORE_UPDATE_REQUIRES_RELAUNCH) end)
 		end
 	end
 end
@@ -4866,6 +5627,7 @@ do
 
 	local function getNumRealAlivePlayers()
 		local alive = 0
+		SetMapToCurrentZone()
 		local currentMapId = GetCurrentMapAreaID()
 		local currentMapName = GetMapNameByID(currentMapId)
 		if IsInRaid() then
@@ -4905,8 +5667,8 @@ do
 				mod = not v.isCustomMod and v
 			end
 			mod = mod or inCombat[1]
-			local hp = ("%d%%"):format(mod.highesthealth and mod:GetHighestBossHealth() or mod:GetLowestBossHealth()) or DBM_CORE_UNKNOWN
-			local hpText = hp
+			local hp = mod.highesthealth and mod:GetHighestBossHealth() or mod:GetLowestBossHealth()
+			local hpText = mod.CustomHealthUpdate and mod:CustomHealthUpdate() or hp and ("%d%%"):format(hp) or DBM_CORE_UNKNOWN
 			if mod.vb.phase then
 				hpText = hpText.." ("..SCENARIO_STAGE:format(mod.vb.phase)..")"
 			end
@@ -4924,8 +5686,8 @@ do
 				mod = not v.isCustomMod and v
 			end
 			mod = mod or inCombat[1]
-			local hp = ("%d%%"):format(mod.highesthealth and mod:GetHighestBossHealth() or mod:GetLowestBossHealth()) or DBM_CORE_UNKNOWN
-			local hpText = hp
+			local hp = mod.highesthealth and mod:GetHighestBossHealth() or mod:GetLowestBossHealth()
+			local hpText = mod.CustomHealthUpdate and mod:CustomHealthUpdate() or hp and ("%d%%"):format(hp) or DBM_CORE_UNKNOWN
 			if mod.vb.phase then
 				hpText = hpText.." ("..SCENARIO_STAGE:format(mod.vb.phase)..")"
 			end
@@ -4969,7 +5731,7 @@ do
 			-- as this would be even worse than the issue with missing whisper messages ;)
 			return filterOutgoing(nil, nil, self, event)
 		end
-		return msg:sub(1, chatPrefix:len()) == chatPrefix or msg:sub(1, chatPrefixVEM:len()) == chatPrefixVEM or msg:sub(1, chatPrefixShort:len()) == chatPrefixShort or msg:sub(1, chatPrefixShortVEM:len()) == chatPrefixShortVEM, ...
+		return msg:sub(1, chatPrefix:len()) == chatPrefix or msg:sub(1, chatPrefixShort:len()) == chatPrefixShort, ...
 	end
 
 	local function filterIncoming(self, event, ...)
@@ -4978,7 +5740,7 @@ do
 			return filterIncoming(nil, nil, self, event)
 		end
 		if DBM.Options.SpamBlockBossWhispers then
-			return #inCombat > 0 and (msg == "status" or msg:sub(1, chatPrefix:len()) == chatPrefix or msg:sub(1, chatPrefixVEM:len()) == chatPrefixVEM or msg:sub(1, chatPrefixShort:len()) == chatPrefixShort or msg:sub(1, chatPrefixShortVEM:len()) == chatPrefixShortVEM), ...
+			return #inCombat > 0 and (msg == "status" or msg:sub(1, chatPrefix:len()) == chatPrefix or msg:sub(1, chatPrefixShort:len()) == chatPrefixShort), ...
 		else
 			return msg == "status" and #inCombat > 0, ...
 		end
@@ -5005,21 +5767,40 @@ end
 --This completely unregisteres or registers event so frame simply does or doesn't show events
 --No dirty hooking. Least invasive way to do it. Uses lowest CPU
 --Toggle is for if we are turning off or on.
---Custom is for exterior mods to call function without needing global option turned on (such as BG mods option)
+--Custom is for pvp mods to call function without needing global option turned on (such as BG mods option)
 --All also handled by core so both core AND pvp mods aren't trying to hook/hide it. Should all be done HERE
-local RBEFUnregistered = false
-function DBM:ToggleRaidBossEmoteFrame(toggle, custom)
-	if not DBM.Options.HideBossEmoteFrame and not custom then return end
-	if toggle == 1 and not RBEFUnregistered then
-		RBEFUnregistered = true
-		RaidBossEmoteFrame:UnregisterEvent("RAID_BOSS_EMOTE")
-		RaidBossEmoteFrame:UnregisterEvent("RAID_BOSS_WHISPER")
-		RaidBossEmoteFrame:UnregisterEvent("CLEAR_BOSS_EMOTES")
-	elseif toggle == 0 and RBEFUnregistered then
-		RBEFUnregistered = false
-		RaidBossEmoteFrame:RegisterEvent("RAID_BOSS_EMOTE")
-		RaidBossEmoteFrame:RegisterEvent("RAID_BOSS_WHISPER")
-		RaidBossEmoteFrame:RegisterEvent("CLEAR_BOSS_EMOTES")
+do
+	local blizzEventsUnregistered = false
+	function DBM:HideBlizzardEvents(toggle, custom)
+		if toggle == 1 and not blizzEventsUnregistered then
+			blizzEventsUnregistered = true
+			if self.Options.HideBossEmoteFrame or custom then
+				RaidBossEmoteFrame:UnregisterEvent("RAID_BOSS_EMOTE")
+				RaidBossEmoteFrame:UnregisterEvent("RAID_BOSS_WHISPER")
+				RaidBossEmoteFrame:UnregisterEvent("CLEAR_BOSS_EMOTES")
+			end
+			if self.Options.HideGarrisonUpdates or custom then
+				AlertFrame:UnregisterEvent("GARRISON_MISSION_FINISHED")
+				AlertFrame:UnregisterEvent("GARRISON_BUILDING_ACTIVATABLE")
+			end
+			if self.Options.HideGuildChallengeUpdates or custom then
+				AlertFrame:UnregisterEvent("GUILD_CHALLENGE_COMPLETED")
+			end
+		elseif toggle == 0 and blizzEventsUnregistered then
+			blizzEventsUnregistered = false
+			if self.Options.HideBossEmoteFrame or custom then
+				RaidBossEmoteFrame:RegisterEvent("RAID_BOSS_EMOTE")
+				RaidBossEmoteFrame:RegisterEvent("RAID_BOSS_WHISPER")
+				RaidBossEmoteFrame:RegisterEvent("CLEAR_BOSS_EMOTES")
+			end
+			if self.Options.HideGarrisonUpdates then
+				AlertFrame:RegisterEvent("GARRISON_MISSION_FINISHED")
+				AlertFrame:RegisterEvent("GARRISON_BUILDING_ACTIVATABLE")
+			end
+			if self.Options.HideGuildChallengeUpdates then
+				AlertFrame:RegisterEvent("GUILD_CHALLENGE_COMPLETED")
+			end
+		end
 	end
 end
 
@@ -5028,17 +5809,16 @@ end
 --------------------------
 function DBM:Disable(forced)
 	unschedule()
-	enabled = false
-	if not forced then
-		self.Options.Enabled = false
-	else
+	dbmIsEnabled = false
+	self.Options.Enabled = false
+	if forced then
 		blockEnable = true
 	end
 end
 
 function DBM:Enable()
 	if not blockEnable then
-		enabled = true
+		dbmIsEnabled = true
 		self.Options.Enabled = true
 	end
 end
@@ -5051,10 +5831,14 @@ end
 --  Misc. Functions  --
 -----------------------
 function DBM:AddMsg(text, prefix)
-	prefix = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
+	local tag = prefix or (self.localization and self.localization.general.name) or "Deadly Boss Mods"
 	local frame = _G[tostring(DBM.Options.ChatFrame)]
 	frame = frame and frame:IsShown() and frame or DEFAULT_CHAT_FRAME
-	frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(prefix), tostring(text)), 0.41, 0.8, 0.94)
+	if prefix ~= false then
+		frame:AddMessage(("|cffff7d0a<|r|cffffd200%s|r|cffff7d0a>|r %s"):format(tostring(tag), tostring(text)), 0.41, 0.8, 0.94)
+	else
+		frame:AddMessage(text, 0.41, 0.8, 0.94)
+	end
 end
 
 function DBM:Debug(text, level)
@@ -5078,11 +5862,11 @@ do
 	function DBM:DemoMode()
 		if not testMod then
 			testMod = self:NewMod("TestMod")
-			DBM:GetModLocalization("TestMod"):SetGeneralLocalization{ name = "Test Mod" }
+			self:GetModLocalization("TestMod"):SetGeneralLocalization{ name = "Test Mod" }
 			testWarning1 = testMod:NewAnnounce("%s", 1, "Interface\\Icons\\Spell_Nature_WispSplode")
 			testWarning2 = testMod:NewAnnounce("%s", 2, "Interface\\Icons\\Spell_Shadow_ShadesOfDarkness")
 			testWarning3 = testMod:NewAnnounce("%s", 3, "Interface\\Icons\\Spell_Fire_SelfDestruct")
-			testTimer = testMod:NewTimer(20, "%s")
+			testTimer = testMod:NewTimer(20, "%s", nil, false)
 			testCount1 = testMod:NewCountdown(0, 0, nil, nil, nil, true)
 			testCount2 = testMod:NewCountdown(0, 0, nil, nil, nil, true, true)
 			testSpecialWarning1 = testMod:NewSpecialWarning("%s")
@@ -5155,6 +5939,8 @@ function DBM:RoleCheck(ignoreLoot)
 	if not InCombatLockdown() and ((IsPartyLFG() and (difficultyIndex == 14 or difficultyIndex == 15)) or not IsPartyLFG()) then
 		local tempRole--Use temp role because we still want Role to be "tank" for loot check comparison at bottom (gladiators still use tank gear)
 		if role == "TANK" and UnitBuff("player", gladStance) then--Special handling for gladiator stance
+			currentSpecGroup = 3 -- give 3rd spec option only for glad stance.
+			currentSpecID = 74 -- temp id for glad warrior, bliz not uses it
 			tempRole = "DAMAGER"
 		end
 		local whatToCheck = tempRole or role
@@ -5163,7 +5949,7 @@ function DBM:RoleCheck(ignoreLoot)
 		end
 	end
 	--Loot reminder even if spec isn't known or we are in LFR where we have a valid for role without us being ones that set us.
-	if not ignoreLoot and lootrole and (role ~= lootrole) and DBM.Options.RoleSpecAlert then
+	if not ignoreLoot and lootrole and (role ~= lootrole) and self.Options.RoleSpecAlert then
 		self:AddMsg(DBM_CORE_LOOT_SPEC_REMINDER:format(_G[role] or DBM_CORE_UNKNOWN, _G[lootrole]))
 	end
 end
@@ -5208,22 +5994,14 @@ end
 -------------------
 MovieFrame:HookScript("OnEvent", function(self, event, id)
 	if event == "PLAY_MOVIE" and id then
-		DBM:Debug("PLAY_MOVIE fired")
 		if not IsInInstance() or C_Garrison:IsOnGarrisonMap() or DBM.Options.MovieFilter == "Never" then return end
-		DBM:Debug("PLAY_MOVIE: In valid zone, checking settings")
 		if DBM.Options.MovieFilter == "Block" or DBM.Options.MovieFilter == "AfterFirst" and DBM.Options.MoviesSeen[id] then
 			MovieFrame_OnMovieFinished(self)
-			DBM:Debug("PLAY_MOVIE: Canceling movie")
 		else
 			DBM.Options.MoviesSeen[id] = true
 		end
 	end
 end)
-
---------------------------
---  Boss Mod Prototype  --
---------------------------
-local bossModPrototype = {}
 
 ----------------------------
 --  Boss Mod Constructor  --
@@ -5234,6 +6012,7 @@ do
 
 	function DBM:NewMod(name, modId, modSubTab, instanceId, nameModifier)
 		name = tostring(name) -- the name should never be a number of something as it confuses sync handlers that just receive some string and try to get the mod from it
+		if name == "DBM-ProfilesDummy" then return end
 		if modsById[name] then error("DBM:NewMod(): Mod names are used as IDs and must therefore be unique.", 2) end
 		local obj = setmetatable(
 			{
@@ -5246,7 +6025,7 @@ do
 				subTab = modSubTab,
 				optionCategories = {
 				},
-				categorySort = {},
+				categorySort = {"announce", "announceother", "announcepersonal", "announcerole", "timer", "sound", "misc"},
 				id = name,
 				announces = {},
 				specwarns = {},
@@ -5302,6 +6081,10 @@ do
 			obj.localization.general.name = obj.localization.general.name or name
 		end
 		tinsert(self.Mods, obj)
+		if modId then
+			self.ModLists[modId] = self.ModLists[modId] or {}
+			tinsert(self.ModLists[modId], name)
+		end
 		modsById[name] = obj
 		obj:AddBoolOption("SpeedKillTimer", false, "misc")
 		obj:AddBoolOption("HealthFrame", false, "misc")
@@ -5420,6 +6203,14 @@ function bossModPrototype:IsLFR()
 	return false
 end
 
+function bossModPrototype:IsNormal()
+	local diff = DBM:GetCurrentInstanceDifficulty()
+	if diff == "normal" or diff == "normal5" or diff == "normal10" or diff == "normal25" then
+		return true
+	end
+	return false
+end
+
 function bossModPrototype:IsHeroic()
 	local diff = DBM:GetCurrentInstanceDifficulty()
 	if diff == "heroic" or diff == "heroic5" or diff == "heroic10" or diff == "heroic25" then
@@ -5436,11 +6227,38 @@ function bossModPrototype:IsMythic()
 	return false
 end
 
-function bossModPrototype:IsTrivial(level)
-	if UnitLevel("player") >= level then
+function bossModPrototype:IsEvent()
+	local diff = DBM:GetCurrentInstanceDifficulty()
+	if diff == "event5" or diff == "event20" or diff == "event40" then
 		return true
 	end
 	return false
+end
+
+function bossModPrototype:IsTrivial(level)
+	if playerLevel >= level then
+		return true
+	end
+	return false
+end
+
+function bossModPrototype:CheckInterruptFilter(sourceGUID)
+	if not DBM.Options.FilterInterrupt then return true end
+	if UnitGUID("target") == sourceGUID or UnitGUID("focus") == sourceGUID then
+		return true
+	end
+	return false
+end
+
+function bossModPrototype:CheckDispelFilter()
+	if not DBM.Options.FilterDispel then return true end
+	--Druid: Nature's Cure (88423), Remove Corruption (2782), Monk: Detox (115450), Priest: Purify (527), Plaadin: Cleanse (4987), Shaman: Cleanse Spirit (51886), Purify Spirit (77130), Mage: Remove Curse (475)
+	--start, duration, enable = GetSpellCooldown
+	--start & duration == 0 if spell not on cd
+	if (GetSpellCooldown(88423)) ~= 0 or (GetSpellCooldown(2782)) ~= 0 or (GetSpellCooldown(115450)) ~= 0 or (GetSpellCooldown(527)) ~= 0 or (GetSpellCooldown(4987)) ~= 0 or (GetSpellCooldown(51886)) ~= 0 or (GetSpellCooldown(77130)) ~= 0 or (GetSpellCooldown(475)) ~= 0 then
+		return false
+	end
+	return true
 end
 
 function bossModPrototype:IsCriteriaCompleted(criteriaIDToCheck)
@@ -5473,7 +6291,7 @@ bossModPrototype.IsCreatureGUID = DBM.IsCreatureGUID
 
 do
 	local bossTargetuIds = {
-		"target", "focus", "boss1", "boss2", "boss3", "boss4", "boss5"
+		"boss1", "boss2", "boss3", "boss4", "boss5", "focus", "target"
 	}
 	local targetScanCount = {}
 	local repeatedScanEnabled = {}
@@ -5485,6 +6303,7 @@ do
 			bossuid = cacheuid
 			name = DBM:GetUnitFullName(cacheuid.."target")
 			uid = cacheuid.."target"
+			bossuIdCache[guid] = bossuid
 		end
 		if name then return name, uid, bossuid end
 		for i, uId in ipairs(bossTargetuIds) do
@@ -5528,6 +6347,7 @@ do
 			local cidOrGuid = cidOrGuid or self.creatureId
 			local cacheuid = bossuIdCache[cidOrGuid] or "boss1"
 			if self:GetUnitCreatureId(cacheuid) == cidOrGuid then
+				bossuIdCache[cidOrGuid] = cacheuid
 				bossuIdCache[UnitGUID(cacheuid)] = cacheuid
 				name, uid, bossuid = getBossTarget(UnitGUID(cacheuid), scanOnlyBoss)
 			else
@@ -5566,10 +6386,11 @@ do
 		else
 			name, uid, bossuid = getBossTarget(cidOrGuid, scanOnlyBoss)
 		end
+		if uid and DBM:GetUnitCreatureId(uid) == 24207 then return nil, nil, nil end--filter army of the dead.
 		return name, uid, bossuid
 	end
 
-	function bossModPrototype:BossTargetScanner(cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank, isFinalScan)
+	function bossModPrototype:BossTargetScanner(cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank, isFinalScan, targetFilter)
 		--Increase scan count
 		local cidOrGuid = cidOrGuid or self.creatureId
 		if not cidOrGuid then return end
@@ -5579,14 +6400,15 @@ do
 		local scanInterval = scanInterval or 0.05
 		local scanTimes = scanTimes or 16
 		local targetname, targetuid, bossuid = self:GetBossTarget(cidOrGuid, scanOnlyBoss)
+		DBM:Debug("Boss target scanner found target "..(targetname or "nil").." using "..bossuid, 3)--Doesn't hurt to keep this, as level 3
 		--Do scan
-		if targetname and targetname ~= DBM_CORE_UNKNOWN then
+		if targetname and (not targetFilter and targetname ~= DBM_CORE_UNKNOWN) or (targetFilter and targetFilter ~= targetname) then
 			if not IsInGroup() then scanTimes = 1 end--Solo, no reason to keep scanning, give faster warning. But only if first scan is actually a valid target, which is why i have this check HERE
 			if (isEnemyScan and UnitIsFriend("player", targetuid) or self:IsTanking(targetuid, bossuid)) and not isFinalScan and not includeTank then--On player scan, ignore tanks. On enemy scan, ignore friendly player.
 				if targetScanCount[cidOrGuid] < scanTimes then--Make sure no infinite loop.
-					self:ScheduleMethod(scanInterval, "BossTargetScanner", cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank)--Scan multiple times to be sure it's not on something other then tank (or friend on enemy scan).
+					self:ScheduleMethod(scanInterval, "BossTargetScanner", cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank, nil, targetFilter)--Scan multiple times to be sure it's not on something other then tank (or friend on enemy scan).
 				else--Go final scan.
-					self:BossTargetScanner(cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank, true)
+					self:BossTargetScanner(cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank, true, targetFilter)
 				end
 			else--Scan success. (or failed to detect right target.) But some spells can be used on tanks, anyway warns tank if player scan. (enemy scan block it)
 				targetScanCount[cidOrGuid] = nil--Reset count for later use.
@@ -5597,7 +6419,7 @@ do
 			end
 		else--target was nil, lets schedule a rescan here too.
 			if targetScanCount[cidOrGuid] < scanTimes then--Make sure not to infinite loop here as well.
-				self:ScheduleMethod(scanInterval, "BossTargetScanner", cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank)
+				self:ScheduleMethod(scanInterval, "BossTargetScanner", cidOrGuid, returnFunc, scanInterval, scanTimes, scanOnlyBoss, isEnemyScan, includeTank, nil, targetFilter)
 			else
 				targetScanCount[cidOrGuid] = nil--Reset count for later use.
 				self:UnscheduleMethod("BossTargetScanner", cidOrGuid, returnFunc)--Unschedule all checks just to be sure none are running, we are done.
@@ -5859,97 +6681,342 @@ end
 ---------------------
 --  Class Methods  --
 ---------------------
+do
+	--[[local specFlags ={
+		["Tank"] = true,
+		["Dps"] = true,
+		["Healer"] = true,
+		["Melee"] = true,
+		["MeleeDps"] = true,
+		["Physical"] = true,
+		["Ranged"] = true,
+		["RangedDps"] = true,
+		["ManaUser"] = true,
+		["SpellCaster"] = true,
+		["RaidCooldown"] = true,
+		["RemovePoison"] = true,
+		["RemoveDisease"] = true,
+		["RemoveEnrage"] = true,
+		["RemoveCurse"] = true,
+		["MagicDispeller"] = true
+	}]]
 
-function bossModPrototype:IsMelee()
-	return class == "ROGUE"
-	or class == "WARRIOR"
-	or class == "DEATHKNIGHT"
-	or class == "MONK"--Iffy slope, monk healers will be ranged and melee. :\
-	or (class == "PALADIN" and (GetSpecialization() ~= 1))
-    or (class == "SHAMAN" and (GetSpecialization() == 2))
-	or (class == "DRUID" and (GetSpecialization() == 2 or GetSpecialization() == 3))
-end
+	local specRoleTable = {
+		[62] = {	--Aracne Mage
+			["Dps"] = true,
+			["Ranged"] = true,
+			["RangedDps"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RaidCooldown"] = true,--Amplify Magic
+			["RemoveCurse"] = true,
+			["MagicDispeller"] = true,
+		},
+		[65] = {	--Holy Paladin
+			["Healer"] = true,
+			["Ranged"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RaidCooldown"] = true,--Devotion Aura
+			["RemovePoison"] = true,
+			["RemoveDisease"] = true,
+		},
+		[66] = {	--Protection Paladin
+			["Tank"] = true,
+			["Melee"] = true,
+			["ManaUser"] = true,
+			["Physical"] = true,
+			["RemovePoison"] = true,
+			["RemoveDisease"] = true,
+		},
+		[70] = {	--Retribution Paladin
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["ManaUser"] = true,
+			["Physical"] = true,
+			["RemovePoison"] = true,
+			["RemoveDisease"] = true,
+		},
+		[71] = {	--Arms Warrior
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["RaidCooldown"] = true,--Rallying Cry
+			["Physical"] = true,
+		},
+		[73] = {	--Protection Warrior
+			["Tank"] = true,
+			["Melee"] = true,
+			["Physical"] = true,
+			["MagicDispeller"] = true,
+		},
+		[74] = {	--Gladiator Warrior
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["Physical"] = true,
+		},
+		[102] = {	--Balance Druid
+			["Dps"] = true,
+			["Ranged"] = true,
+			["RangedDps"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RemoveEnrage"] = true,
+			["RemoveCurse"] = true,
+			["RemovePoison"] = true,
+		},
+		[103] = {	--Feral Druid
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["Physical"] = true,
+			["RemoveEnrage"] = true,
+			["RemoveCurse"] = true,
+			["RemovePoison"] = true,
+		},
+		[104] = {	--Guardian Druid
+			["Tank"] = true,
+			["Melee"] = true,
+			["Physical"] = true,
+			["RemoveCurse"] = true,
+			["RemovePoison"] = true,
+		},
+		[105] = {	-- Restoration Druid
+			["Healer"] = true,
+			["Ranged"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RaidCooldown"] = true,--Tranquility
+			["RemoveEnrage"] = true,
+			["RemoveCurse"] = true,
+			["RemovePoison"] = true,
+		},
+		[250] = {	--Blood DK
+			["Tank"] = true,
+			["Melee"] = true,
+			["Physical"] = true,
+		},
+		[251] = {	--Frost DK
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["Physical"] = true,
+		},
+		[253] = {	--Beastmaster Hunter
+			["Dps"] = true,
+			["Ranged"] = true,
+			["RangedDps"] = true,
+			["Physical"] = true,
+			["RemoveEnrage"] = true,
+			["MagicDispeller"] = true,
+		},
+		[256] = {	--Discipline Priest
+			["Healer"] = true,
+			["Ranged"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RaidCooldown"] = true,--Power Word: Barrier(Discipline) / Divine Hymn (Holy)
+			["RemoveDisease"] = true,
+			["MagicDispeller"] = true,
+		},
+		[258] = {	--Shadow Priest
+			["Dps"] = true,
+			["Ranged"] = true,
+			["RangedDps"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["MagicDispeller"] = true,
+		},
+		[259] = {	--Assassination Rogue
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["RaidCooldown"] = true,--Smoke Bomb
+			["Physical"] = true,
+			["RemoveEnrage"] = true,
+		},
+		[262] = {	--Elemental Shaman
+			["Dps"] = true,
+			["Ranged"] = true,
+			["RangedDps"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RemoveCurse"] = true,
+			["MagicDispeller"] = true,
+		},
+		[263] = {	--Enhancement Shaman
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["Physical"] = true,
+			["RemoveCurse"] = true,
+			["MagicDispeller"] = true,
+		},
+		[264] = {	--Restoration Shaman
+			["Healer"] = true,
+			["Ranged"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RaidCooldown"] = true,--Spirit Link Totem
+			["RemoveCurse"] = true,
+			["MagicDispeller"] = true,
+		},
+		[265] = {	--Affliction Warlock
+			["Dps"] = true,
+			["Ranged"] = true,
+			["RangedDps"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+		},
+		[268] = {	--Brewmaster Monk
+			["Tank"] = true,
+			["Melee"] = true,
+			["Physical"] = true,
+			["RemovePoison"] = true,
+			["RemoveDisease"] = true,
+		},
+		[269] = {	--Windwalker Monk
+			["Dps"] = true,
+			["Melee"] = true,
+			["MeleeDps"] = true,
+			["Physical"] = true,
+			["RemovePoison"] = true,
+			["RemoveDisease"] = true,
+		},
+		[270] = {	--Mistweaver Monk
+			["Healer"] = true,
+			["Melee"] = true,
+			["Ranged"] = true,
+			["ManaUser"] = true,
+			["SpellCaster"] = true,
+			["RaidCooldown"] = true,--Revival
+			["RemovePoison"] = true,
+			["RemoveDisease"] = true,
+		},
+	}
+	specRoleTable[63] = specRoleTable[62]--Frost Mage
+	specRoleTable[64] = specRoleTable[62]--Fire Mage
+	specRoleTable[72] = specRoleTable[71]--Fury Warrior
+	specRoleTable[252] = specRoleTable[251]--Unholy DK
+	specRoleTable[254] = specRoleTable[253]--Markmanship Hunter
+	specRoleTable[255] = specRoleTable[253]--Survival Hunter
+	specRoleTable[257] = specRoleTable[256]--Holy Priest
+	specRoleTable[260] = specRoleTable[259]--Combat Rogue
+	specRoleTable[261] = specRoleTable[259]--Subtlety Rogue
+	specRoleTable[266] = specRoleTable[265]--Demonology Warlock
+	specRoleTable[267] = specRoleTable[265]--Destruction Warlock
 
-function bossModPrototype:IsMeleeDps()
-	return class == "ROGUE"
-	or (class == "WARRIOR" and (GetSpecialization() ~= 3))
-	or (class == "DEATHKNIGHT" and (GetSpecialization() ~= 1))
-	or (class == "MONK" and (GetSpecialization() == 3))
-	or (class == "PALADIN" and (GetSpecialization() == 3))
-    or (class == "SHAMAN" and (GetSpecialization() == 2))
-	or (class == "DRUID" and (GetSpecialization() == 2))
-end
+	--[[function bossModPrototype:GetRoleFlagValue(flag)
+		if not flag then return false end
+		local flags = {strsplit("|", flag)}
+		for i = 1, #flags do
+			local flagText = flags[i]
+			flagText = flagText:gsub("-", "")
+			if not specFlags[flagText] then
+				print("bad flag found : "..flagText)
+			end
+		end
+		self:GetRoleFlagValue2(flag)
+	end]]
 
-function bossModPrototype:IsRanged()--Including healer
-	return class == "MAGE"
-	or class == "HUNTER"
-	or class == "WARLOCK"
-	or class == "PRIEST"
-	or (class == "PALADIN" and (GetSpecialization() == 1))
-    or (class == "SHAMAN" and (GetSpecialization() ~= 2))
-	or (class == "DRUID" and (GetSpecialization() == 1 or GetSpecialization() == 4))
-	or (class == "MONK" and (GetSpecialization() == 2))--Iffy slope, monk healers will be ranged and melee. :\
-end
+	--to check flag is correct, remove comment block specFlags table and GetRoleFlagValue function, change this to GetRoleFlagValue2
+	--disable flag check normally because double flag check comsumes more cpu on mod load.
+	function bossModPrototype:GetRoleFlagValue(flag)
+		if not flag then return false end
+		local flags = {strsplit("|", flag)}
+		for i = 1, #flags do
+			local flagText = flags[i]
+			if flagText:match("^-") then
+				flagText = flagText:gsub("-", "")
+				if not specRoleTable[currentSpecID][flagText] then
+					return true
+				end
+			else
+				if specRoleTable[currentSpecID][flagText] then
+					return true
+				end
+			end
+		end
+		return false
+	end
 
-function bossModPrototype:IsRangedDps()
-	return class == "MAGE"
-	or class == "HUNTER"
-	or class == "WARLOCK"
-	or (class == "PRIEST" and (GetSpecialization() == 3))
-    or (class == "SHAMAN" and (GetSpecialization() == 1))
-	or (class == "DRUID" and (GetSpecialization() == 1))
-end
+	function bossModPrototype:IsMelee()
+		if not currentSpecID then
+			DBM:SetCurrentSpecInfo()
+		end
+		if specRoleTable[currentSpecID]["Melee"] then
+			return true
+		else
+			return false
+		end
+	end
 
-function bossModPrototype:IsManaUser()--Similar to ranged, but includes all paladins and all shaman
-	return class == "MAGE"
-	or class == "WARLOCK"
-	or class == "PRIEST"
-	or class == "PALADIN"
-    or class == "SHAMAN"
-	or (class == "DRUID" and (GetSpecialization() == 1 or GetSpecialization() == 4))
-	or (class == "MONK" and (GetSpecialization() == 2))
-end
+	function bossModPrototype:IsRanged()
+		if not currentSpecID then
+			DBM:SetCurrentSpecInfo()
+		end
+		if specRoleTable[currentSpecID]["Ranged"] then
+			return true
+		else
+			return false
+		end
+	end
 
-function bossModPrototype:IsDps()--For features that simply should only be on for dps and not healers or tanks and without me having to use "not is heal or not is tank" rules :)
-	return class == "WARLOCK"
-	or class == "MAGE"
-	or class == "HUNTER"
-	or class == "ROGUE"
-	or (class == "WARRIOR" and (GetSpecialization() ~= 3) or UnitBuff("player", gladStance))
-	or (class == "DEATHKNIGHT" and (GetSpecialization() ~= 1))
-	or (class == "PALADIN" and (GetSpecialization() == 3))
-	or (class == "DRUID" and (GetSpecialization() == 1 or GetSpecialization() == 2))
-	or (class == "SHAMAN" and (GetSpecialization() ~= 3))
-   	or (class == "PRIEST" and (GetSpecialization() == 3))
-	or (class == "MONK" and (GetSpecialization() == 3))
+	function bossModPrototype:IsSpellCaster()
+		if not currentSpecID then
+			DBM:SetCurrentSpecInfo()
+		end
+		if specRoleTable[currentSpecID]["SpellCaster"] then
+			return true
+		else
+			return false
+		end
+	end
 end
 
 function bossModPrototype:IsTank()
-	return (class == "WARRIOR" and (GetSpecialization() == 3) and not UnitBuff("player", gladStance))
-	or (class == "DEATHKNIGHT" and (GetSpecialization() == 1))
-	or (class == "PALADIN" and (GetSpecialization() == 2))
-	or (class == "DRUID" and (GetSpecialization() == 3))
-	or (class == "MONK" and (GetSpecialization() == 1))
+	if not currentSpecID then
+		DBM:SetCurrentSpecInfo()
+	end
+	local _, _, _, _, _, role = GetSpecializationInfoByID(currentSpecID)
+	if role == "TANK" then
+		return true
+	else
+		return false
+	end
 end
 
-function bossModPrototype:IsSpellCaster(includePal)
-	return class == "MAGE"
-	or class == "WARLOCK"
-	or class == "PRIEST"
-	or (class == "MONK" and (GetSpecialization() == 2))
-    or (class == "SHAMAN" and (GetSpecialization() ~= 2))
-	or (class == "DRUID" and (GetSpecialization() == 1 or GetSpecialization() == 4))
-	or (class == "PALADIN" and (GetSpecialization() == 1 or (includePal or false)))
+function bossModPrototype:IsDps()
+	if not currentSpecID then
+		DBM:SetCurrentSpecInfo()
+	end
+	local _, _, _, _, _, role = GetSpecializationInfoByID(currentSpecID)
+	if role == "DAMAGER" then
+		return true
+	else
+		return false
+	end
+end
+
+function bossModPrototype:IsHealer()
+	if not currentSpecID then
+		DBM:SetCurrentSpecInfo()
+	end
+	local _, _, _, _, _, role = GetSpecializationInfoByID(currentSpecID)
+	if role == "HEALER" then
+		return true
+	else
+		return false
+	end
 end
 
 function bossModPrototype:IsTanking(unit, boss)
 	if not unit then return false end
-	if GetPartyAssignment("MAINTANK", unit, 1) then
-		return true
-	end
-	if UnitGroupRolesAssigned(unit) == "TANK" then
-		return true
-	end
+	--Prefer threat target first
 	if boss and UnitExists(boss) then--Only checking one bossID as requested
 		local tanking, status = UnitDetailedThreatSituation(unit, boss)
 		if tanking or (status == 3) then
@@ -5965,40 +7032,14 @@ function bossModPrototype:IsTanking(unit, boss)
 			end
 		end
 	end
+	--Use these as fallback if threat target not found
+	if GetPartyAssignment("MAINTANK", unit, 1) then
+		return true
+	end
+	if UnitGroupRolesAssigned(unit) == "TANK" then
+		return true
+	end
 	return false
-end
-
-function bossModPrototype:IsHealer()
-	return (class == "PALADIN" and (GetSpecialization() == 1))
-	or (class == "SHAMAN" and (GetSpecialization() == 3))
-	or (class == "DRUID" and (GetSpecialization() == 4))
-	or (class == "PRIEST" and (GetSpecialization() ~= 3))
-	or (class == "MONK" and (GetSpecialization() == 2))
-end
-
-function bossModPrototype:HasRaidCooldown()
-	return class == "WARRIOR"--Rallying Cry/Demoralizing Banner
-	or class == "PALADIN"--Aura Mastery
-	or class == "ROGUE"--Smoke Bomb
-	or (class == "PRIEST" and (GetSpecialization() == 1))--Power Word: Barrier
-	or (class == "SHAMAN" and (GetSpecialization() == 3))--Spirit Link Totem
-end
-
---These don't matter since they don't check talents
-function bossModPrototype:IsPhysical()
-	return self:IsMelee() or class == "HUNTER"
-end
-
-function bossModPrototype:CanRemoveEnrage()
-	return class == "HUNTER" or class == "ROGUE" or class == "DRUID"
-end
-
-function bossModPrototype:CanRemoveCurse()
-	return class == "DRUID" or class == "MAGE"
-end
-
-function bossModPrototype:IsMagicDispeller()
-	return class == "MAGE" or class == "PRIEST" or class == "SHAMAN"
 end
 
 ----------------------------
@@ -6007,21 +7048,24 @@ end
 function DBM:GetBossHP(cId)
 	local uId = bossHealthuIdCache[cId] or "target"
 	if self:GetCIDFromGUID(UnitGUID(uId)) == cId and UnitHealthMax(uId) ~= 0 then
+		if bossHealth[cId] and (UnitHealth(uId) == 0 and not UnitIsDead(uId)) then return bossHealth[cId], uId, UnitName(uId) end--Return last non 0 value if value is 0, since it's last valid value we had.
 		local hp = UnitHealth(uId) / UnitHealthMax(uId) * 100
 		bossHealth[cId] = hp
-		return hp, uId
+		return hp, uId, UnitName(uId)
 	elseif self:GetCIDFromGUID(UnitGUID("focus")) == cId and UnitHealthMax("focus") ~= 0 then
+		if bossHealth[cId] and (UnitHealth("focus") == 0  and not UnitIsDead("focus")) then return bossHealth[cId], "focus", UnitName("focus") end--Return last non 0 value if value is 0, since it's last valid value we had.
 		local hp = UnitHealth("focus") / UnitHealthMax("focus") * 100
 		bossHealth[cId] = hp
-		return hp, "focus"
+		return hp, "focus", UnitName("focus")
 	else
 		for i = 1, 5 do
 			local guid = UnitGUID("boss"..i)
 			if self:GetCIDFromGUID(guid) == cId and UnitHealthMax("boss"..i) ~= 0 then
+				if bossHealth[cId] and (UnitHealth("boss"..i) == 0 and not UnitIsDead("boss"..i)) then return bossHealth[cId], "boss"..i, UnitName("boss"..i) end--Return last non 0 value if value is 0, since it's last valid value we had.
 				local hp = UnitHealth("boss"..i) / UnitHealthMax("boss"..i) * 100
 				bossHealth[cId] = hp
 				bossHealthuIdCache[cId] = "boss"..i
-				return hp, "boss"..i
+				return hp, "boss"..i, UnitName("boss"..i)
 			end
 		end
 		local idType = (IsInRaid() and "raid") or "party"
@@ -6029,10 +7073,11 @@ function DBM:GetBossHP(cId)
 			local unitId = ((i == 0) and "target") or idType..i.."target"
 			local guid = UnitGUID(unitId)
 			if self:GetCIDFromGUID(guid) == cId and UnitHealthMax(unitId) ~= 0 then
+				if bossHealth[cId] and (UnitHealth(unitId) == 0 and not UnitIsDead(unitId)) then return bossHealth[cId], unitId, UnitName(unitId) end--Return last non 0 value if value is 0, since it's last valid value we had.
 				local hp = UnitHealth(unitId) / UnitHealthMax(unitId) * 100
 				bossHealth[cId] = hp
 				bossHealthuIdCache[cId] = unitId
-				return hp, unitId
+				return hp, unitId, UnitName(unitId)
 			end
 		end
 	end
@@ -6042,21 +7087,24 @@ end
 function DBM:GetBossHPByGUID(guid)
 	local uId = bossHealthuIdCache[guid] or "target"
 	if UnitGUID(uId) == guid and UnitHealthMax(uId) ~= 0 then
+		if bossHealth[guid] and (UnitHealth(uId) == 0 and not UnitIsDead(uId)) then return bossHealth[guid], uId, UnitName(uId) end--Return last non 0 value if value is 0, since it's last valid value we had.
 		local hp = UnitHealth(uId) / UnitHealthMax(uId) * 100
 		bossHealth[guid] = hp
-		return hp, uId
+		return hp, uId, UnitName(uId)
 	elseif UnitGUID("focus") == guid and UnitHealthMax("focus") ~= 0 then
+		if bossHealth[guid] and (UnitHealth("focus") == 0  and not UnitIsDead("focus")) then return bossHealth[guid], "focus", UnitName("focus") end--Return last non 0 value if value is 0, since it's last valid value we had.
 		local hp = UnitHealth("focus") / UnitHealthMax("focus") * 100
 		bossHealth[guid] = hp
-		return hp, "focus"
+		return hp, "focus", UnitName("focus")
 	else
 		for i = 1, 5 do
 			local guid2 = UnitGUID("boss"..i)
 			if guid == guid2 and UnitHealthMax("boss"..i) ~= 0 then
+				if bossHealth[guid] and (UnitHealth("boss"..i) == 0 and not UnitIsDead("boss"..i)) then return bossHealth[guid], "boss"..i, UnitName("boss"..i) end--Return last non 0 value if value is 0, since it's last valid value we had.
 				local hp = UnitHealth("boss"..i) / UnitHealthMax("boss"..i) * 100
 				bossHealth[guid] = hp
 				bossHealthuIdCache[guid] = "boss"..i
-				return hp, "boss"..i
+				return hp, "boss"..i, UnitName("boss"..i)
 			end
 		end
 		local idType = (IsInRaid() and "raid") or "party"
@@ -6064,12 +7112,22 @@ function DBM:GetBossHPByGUID(guid)
 			local unitId = ((i == 0) and "target") or idType..i.."target"
 			local guid2 = UnitGUID(unitId)
 			if guid == guid2 and UnitHealthMax(unitId) ~= 0 then
+				if bossHealth[guid] and (UnitHealth(unitId) == 0 and not UnitIsDead(unitId)) then return bossHealth[guid], unitId, UnitName(unitId) end--Return last non 0 value if value is 0, since it's last valid value we had.
 				local hp = UnitHealth(unitId) / UnitHealthMax(unitId) * 100
 				bossHealth[guid] = hp
 				bossHealthuIdCache[guid] = unitId
-				return hp, unitId
+				return hp, unitId, UnitName(unitId)
 			end
 		end
+	end
+	return nil
+end
+
+function DBM:GetBossHPByUnitID(uId)
+	if UnitHealthMax(uId) ~= 0 then
+		local hp = UnitHealth(uId) / UnitHealthMax(uId) * 100
+		bossHealth[uId] = hp
+		return hp, uId, UnitName(uId)
 	end
 	return nil
 end
@@ -6083,7 +7141,9 @@ function bossModPrototype:SetMainBossID(cid)
 end
 
 function bossModPrototype:SetBossHPInfoToHighest(numBoss)
-	self.numBoss = numBoss or (self.multiMobPullDetection and #self.multiMobPullDetection)
+	if numBoss ~= false then
+		self.numBoss = numBoss or (self.multiMobPullDetection and #self.multiMobPullDetection)
+	end
 	self.highesthealth = true
 end
 
@@ -6122,6 +7182,249 @@ bossModPrototype.GetBossHPByGUID = DBM.GetBossHPByGUID
 --  Announce Object  --
 -----------------------
 do
+	local frame = CreateFrame("Frame", "DBMWarning", UIParent)
+	local font1u = CreateFrame("Frame", "DBMWarning1Updater", UIParent)
+	local font2u = CreateFrame("Frame", "DBMWarning2Updater", UIParent)
+	local font3u = CreateFrame("Frame", "DBMWarning3Updater", UIParent)
+	local font1 = frame:CreateFontString("DBMWarning1", "OVERLAY", "GameFontNormal")
+	font1:SetWidth(1024)
+	font1:SetHeight(0)
+	font1:SetPoint("TOP", 0, 0)
+	local font2 = frame:CreateFontString("DBMWarning2", "OVERLAY", "GameFontNormal")
+	font2:SetWidth(1024)
+	font2:SetHeight(0)
+	font2:SetPoint("TOP", font1, "BOTTOM", 0, 0)
+	local font3 = frame:CreateFontString("DBMWarning3", "OVERLAY", "GameFontNormal")
+	font3:SetWidth(1024)
+	font3:SetHeight(0)
+	font3:SetPoint("TOP", font2, "BOTTOM", 0, 0)
+	frame:SetMovable(1)
+	frame:SetWidth(1)
+	frame:SetHeight(1)
+	frame:SetFrameStrata("HIGH")
+	frame:SetClampedToScreen()
+	frame:SetPoint("CENTER", UIParent, "CENTER", 0, 300)
+	font1u:Hide()
+	font2u:Hide()
+	font3u:Hide()
+
+	local font1elapsed, font2elapsed, font3elapsed, moving
+
+	local function fontHide1()
+		local duration = DBM.Options.WarningDuration
+		if font1elapsed > duration * 1.3 then
+			font1u:Hide()
+			font1:Hide()
+			if frame.font1ticker then
+				frame.font1ticker:Cancel()
+				frame.font1ticker = nil
+			end
+		elseif font1elapsed > duration then
+			font1elapsed = font1elapsed + 0.05
+			local alpha = 1 - (font1elapsed - duration) / (duration * 0.3)
+			font1:SetAlpha(alpha > 0 and alpha or 0)
+		else
+			font1elapsed = font1elapsed + 0.05
+			font1:SetAlpha(1)
+		end
+	end
+
+	local function fontHide2()
+		local duration = DBM.Options.WarningDuration
+		if font2elapsed > duration * 1.3 then
+			font2u:Hide()
+			font2:Hide()
+			if frame.font2ticker then
+				frame.font2ticker:Cancel()
+				frame.font2ticker = nil
+			end
+		elseif font2elapsed > duration then
+			font2elapsed = font2elapsed + 0.05
+			local alpha = 1 - (font2elapsed - duration) / (duration * 0.3)
+			font2:SetAlpha(alpha > 0 and alpha or 0)
+		else
+			font2elapsed = font2elapsed + 0.05
+			font2:SetAlpha(1)
+		end
+	end
+
+	local function fontHide3()
+		local duration = DBM.Options.WarningDuration
+		if font3elapsed > duration * 1.3 then
+			font3u:Hide()
+			font3:Hide()
+			if frame.font3ticker then
+				frame.font3ticker:Cancel()
+				frame.font3ticker = nil
+			end
+		elseif font3elapsed > duration then
+			font3elapsed = font3elapsed + 0.05
+			local alpha = 1 - (font3elapsed - duration) / (duration * 0.3)
+			font3:SetAlpha(alpha > 0 and alpha or 0)
+		else
+			font3elapsed = font3elapsed + 0.05
+			font3:SetAlpha(1)
+		end
+	end
+
+	font1u:SetScript("OnUpdate", function(self)
+		local diff = GetTime() - font1.lastUpdate
+		local origSize = DBM.Options.WarningFontSize
+		if diff > 0.4 then
+			font1:SetTextHeight(origSize)
+			self:Hide()
+		elseif diff > 0.2 then
+			font1:SetTextHeight(origSize * (1.5 - (diff-0.2) * 2.5))
+		else
+			font1:SetTextHeight(origSize * (1 + diff * 2.5))
+		end
+	end)
+
+	font2u:SetScript("OnUpdate", function(self)
+		local diff = GetTime() - font2.lastUpdate
+		local origSize = DBM.Options.WarningFontSize
+		if diff > 0.4 then
+			font2:SetTextHeight(origSize)
+			self:Hide()
+		elseif diff > 0.2 then
+			font2:SetTextHeight(origSize * (1.5 - (diff-0.2) * 2.5))
+		else
+			font2:SetTextHeight(origSize * (1 + diff * 2.5))
+		end
+	end)
+
+	font3u:SetScript("OnUpdate", function(self)
+		local diff = GetTime() - font3.lastUpdate
+		local origSize = DBM.Options.WarningFontSize
+		if diff > 0.4 then
+			font3:SetTextHeight(origSize)
+			self:Hide()
+		elseif diff > 0.2 then
+			font3:SetTextHeight(origSize * (1.5 - (diff-0.2) * 2.5))
+		else
+			font3:SetTextHeight(origSize * (1 + diff * 2.5))
+		end
+	end)
+
+	function DBM:UpdateWarningOptions()
+		frame:ClearAllPoints()
+		frame:SetPoint(self.Options.WarningPoint, UIParent, self.Options.WarningPoint, self.Options.WarningX, self.Options.WarningY)
+		font1:SetFont(self.Options.WarningFont, self.Options.WarningFontSize, self.Options.WarningFontStyle == "None" and nil or self.Options.WarningFontStyle)
+		font2:SetFont(self.Options.WarningFont, self.Options.WarningFontSize, self.Options.WarningFontStyle == "None" and nil or self.Options.WarningFontStyle)
+		font3:SetFont(self.Options.WarningFont, self.Options.WarningFontSize, self.Options.WarningFontStyle == "None" and nil or self.Options.WarningFontStyle)
+		if self.Options.WarningFontShadow then
+			font1:SetShadowOffset(1, -1)
+			font2:SetShadowOffset(1, -1)
+			font3:SetShadowOffset(1, -1)
+		else
+			font1:SetShadowOffset(0, 0)
+			font2:SetShadowOffset(0, 0)
+			font3:SetShadowOffset(0, 0)
+		end
+	end
+
+	function DBM:AddWarning(text, force)
+		local added = false
+		if not frame.font1ticker then
+			font1elapsed = 0
+			font1.lastUpdate = GetTime()
+			font1:SetText(text)
+			font1:Show()
+			font1u:Show()
+			added = true
+			frame.font1ticker = frame.font1ticker or C_Timer.NewTicker(0.05, fontHide1)
+		elseif not frame.font2ticker then
+			font2elapsed = 0
+			font2.lastUpdate = GetTime()
+			font2:SetText(text)
+			font2:Show()
+			font2u:Show()
+			added = true
+			frame.font2ticker = frame.font2ticker or C_Timer.NewTicker(0.05, fontHide2)
+		elseif not frame.font3ticker or force then
+			font3elapsed = 0
+			font3.lastUpdate = GetTime()
+			font3:SetText(text)
+			font3:Show()
+			font3u:Show()
+			fontHide3()
+			added = true
+			frame.font3ticker = frame.font3ticker or C_Timer.NewTicker(0.05, fontHide3)
+		end
+		if not added then
+			local prevText1 = font2:GetText()
+			local prevText2 = font3:GetText()
+			font1:SetText(prevText1)
+			font1elapsed = font2elapsed
+			font2:SetText(prevText2)
+			font2elapsed = font3elapsed
+			self:AddWarning(text, true)
+		end
+	end
+
+	do
+		local anchorFrame
+		local function moveEnd()
+			moving = false
+			anchorFrame:Hide()
+			if anchorFrame.ticker then
+				anchorFrame.ticker:Cancel()
+				anchorFrame.ticker = nil
+			end
+			font1elapsed = DBM.Options.WarningDuration
+			font2elapsed = DBM.Options.WarningDuration
+			font3elapsed = DBM.Options.WarningDuration
+			frame:SetFrameStrata("HIGH")
+			DBM:Unschedule(moveEnd)
+			DBM.Bars:CancelBar(DBM_CORE_MOVE_WARNING_BAR)
+		end
+
+		function DBM:MoveWarning()
+			if not anchorFrame then
+				anchorFrame = CreateFrame("Frame", nil, frame)
+				anchorFrame:SetWidth(32)
+				anchorFrame:SetHeight(32)
+				anchorFrame:EnableMouse(true)
+				anchorFrame:SetPoint("TOP", frame, "TOP", 0, 32)
+				anchorFrame:RegisterForDrag("LeftButton")
+				anchorFrame:SetClampedToScreen()
+				anchorFrame:Hide()
+				local texture = anchorFrame:CreateTexture()
+				texture:SetTexture("Interface\\Addons\\DBM-GUI\\textures\\dot.blp")
+				texture:SetPoint("CENTER", anchorFrame, "CENTER", 0, 0)
+				texture:SetWidth(32)
+				texture:SetHeight(32)
+				anchorFrame:SetScript("OnDragStart", function()
+					frame:StartMoving()
+					self:Unschedule(moveEnd)
+					self.Bars:CancelBar(DBM_CORE_MOVE_WARNING_BAR)
+				end)
+				anchorFrame:SetScript("OnDragStop", function()
+					frame:StopMovingOrSizing()
+					local point, _, _, xOfs, yOfs = frame:GetPoint(1)
+					self.Options.WarningPoint = point
+					self.Options.WarningX = xOfs
+					self.Options.WarningY = yOfs
+					self:Schedule(15, moveEnd)
+					self.Bars:CreateBar(15, DBM_CORE_MOVE_WARNING_BAR)
+				end)
+			end
+			if anchorFrame:IsShown() then
+				moveEnd()
+			else
+				moving = true
+				anchorFrame:Show()
+				anchorFrame.ticker = anchorFrame.ticker or C_Timer.NewTicker(5, function() DBM:AddWarning(DBM_CORE_MOVE_WARNING_MESSAGE) end)
+				DBM:AddWarning(DBM_CORE_MOVE_WARNING_MESSAGE)
+				self:Schedule(15, moveEnd)
+				self.Bars:CreateBar(15, DBM_CORE_MOVE_WARNING_BAR)
+				frame:Show()
+				frame:SetFrameStrata("TOOLTIP")
+				frame:SetAlpha(1)
+			end
+		end
+	end
+
 	local textureCode = " |T%s:12:12|t "
 	local textureExp = " |T(%S+......%S+):12:12|t "--Fix texture file including blank not strips(example: Interface\\Icons\\Spell_Frost_Ring of Frost). But this have limitations. Since I'm poor at regular expressions, this is not good fix. Do you have another good regular expression, tandanu?
 	local announcePrototype = {}
@@ -6164,19 +7467,24 @@ do
 				local color = self.color -- upvalue for the function to colorize names, accessing self in the colorize closure is not safe as the color of the announce object might change (it would also prevent the announce from being garbage-collected but announce objects are never destroyed)
 				cachedColorFunctions[color] = function(cap)
 					cap = cap:sub(2, -2)
-					local name = cap
-					if DBM.Options.StripServerName then
-						cap = cap:gsub("%-.*$", "")
-					end
-					if DBM:GetRaidClass(name) then
-						local playerColor = RAID_CLASS_COLORS[DBM:GetRaidClass(name)] or color
-						cap = ("|r|cff%.2x%.2x%.2x%s|r|cff%.2x%.2x%.2x"):format(playerColor.r * 255, playerColor.g * 255, playerColor.b * 255, cap, color.r * 255, color.g * 255, color.b * 255)
+					local noStrip = cap:match("noStrip ")
+					if not noStrip then
+						local name = cap
+						if DBM.Options.StripServerName then
+							cap = Ambiguate(cap, "short")
+						end
+						if DBM:GetRaidClass(name) then
+							local playerColor = RAID_CLASS_COLORS[DBM:GetRaidClass(name)] or color
+							cap = ("|r|cff%.2x%.2x%.2x%s|r|cff%.2x%.2x%.2x"):format(playerColor.r * 255, playerColor.g * 255, playerColor.b * 255, cap, color.r * 255, color.g * 255, color.b * 255)
+						end
+					else
+						cap = cap:sub(9)
 					end
 					return cap
 				end
 			end
 			text = text:gsub(">.-<", cachedColorFunctions[self.color])
-			RaidNotice_AddMessage(RaidWarningFrame, text, ChatTypeInfo["RAID_WARNING"]) -- the color option doesn't work (at least it didn't work during the WotLK beta...todo: check this (this would save some of the WTFs))
+			DBM:AddWarning(text)
 			if DBM.Options.ShowWarningsInChat then
 				if not DBM.Options.WarningIconChat then
 					text = text:gsub(textureExp, "") -- textures @ chat frame can (and will) distort the font if using certain combinations of UI scale, resolution and font size TODO: is this still true as of cataclysm?
@@ -6199,6 +7507,7 @@ do
 					PlaySoundFile(DBM.Options.RaidWarningSound)
 				end
 			end
+			--This callback sucks, it needs useful information for external mods to listen to it better, such as mod and spellid
 			fireEvent("DBM_Announce", message)
 		else
 			self.combinedcount = 0
@@ -6211,7 +7520,9 @@ do
 		for i = 1, #argTable do
 			if type(argTable[i]) == "string" then
 				if #self.combinedtext < 8 then--Throttle spam. We may not need more than 9 targets..
-					self.combinedtext[#self.combinedtext + 1] = argTable[i]
+					if not checkEntry(self.combinedtext, argTable[i]) then
+						self.combinedtext[#self.combinedtext + 1] = argTable[i]
+					end
 				else
 					self.combinedcount = self.combinedcount + 1
 				end
@@ -6243,7 +7554,7 @@ do
 				color = DBM.Options.WarningColors[color or 1] or DBM.Options.WarningColors[1],
 				sound = not noSound,
 				mod = self,
-				icon = (type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and select(3, GetSpellInfo(icon))) or icon or "Interface\\Icons\\Spell_Nature_WispSplode",
+				icon = (type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and GetSpellTexture(icon)) or icon or "Interface\\Icons\\Spell_Nature_WispSplode",
 			},
 			mt
 		)
@@ -6287,10 +7598,12 @@ do
 			if type(preWarnTime) == "string" then
 				text = DBM_CORE_AUTO_ANNOUNCE_TEXTS[announceType]:format(spellName, preWarnTime)
 			else
-				text = DBM_CORE_AUTO_ANNOUNCE_TEXTS[announceType]:format(spellName, DBM_CORE_SEC_FMT:format(preWarnTime or 5))
+				text = DBM_CORE_AUTO_ANNOUNCE_TEXTS[announceType]:format(spellName, DBM_CORE_SEC_FMT:format(tostring(preWarnTime or 5)))
 			end
 		elseif announceType == "phase" or announceType == "prephase" then
 			text = DBM_CORE_AUTO_ANNOUNCE_TEXTS[announceType]:format(tostring(spellId))
+		elseif announceType == "phasechange" then
+			text = DBM_CORE_AUTO_ANNOUNCE_TEXTS.spell
 		else
 			text = DBM_CORE_AUTO_ANNOUNCE_TEXTS[announceType]:format(spellName)
 		end
@@ -6302,17 +7615,22 @@ do
 				announceType = announceType,
 				color = DBM.Options.WarningColors[color or 1] or DBM.Options.WarningColors[1],
 				mod = self,
-				icon = (type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and select(3, GetSpellInfo(icon))) or icon or "Interface\\Icons\\Spell_Nature_WispSplode",
+				icon = (type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and GetSpellTexture(icon)) or icon or "Interface\\Icons\\Spell_Nature_WispSplode",
 				sound = not noSound,
 			},
 			mt
 		)
+		local catType = "announce"--Default to General announce
+		--Change if Personal or Other
+		if announceType == "target" or announceType == "targetcount" or announceType == "stack" then
+			catType = "announceother"
+		end
 		if optionName then
 			obj.option = optionName
-			self:AddBoolOption(obj.option, optionDefault, "announce")
+			self:AddBoolOption(obj.option, optionDefault, catType)
 		elseif not (optionName == false) then
-			obj.option = "Announce"..unparsedId..announceType..(optionVersion or "")
-			self:AddBoolOption(obj.option, optionDefault, "announce")
+			obj.option = catType..unparsedId..announceType..(optionVersion or "")
+			self:AddBoolOption(obj.option, optionDefault, catType)
 			self.localization.options[obj.option] = DBM_CORE_AUTO_ANNOUNCE_OPTIONS[announceType]:format(unparsedId)
 		end
 		tinsert(self.announces, obj)
@@ -6381,21 +7699,62 @@ do
 		return newAnnounce(self, "phase", phase, color or 1, icon or "Interface\\Icons\\Spell_Nature_WispSplode", ...)
 	end
 
+	function bossModPrototype:NewPhaseChangeAnnounce(color, icon, ...)
+		return newAnnounce(self, "phasechange", 0, color or 1, icon or "Interface\\Icons\\Spell_Nature_WispSplode", ...)
+	end
+
 	function bossModPrototype:NewPrePhaseAnnounce(phase, color, icon, ...)
 		return newAnnounce(self, "prephase", phase, color or 1, icon or "Interface\\Icons\\Spell_Nature_WispSplode", ...)
 	end
-
 end
 
 --------------------
 --  Sound Object  --
 --------------------
 do
+	--Sound Object (basically only used by countdown now)
 	local soundPrototype = {}
 	local mt = { __index = soundPrototype }
-	function bossModPrototype:NewSound(spellId, optionDefault, optionName, optionVersion)
+	function bossModPrototype:NewSound(spellId, optionDefault, optionName)
+		if not (optionName == false) then--Basically, all mods still using NewSound.
+			-- Because there are going to be users who update core and not old mods, we need to check and alert
+			--I'll try to avoid this as much as possible by removing NewSound from all old mods in advance of dbm core update
+			print("Error, NewSound depricated. Update your old DBM mods to remove this error")
+			return
+		end
+		self.numSounds = self.numSounds and self.numSounds + 1 or 1
+		local obj = setmetatable(
+			{
+				mod = self,
+			},
+			mt
+		)
+		return obj
+	end
+
+	function soundPrototype:Play(file)
+		if DBM.Options.UseMasterVolume then
+			PlaySoundFile(file, "Master")
+		else
+			PlaySoundFile(file)
+		end
+	end
+
+	function soundPrototype:Schedule(t, ...)
+		return schedule(t, self.Play, self.mod, self, ...)
+	end
+
+	function soundPrototype:Cancel(...)
+		return unschedule(self.Play, self.mod, self, ...)
+	end
+
+	--Voice Object
+	--Individual options still generated in case a person likes to enable voice, but not for ALL warnings (they can pick and choose what is enabled/disabled"
+	local soundPrototype2 = {}
+	local mt = { __index = soundPrototype2 }
+	function bossModPrototype:NewVoice(spellId, optionDefault, optionName, optionVersion)
 		if not spellId and not optionName then
-			error("NewSound: you must provide either spellId or optionName", 2)
+			error("NewVoice: you must provide either spellId or optionName", 2)
 			return
 		end
 		if type(spellId) == "string" and spellId:match("OptionVersion") then
@@ -6410,78 +7769,46 @@ do
 			},
 			mt
 		)
+		if #DBM.Voices < 2 then optionName = false end--Hide options if no voice packs are installed
 		if optionName then
 			obj.option = optionName
-			self:AddBoolOption(obj.option, optionDefault, "misc")
+			self:AddBoolOption(obj.option, optionDefault, "sound")
 		elseif not (optionName == false) then
-			obj.option = "Sound"..spellId..(optionVersion or "")
-			self:AddBoolOption(obj.option, optionDefault, "misc")
-			self.localization.options[obj.option] = DBM_CORE_AUTO_SOUND_OPTION_TEXT:format(spellId)
+			obj.option = "Voice"..spellId..(optionVersion or "")
+			self:AddBoolOption(obj.option, optionDefault, "sound")
+			self.localization.options[obj.option] = DBM_CORE_AUTO_VOICE_OPTION_TEXT:format(spellId)
 		end
 		return obj
 	end
-	bossModPrototype.NewRunAwaySound = bossModPrototype.NewSound
 
-	function soundPrototype:Play(file)
-		if not self.option or self.mod.Options[self.option] then
+	--If no file at path, it should silenty fail. However, I want to try to only add NewVoice to mods for files that already exist.
+	function soundPrototype2:Play(name)
+		local voice = DBM.Options.ChosenVoicePack
+		local always = DBM.Options.AlwaysPlayVoice
+		if voice == "None" then return end
+		--Filter tank specific voice alerts for non tanks if tank filter enabled
+		--But still allow AlwaysPlayVoice to play as well.
+		if (name == "changemt" or name == "tauntboss") and DBM.Options.FilterTankSpec and not self.mod:IsTank() and not always then return end
+		if not self.option or self.mod.Options[self.option] or always then
+			local path = "Interface\\AddOns\\DBM-VP"..voice.."\\"..name..".ogg"
+				--Example "Interface\\AddOns\\DBM-VPHenry\\dispelnow.ogg"
+				--Usage: voiceBerserkerRush:Play("dispelnow")
 			if DBM.Options.UseMasterVolume then
-				PlaySoundFile(file or "Sound\\Creature\\HoodWolf\\HoodWolfTransformPlayer01.ogg", "Master")
+				PlaySoundFile(path, "Master")
 			else
-				PlaySoundFile(file or "Sound\\Creature\\HoodWolf\\HoodWolfTransformPlayer01.ogg")
-			end
-		end
-	end
-
-	function soundPrototype:Schedule(t, ...)
-		return schedule(t, self.Play, self.mod, self, ...)
-	end
-
-	function soundPrototype:Cancel(...)
-		return unschedule(self.Play, self.mod, self, ...)
-	end
-end
-
-----------------------------
---  SoundMMprototype  --Add by Mini_Dragon (Brilla@金色平原)
-----------------------------	
-do
-	local soundPrototype2 = {}
-	local mt2 = { __index = soundPrototype2 }
-	function bossModPrototype:SoundMM(SoundMMtag, SoundMMoption)
-		self.numSounds = self.numSounds and self.numSounds + 1 or 1
-		if (soundMMoption == nil) then
-			soundMMoption = true
-		end
-		local obj2 = setmetatable(
-			{
-				mod = self,
-			},
-			mt2
-		)
-		self:AddBoolOption(SoundMMtag, SoundMMoption, "misc")
-		return obj2
-	end
-
-	function soundPrototype2:Play(file)
-		if soundMMoption then
-			if DBM.Options.UseMasterVolume then
-				PlaySoundFile("Interface\\AddOns\\DBM-Yike\\"..file..".ogg", "Master") --相对语音目录。语音文件以ogg格式存放在该目录下
-			else
-				PlaySoundFile("Interface\\AddOns\\DBM-Yike\\"..file..".ogg") --相对语音目录。语音文件以ogg格式存放在该目录下
+				PlaySoundFile(path)
 			end
 		end
 	end
 
 	function soundPrototype2:Schedule(t, ...)
-		if soundMMoption then
-			return schedule(t, self.Play, self.mod, self, ...)
-		end
+		if DBM.Options.ChosenVoicePack == "None" then return end
+		return schedule(t, self.Play, self.mod, self, ...)
 	end
 
 	function soundPrototype2:Cancel(...)
-		if soundMMoption then
-			return unschedule(self.Play, self.mod, self, ...)
-		end
+		if DBM.Options.ChosenVoicePack == "None" then return end
+		return unschedule(self.Play, self.mod, self, ...)
 	end
 end
 
@@ -6514,40 +7841,35 @@ do
 					DBM:Schedule(timer%1, showCountdown, floor(timer))
 				end
 			end
+			if DBM.Options.DontPlayCountdowns then return end
 			local voice = DBM.Options.CountdownVoice
 			local voice2 = DBM.Options.CountdownVoice2
 			local voice3 = DBM.Options.CountdownVoice3
-			if voice == "None" then return end
 			if self.alternateVoice == 2 then
 				voice = voice2
 			end
 			if self.alternateVoice == 3 then
 				voice = voice3
 			end
-			if voice == "Mosh" then--Voice only goes to 5
-				if self.type == "Countout" then
-					for i = 1, timer do
-						if i < 6 then
-							self.sound5:Schedule(i, "Interface\\AddOns\\DBM-Core\\Sounds\\Mosh\\"..i..".ogg")
-						end
-					end
-				else
-					for i = count, 1, -1 do
-						if i <= 5 then
-							self.sound5:Schedule(timer-i, "Interface\\AddOns\\DBM-Core\\Sounds\\Mosh\\"..i..".ogg")
-						end
+			local path
+			local maxCount = 5
+			for i = 1, #DBM.Counts do
+				if DBM.Counts[i].value == voice then
+					path = DBM.Counts[i].path
+					maxCount = DBM.Counts[i].max
+					break
+				end
+			end
+			if self.type == "Countout" then
+				for i = 1, timer do
+					if i < maxCount then
+						self.sound5:Schedule(i, path..i..".ogg")
 					end
 				end
-			else--Voice that goes to 10
-				if self.type == "Countout" then
-					for i = 1, timer do
-						if i < 11 then
-							self.sound5:Schedule(i, "Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..i..".ogg")
-						end
-					end
-				else
-					for i = count, 1, -1 do
-						self.sound5:Schedule(timer-i, "Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..i..".ogg")
+			else
+				for i = count, 1, -1 do
+					if i <= maxCount then
+						self.sound5:Schedule(timer-i, path..i..".ogg")
 					end
 				end
 			end
@@ -6606,10 +7928,10 @@ do
 		)
 		if optionName then
 			obj.option = obj.id
-			self:AddBoolOption(obj.option, optionDefault, "misc")
+			self:AddBoolOption(obj.option, optionDefault, "sound")
 		elseif not (optionName == false) then
 			obj.option = obj.id
-			self:AddBoolOption(obj.option, optionDefault, "misc")
+			self:AddBoolOption(obj.option, optionDefault, "sound")
 			if countdownType == "Countdown" then
 				self.localization.options[obj.option] = DBM_CORE_AUTO_COUNTDOWN_OPTION_TEXT:format(spellId)
 			elseif countdownType == "CountdownFades" then
@@ -6622,16 +7944,16 @@ do
 		return obj
 	end
 
-	function bossModPrototype:NewCountdown(timer, spellId, optionDefault, optionName, count, textDisabled, altVoice, optionVersion)
-		return newCountdown(self, "Countdown", timer, spellId, optionDefault, optionName, count, textDisabled, altVoice, optionVersion)
+	function bossModPrototype:NewCountdown(...)
+		return newCountdown(self, "Countdown", ...)
 	end
 
-	function bossModPrototype:NewCountdownFades(timer, spellId, optionDefault, optionName, count, textDisabled, altVoice, optionVersion)
-		return newCountdown(self, "CountdownFades", timer, spellId, optionDefault, optionName, count, textDisabled, altVoice, optionVersion)
+	function bossModPrototype:NewCountdownFades(...)
+		return newCountdown(self, "CountdownFades", ...)
 	end
 
-	function bossModPrototype:NewCountout(timer, spellId, optionDefault, optionName, count, textDisabled, altVoice, optionVersion)
-		return newCountdown(self, "Countout", timer, spellId, optionDefault, optionName, count, textDisabled, altVoice, optionVersion)
+	function bossModPrototype:NewCountout(...)
+		return newCountdown(self, "Countout", ...)
 	end
 end
 
@@ -6641,7 +7963,7 @@ end
 do
 	local yellPrototype = {}
 	local mt = { __index = yellPrototype }
-	function bossModPrototype:NewYell(spellId, yellText, optionDefault, optionName, chatType, optionVersion)
+	local function newYell(self, yellType, spellId, yellText, optionDefault, optionName, chatType, optionVersion)
 		if not spellId and not yellText then
 			error("NewYell: you must provide either spellId or yellText", 2)
 			return
@@ -6654,9 +7976,9 @@ do
 		local displayText
 		if not yellText then
 			if type(spellId) == "string" and spellId:match("ej%d+") then
-				displayText = DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT:format(EJ_GetSectionInfo(string.sub(spellId, 3)) or DBM_CORE_UNKNOWN)
+				displayText = DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT[yellType]:format(EJ_GetSectionInfo(string.sub(spellId, 3)) or DBM_CORE_UNKNOWN)
 			else
-				displayText = DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT:format(GetSpellInfo(spellId) or DBM_CORE_UNKNOWN)
+				displayText = DBM_CORE_AUTO_YELL_ANNOUNCE_TEXT[yellType]:format(GetSpellInfo(spellId) or DBM_CORE_UNKNOWN)
 			end
 		end
 		local obj = setmetatable(
@@ -6671,7 +7993,7 @@ do
 			obj.option = optionName
 			self:AddBoolOption(obj.option, optionDefault, "misc")
 		elseif not (optionName == false) then
-			obj.option = "Yell"..(spellId or yellText)..(optionVersion or "")
+			obj.option = "Yell"..(spellId or yellText)..(yellType ~= "yell" and yellType or "")..(optionVersion or "")
 			self:AddBoolOption(obj.option, optionDefault, "misc")
 			self.localization.options[obj.option] = DBM_CORE_AUTO_YELL_OPTION_TEXT:format(spellId)
 		end
@@ -6680,9 +8002,10 @@ do
 
 	function yellPrototype:Yell(...)
 		if not self.option or self.mod.Options[self.option] then
-			SendChatMessage(self.text:format(...), self.chatType or "SAY")
+			SendChatMessage(pformat(self.text, ...), self.chatType or "SAY")
 		end
 	end
+	yellPrototype.Show = yellPrototype.Yell
 
 	function yellPrototype:Schedule(t, ...)
 		return schedule(t, self.Yell, self.mod, self, ...)
@@ -6692,7 +8015,17 @@ do
 		return unschedule(self.Yell, self.mod, self, ...)
 	end
 
-	yellPrototype.Show = yellPrototype.Yell
+	function bossModPrototype:NewYell(...)
+		return newYell(self, "yell", ...)
+	end
+
+	function bossModPrototype:NewCountYell(...)
+		return newYell(self, "count", ...)
+	end
+
+	function bossModPrototype:NewFadesYell(...)
+		return newYell(self, "fade", ...)
+	end
 end
 
 ------------------------------
@@ -6700,72 +8033,234 @@ end
 ------------------------------
 do
 	local frame = CreateFrame("Frame", "DBMSpecialWarning", UIParent)
-	local font = frame:CreateFontString(nil, "OVERLAY", "ZoneTextFont")
+	local font1 = frame:CreateFontString("DBMSpecialWarning1", "OVERLAY", "ZoneTextFont")
+	font1:SetWidth(1024)
+	font1:SetHeight(0)
+	font1:SetPoint("TOP", 0, 0)
+	local font2 = frame:CreateFontString("DBMSpecialWarning2", "OVERLAY", "ZoneTextFont")
+	font2:SetWidth(1024)
+	font2:SetHeight(0)
+	font2:SetPoint("TOP", font1, "BOTTOM", 0, 0)
 	frame:SetMovable(1)
 	frame:SetWidth(1)
 	frame:SetHeight(1)
 	frame:SetFrameStrata("HIGH")
 	frame:SetClampedToScreen()
-	frame:Hide()
-	font:SetWidth(1024)
-	font:SetHeight(0)
-	font:SetPoint("CENTER", 0, 0)
+	frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 
-	local moving
-	local specialWarningPrototype = {}
-	local mt = {__index = specialWarningPrototype}
+	local font1elapsed, font2elapsed, moving
+
+	local function fontHide1()
+		local duration = DBM.Options.SpecialWarningDuration
+		if font1elapsed > duration * 1.3 then
+			font1:Hide()
+			if frame.font1ticker then
+				frame.font1ticker:Cancel()
+				frame.font1ticker = nil
+			end
+		elseif font1elapsed > duration then
+			font1elapsed = font1elapsed + 0.05
+			local alpha = 1 - (font1elapsed - duration) / (duration * 0.3)
+			font1:SetAlpha(alpha > 0 and alpha or 0)
+		else
+			font1elapsed = font1elapsed + 0.05
+			font1:SetAlpha(1)
+		end
+	end
+
+	local function fontHide2()
+		local duration = DBM.Options.SpecialWarningDuration
+		if font2elapsed > duration * 1.3 then
+			font2:Hide()
+			if frame.font2ticker then
+				frame.font2ticker:Cancel()
+				frame.font2ticker = nil
+			end
+		elseif font2elapsed > duration then
+			font2elapsed = font2elapsed + 0.05
+			local alpha = 1 - (font2elapsed - duration) / (duration * 0.3)
+			font2:SetAlpha(alpha > 0 and alpha or 0)
+		else
+			font2elapsed = font2elapsed + 0.05
+			font2:SetAlpha(1)
+		end
+	end
 
 	function DBM:UpdateSpecialWarningOptions()
 		frame:ClearAllPoints()
-		frame:SetPoint(DBM.Options.SpecialWarningPoint, UIParent, DBM.Options.SpecialWarningPoint, DBM.Options.SpecialWarningX, DBM.Options.SpecialWarningY)
-		font:SetFont(DBM.Options.SpecialWarningFont, DBM.Options.SpecialWarningFontSize, "THICKOUTLINE")
-		font:SetTextColor(unpack(DBM.Options.SpecialWarningFontCol))
+		frame:SetPoint(self.Options.SpecialWarningPoint, UIParent, self.Options.SpecialWarningPoint, self.Options.SpecialWarningX, self.Options.SpecialWarningY)
+		font1:SetFont(self.Options.SpecialWarningFont, self.Options.SpecialWarningFontSize, self.Options.SpecialWarningFontStyle == "None" and nil or self.Options.SpecialWarningFontStyle)
+		font2:SetFont(self.Options.SpecialWarningFont, self.Options.SpecialWarningFontSize, self.Options.SpecialWarningFontStyle == "None" and nil or self.Options.SpecialWarningFontStyle)
+		font1:SetTextColor(unpack(self.Options.SpecialWarningFontCol))
+		font2:SetTextColor(unpack(self.Options.SpecialWarningFontCol))
+		if self.Options.SpecialWarningFontShadow then
+			font1:SetShadowOffset(1, -1)
+			font2:SetShadowOffset(1, -1)
+		else
+			font1:SetShadowOffset(0, 0)
+			font2:SetShadowOffset(0, 0)
+		end
 	end
 
-	frame:SetScript("OnUpdate", function(self, elapsed)
-		self.timer = self.timer - elapsed
-		if self.timer >= 3 and self.timer <= 4 then
-			if not self.healthFrameHidden then
-				LowHealthFrame:SetAlpha(self.timer - 3)
-			end
-		elseif self.timer <= 2 then
-			frame:SetAlpha(self.timer/2)
-		elseif self.timer <= 0 then
-			if not self.healthFrameHidden then
-				LowHealthFrame:Hide()
-			end
-			frame:Hide()
+	function DBM:AddSpecialWarning(text, force)
+		local added = false
+		if not frame.font1ticker then
+			font1elapsed = 0
+			font1.lastUpdate = GetTime()
+			font1:SetText(text)
+			font1:Show()
+			added = true
+			frame.font1ticker = frame.font1ticker or C_Timer.NewTicker(0.05, fontHide1)
+		elseif not frame.font2ticker or force then
+			font2elapsed = 0
+			font2.lastUpdate = GetTime()
+			font2:SetText(text)
+			font2:Show()
+			added = true
+			frame.font2ticker = frame.font2ticker or C_Timer.NewTicker(0.05, fontHide2)
 		end
-	end)
+		if not added then
+			local prevText1 = font2:GetText()
+			font1:SetText(prevText1)
+			font1elapsed = font2elapsed
+			self:AddSpecialWarning(text, true)
+		end
+	end
+
+	do
+		local anchorFrame
+		local function moveEnd()
+			moving = false
+			anchorFrame:Hide()
+			font1elapsed = DBM.Options.SpecialWarningDuration
+			font2elapsed = DBM.Options.SpecialWarningDuration
+			frame:SetFrameStrata("HIGH")
+			DBM:Unschedule(moveEnd)
+			DBM.Bars:CancelBar(DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
+		end
+
+		function DBM:MoveSpecialWarning()
+			if not anchorFrame then
+				anchorFrame = CreateFrame("Frame", nil, frame)
+				anchorFrame:SetWidth(32)
+				anchorFrame:SetHeight(32)
+				anchorFrame:EnableMouse(true)
+				anchorFrame:SetPoint("TOP", frame, "TOP", 0, 32)
+				anchorFrame:RegisterForDrag("LeftButton")
+				anchorFrame:SetClampedToScreen()
+				anchorFrame:Hide()
+				local texture = anchorFrame:CreateTexture()
+				texture:SetTexture("Interface\\Addons\\DBM-GUI\\textures\\dot.blp")
+				texture:SetPoint("CENTER", anchorFrame, "CENTER", 0, 0)
+				texture:SetWidth(32)
+				texture:SetHeight(32)
+				anchorFrame:SetScript("OnDragStart", function()
+					frame:StartMoving()
+					self:Unschedule(moveEnd)
+					self.Bars:CancelBar(DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
+				end)
+				anchorFrame:SetScript("OnDragStop", function()
+					frame:StopMovingOrSizing()
+					local point, _, _, xOfs, yOfs = frame:GetPoint(1)
+					self.Options.SpecialWarningPoint = point
+					self.Options.SpecialWarningX = xOfs
+					self.Options.SpecialWarningY = yOfs
+					self:Schedule(15, moveEnd)
+					self.Bars:CreateBar(15, DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
+				end)
+			end
+			if anchorFrame:IsShown() then
+				moveEnd()
+			else
+				moving = true
+				anchorFrame:Show()
+				DBM:AddSpecialWarning(DBM_CORE_MOVE_SPECIAL_WARNING_TEXT)
+				DBM:AddSpecialWarning(DBM_CORE_MOVE_SPECIAL_WARNING_TEXT)
+				self:Schedule(15, moveEnd)
+				self.Bars:CreateBar(15, DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
+				frame:Show()
+				frame:SetFrameStrata("TOOLTIP")
+				frame:SetAlpha(1)
+			end
+		end
+	end
+
+	local specialWarningPrototype = {}
+	local mt = {__index = specialWarningPrototype}
 
 	function specialWarningPrototype:Show(...)
 		if DBM.Options.ShowSpecialWarnings and (not self.option or self.mod.Options[self.option]) and not moving and frame then
 			if self.announceType == "taunt" and DBM.Options.FilterTankSpec and not self.mod:IsTank() then return end--Don't tell non tanks to taunt, ever.
-			local msg = pformat(self.text, ...)
+			local argTable = {...}
+			if #self.combinedtext > 0 then
+				--Throttle spam.
+				local combinedText = table.concat(self.combinedtext, "<, >")
+				if self.combinedcount == 1 then
+					combinedText = combinedText.." "..DBM_CORE_GENERIC_WARNING_OTHERS
+				elseif self.combinedcount > 1 then
+					combinedText = combinedText.." "..DBM_CORE_GENERIC_WARNING_OTHERS2:format(self.combinedcount)
+				end
+				--Process
+				for i = 1, #argTable do
+					if type(argTable[i]) == "string" then
+						argTable[i] = combinedText
+					end
+				end
+			end
+			local msg = pformat(self.text, unpack(argTable))
 			local text = msg:gsub(">.-<", stripServerName)
-			font:SetText(text)
+			DBM:AddSpecialWarning(text)
+			self.combinedcount = 0
+			self.combinedtext = {}
 			if DBM.Options.ShowSWarningsInChat then
 				local colorCode = ("|cff%.2x%.2x%.2x"):format(DBM.Options.SpecialWarningFontCol[1] * 255, DBM.Options.SpecialWarningFontCol[2] * 255, DBM.Options.SpecialWarningFontCol[3] * 255)
 				self.mod:AddMsg(colorCode.."["..DBM_CORE_MOVE_SPECIAL_WARNING_TEXT.."] "..text.."|r", nil)
 			end
 			if not UnitIsDeadOrGhost("player") and DBM.Options.ShowFlashFrame then
 				if self.flash == 1 then
-					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol1[1],DBM.Options.SpecialWarningFlashCol1[2], DBM.Options.SpecialWarningFlashCol1[3], DBM.Options.SpecialWarningFlashDura1, DBM.Options.SpecialWarningFlashAlph1)
+					local repeatCount = DBM.Options.SpecialWarningFlashRepeat1 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol1[1],DBM.Options.SpecialWarningFlashCol1[2], DBM.Options.SpecialWarningFlashCol1[3], DBM.Options.SpecialWarningFlashDura1, DBM.Options.SpecialWarningFlashAlph1, repeatCount)
 				elseif self.flash == 2 then
-					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol2[1],DBM.Options.SpecialWarningFlashCol2[2], DBM.Options.SpecialWarningFlashCol2[3], DBM.Options.SpecialWarningFlashDura2, DBM.Options.SpecialWarningFlashAlph2)
+					local repeatCount = DBM.Options.SpecialWarningFlashRepeat2 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol2[1],DBM.Options.SpecialWarningFlashCol2[2], DBM.Options.SpecialWarningFlashCol2[3], DBM.Options.SpecialWarningFlashDura2, DBM.Options.SpecialWarningFlashAlph2, repeatCount)
 				elseif self.flash == 3 then
-					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol3[1],DBM.Options.SpecialWarningFlashCol3[2], DBM.Options.SpecialWarningFlashCol3[3], DBM.Options.SpecialWarningFlashDura3, DBM.Options.SpecialWarningFlashAlph3)
+					local repeatCount = DBM.Options.SpecialWarningFlashRepeat3 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol3[1],DBM.Options.SpecialWarningFlashCol3[2], DBM.Options.SpecialWarningFlashCol3[3], DBM.Options.SpecialWarningFlashDura3, DBM.Options.SpecialWarningFlashAlph3, repeatCount)
+				elseif self.flash == 4 then
+					local repeatCount = DBM.Options.SpecialWarningFlashRepeat4 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+					DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol4[1],DBM.Options.SpecialWarningFlashCol4[2], DBM.Options.SpecialWarningFlashCol4[3], DBM.Options.SpecialWarningFlashDura4, DBM.Options.SpecialWarningFlashAlph3, repeatCount)
 				end
 			end
-			frame:Show()
-			frame:SetAlpha(1)
-			frame.timer = 5
+			--This callback sucks, it needs useful information for external mods to listen to it better, such as mod and spellid
+			fireEvent("DBM_Announce", msg)
 			if self.sound then
 				local soundId = self.option and self.mod.Options[self.option .. "SpecialWarningSound"] or self.flash
-				DBM:PlaySpecialWarningSound(soundId or 1)
+				if self.hasVoice and DBM.Options.ChosenVoicePack ~= "None" and self.hasVoice <= SWFilterDisabed and (type(soundId) == "number" and DBM.Options.VoiceOverSpecW2 == "DefaultOnly" or DBM.Options.VoiceOverSpecW2 == "All") and (self.mod.Options[self.voiceOptionId] ~= false or DBM.Options.AlwaysPlayVoice) then return end
+				if not self.option or self.mod.Options[self.option.."SpecialWarningSound"] ~= "None" then
+					DBM:PlaySpecialWarningSound(soundId or 1)
+				end
 			end
-			fireEvent("DBM_SpecWarn", msg)
+		else
+			self.combinedcount = 0
+			self.combinedtext = {}
 		end
+	end
+
+	function specialWarningPrototype:CombinedShow(delay, ...)
+		local argTable = {...}
+		for i = 1, #argTable do
+			if type(argTable[i]) == "string" then
+				if #self.combinedtext < 8 then--Throttle spam. We may not need more than 9 targets..
+					if not checkEntry(self.combinedtext, argTable[i]) then
+						self.combinedtext[#self.combinedtext + 1] = argTable[i]
+					end
+				else
+					self.combinedcount = self.combinedcount + 1
+				end
+			end
+		end
+		unschedule(self.Show, self.mod, self)
+		schedule(delay or 0.5, self.Show, self.mod, self, ...)
 	end
 
 	function specialWarningPrototype:DelayedShow(delay, ...)
@@ -6781,36 +8276,47 @@ do
 		return unschedule(self.Show, self.mod, self, ...)
 	end
 
-	function bossModPrototype:NewSpecialWarning(text, optionDefault, optionName, noSound, runSound)
+	function bossModPrototype:NewSpecialWarning(text, optionDefault, optionName, noSound, runSound, optionVersion, hasVoice)
 		if not text then
 			error("NewSpecialWarning: you must provide special warning text", 2)
 			return
+		end
+		if type(text) == "string" and text:match("OptionVersion") then
+			local temp = optionVersion
+			optionVersion = string.sub(text, 14)
+			text, optionDefault, optionName, noSound, runSound = optionDefault, optionName, noSound, runSound, temp
 		end
         if runSound == true then
 			runSound = 2
 		elseif not runSound then
 			runSound = 1
 		end
-		local flash
+		if hasVoice == true then--if not a number, set it to 2, old mods that don't use new numbered system
+			hasVoice = 2
+		end
 		local obj = setmetatable(
 			{
 				text = self.localization.warnings[text],
+				combinedtext = {},
+				combinedcount = 0,
 				mod = self,
 				sound = not noSound,
 				flash = runSound,--Set flash color to hard coded runsound (even if user sets custom sounds)
+				hasVoice = hasVoice,
 			},
 			mt
 		)
 		local optionId = optionName or optionName ~= false and text
 		if optionId then
-			obj.option = optionId
+			obj.voiceOptionId = hasVoice and "Voice"..optionId or nil
+			obj.option = optionId..(optionVersion or "")
 			self:AddSpecialWarningOption(optionId, optionDefault, runSound, "announce")
 		end
 		tinsert(self.specwarns, obj)
 		return obj
 	end
 
-	local function newSpecialWarning(self, announceType, spellId, stacks, optionDefault, optionName, noSound, runSound, optionVersion)
+	local function newSpecialWarning(self, announceType, spellId, stacks, optionDefault, optionName, noSound, runSound, optionVersion, hasVoice)
 		if not spellId then
 			error("newSpecialWarning: you must provide spellId", 2)
 			return
@@ -6825,6 +8331,9 @@ do
 		elseif not runSound then
 			runSound = 1
 		end
+		if hasVoice == true then--if not a number, set it to 2, old mods that don't use new numbered system
+			hasVoice = 2
+		end
 		local spellName
 		if type(spellId) == "string" and spellId:match("ej%d+") then
 			spellName = EJ_GetSectionInfo(string.sub(spellId, 3)) or DBM_CORE_UNKNOWN
@@ -6832,12 +8341,11 @@ do
 			spellName = GetSpellInfo(spellId) or DBM_CORE_UNKNOWN
 		end
 		local text
-		local flash
 		if announceType == "prewarn" then
 			if type(stacks) == "string" then
 				text = DBM_CORE_AUTO_SPEC_WARN_TEXTS[announceType]:format(spellName, stacks)
 			else
-				text = DBM_CORE_AUTO_SPEC_WARN_TEXTS[announceType]:format(spellName, DBM_CORE_SEC_FMT:format(stacks or 5))
+				text = DBM_CORE_AUTO_SPEC_WARN_TEXTS[announceType]:format(spellName, DBM_CORE_SEC_FMT:format(tostring(stacks or 5)))
 			end
 		else
 			text = DBM_CORE_AUTO_SPEC_WARN_TEXTS[announceType]:format(spellName)
@@ -6845,10 +8353,13 @@ do
 		local obj = setmetatable( -- todo: fix duplicate code
 			{
 				text = text,
+				combinedtext = {},
+				combinedcount = 0,
 				announceType = announceType,
 				mod = self,
 				sound = not noSound,
 				flash = runSound,--Set flash color to hard coded runsound (even if user sets custom sounds)
+				hasVoice = hasVoice,
 			},
 			mt
 		)
@@ -6859,13 +8370,25 @@ do
 			if announceType == "stack" then
 				self.localization.options[obj.option] = DBM_CORE_AUTO_SPEC_WARN_OPTIONS[announceType]:format(stacks or 3, spellId)
 			elseif announceType == "prewarn" then
-				self.localization.options[obj.option] = DBM_CORE_AUTO_SPEC_WARN_OPTIONS[announceType]:format(stacks or 5, spellId)
+				self.localization.options[obj.option] = DBM_CORE_AUTO_SPEC_WARN_OPTIONS[announceType]:format(tostring(stacks or 5), spellId)
 			else
 				self.localization.options[obj.option] = DBM_CORE_AUTO_SPEC_WARN_OPTIONS[announceType]:format(spellId)
 			end
 		end
 		if obj.option then
-			self:AddSpecialWarningOption(obj.option, optionDefault, runSound, "announce")
+			local catType = "announce"--Default to General announce
+			--Directly affects another target (boss or player) that you need to know about
+			if announceType == "target" or announceType == "close" or announceType == "reflect" or announceType == "switch" or announceType == "switchcount" then
+				catType = "announceother"
+			--Directly affects you
+			elseif announceType == "you" or announceType == "move" or announceType == "dodge" or announceType == "moveaway" or announceType == "run" or announceType == "stack" or announceType == "moveto" then
+				catType = "announcepersonal"
+			--Things you have to do to fulfil your role
+			elseif announceType == "taunt" or announceType == "dispel" or announceType == "interrupt" or announceType == "interruptcount" then
+				catType = "announcerole"
+			end
+			obj.voiceOptionId = hasVoice and "Voice"..spellId..(type(hasVoice) == "number" and hasVoice or "") or nil
+			self:AddSpecialWarningOption(obj.option, optionDefault, runSound, catType)
 		end
 		tinsert(self.specwarns, obj)
 		return obj
@@ -6894,6 +8417,10 @@ do
 	function bossModPrototype:NewSpecialWarningInterrupt(text, optionDefault, ...)
 		return newSpecialWarning(self, "interrupt", text, nil, optionDefault, ...)
 	end
+	
+	function bossModPrototype:NewSpecialWarningInterruptCount(text, optionDefault, ...)
+		return newSpecialWarning(self, "interruptcount", text, nil, optionDefault, ...)
+	end
 
 	function bossModPrototype:NewSpecialWarningYou(text, optionDefault, ...)
 		return newSpecialWarning(self, "you", text, nil, optionDefault, ...)
@@ -6913,6 +8440,10 @@ do
 
 	function bossModPrototype:NewSpecialWarningMove(text, optionDefault, ...)
 		return newSpecialWarning(self, "move", text, nil, optionDefault, ...)
+	end
+	
+	function bossModPrototype:NewSpecialWarningDodge(text, optionDefault, ...)
+		return newSpecialWarning(self, "dodge", text, nil, optionDefault, ...)
 	end
 	
 	function bossModPrototype:NewSpecialWarningMoveAway(text, optionDefault, ...)
@@ -6939,114 +8470,135 @@ do
 		return newSpecialWarning(self, "count", text, nil, optionDefault, ...)
 	end
 
-	function bossModPrototype:NewSpecialWarningStack(text, optionDefault, stacks, optionName, noSound, runSound, optionVersion)
+	function bossModPrototype:NewSpecialWarningStack(text, optionDefault, stacks, optionName, noSound, runSound, optionVersion, hasVoice)
 		if type(text) == "string" and text:match("OptionVersion") then
 			local temp = optionVersion
 			optionVersion = string.sub(text, 14)
 			text, optionDefault, stacks, optionName, noSound, runSound = optionDefault, stacks, optionName, noSound, runSound, temp
 		end
-		return newSpecialWarning(self, "stack", text, stacks, optionDefault, optionName, noSound, runSound, optionVersion)
+		return newSpecialWarning(self, "stack", text, stacks, optionDefault, optionName, noSound, runSound, optionVersion, hasVoice)
 	end
 
 	function bossModPrototype:NewSpecialWarningSwitch(text, optionDefault, ...)
 		return newSpecialWarning(self, "switch", text, nil, optionDefault, ...)
 	end
 
-	function bossModPrototype:NewSpecialWarningPreWarn(text, optionDefault, time, optionName, noSound, runSound, optionVersion)
+	function bossModPrototype:NewSpecialWarningSwitchCount(text, optionDefault, ...)
+		return newSpecialWarning(self, "switchcount", text, nil, optionDefault, ...)
+	end
+
+	function bossModPrototype:NewSpecialWarningPreWarn(text, optionDefault, time, optionName, noSound, runSound, optionVersion, hasVoice)
 		if type(text) == "string" and text:match("OptionVersion") then
 			local temp = optionVersion
 			optionVersion = string.sub(text, 14)
 			text, optionDefault, time, optionName, noSound, runSound = optionDefault, time, optionName, noSound, runSound, temp
 		end
-		return newSpecialWarning(self, "prewarn", text, time, optionDefault, optionName, noSound, runSound, optionVersion)
+		return newSpecialWarning(self, "prewarn", text, time, optionDefault, optionName, noSound, runSound, optionVersion, hasVoice)
 	end
 
 	function DBM:PlayCountSound(number, forceVoice)
 		if number > 10 then return end
-		local voice, voice2
-		if forceVoice then--Primarlly for options
+		local voice
+		if forceVoice then--For options example
 			voice = forceVoice
 		else
 			voice = DBM.Options.CountdownVoice
-			voice2 = DBM.Options.CountdownVoice2
 		end
-		if number > 5 and (voice == "Mosh") then--Can't count past 5
-			if voice ~= voice2 then
-				voice = voice2--Fall back to secondary voice option if primary is mosh
-			else--Voice 1 and voice 2 were both set to "Mosh", they must really like mosh. At this point we must ignore their preference
-				voice = "Corsica"
+		local path
+		local maxCount = 5
+		for i = 1, #DBM.Counts do
+			if DBM.Counts[i].value == voice then
+				path = DBM.Counts[i].path
+				maxCount = DBM.Counts[i].max
+				break
 			end
-		end--If number is higher than 5 and users primary voice setting ismosh, fallback to secondary voice setting
+		end
+		if not path or (number > maxCount) then return end
 		if DBM.Options.UseMasterVolume then
-			PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..number..".ogg", "Master")
+			PlaySoundFile(path..number..".ogg", "Master")
 		else
-			PlaySoundFile("Interface\\AddOns\\DBM-Core\\Sounds\\"..voice.."\\"..number..".ogg")
+			PlaySoundFile(path..number..".ogg")
+		end
+	end
+	
+	function DBM:RegisterCountSound(t, v, p, m)
+		--Prevent duplicate insert
+		for i = 1, #DBM.Counts do
+			if DBM.Counts[i].value == v then return end
+		end
+		--Insert into counts table.
+		if t and v and p and m then
+			tinsert(self.Counts, { text = t, value = v, path = p, max = m })
+		end
+	end
+
+	function DBM:CheckVoicePackAvailable()
+		--Check if voice pack missing
+		local activeVP = self.Options.ChosenVoicePack
+		if (activeVP ~= "None" and not self.VoiceVersions[activeVP]) or (self.VoiceVersions[activeVP] and self.VoiceVersions[activeVP] == 0) then--A voice pack is selected that does not belong
+			self.Options.ChosenVoicePack = "None"--Set ChosenVoicePack back to None
+			self:AddMsg(DBM_CORE_VOICE_MISSING)
+		end
+		--Check if any of countdown sounds are using missing voice pack
+		local voice1 = self.Options.CountdownVoice
+		local voice2 = self.Options.CountdownVoice2
+		local voice3 = self.Options.CountdownVoice3
+		if voice1 == "None" then--Migrate to new setting
+			self.Options.CountdownVoice = self.DefaultOptions.CountdownVoice
+			self.Options.DontPlayCountdowns = true
+		end
+		if voice1 == "Yike" then--Migration for CN Users
+			if self.VoiceVersions["Yike"] then
+				self.Options.CountdownVoice = "VP:Yike"
+			else
+				self.Options.CountdownVoice = self.DefaultOptions.CountdownVoice--Defaults
+			end
+		end
+		local found1, found2, found3 = false, false, false
+		for i = 1, #DBM.Counts do
+			if self.Counts[i].value == self.Options.CountdownVoice then
+				found1 = true
+			end
+			if self.Counts[i].value == self.Options.CountdownVoice2 then
+				found2 = true
+			end
+			if self.Counts[i].value == self.Options.CountdownVoice3 then
+				found3 = true
+			end
+		end
+		if not found1 then
+			self:AddMsg(DBM_CORE_VOICE_COUNT_MISSING:format(1))
+			self.Options.CountdownVoice = self.DefaultOptions.CountdownVoice
+		end
+		if not found2 then
+			self:AddMsg(DBM_CORE_VOICE_COUNT_MISSING:format(2))
+			self.Options.CountdownVoice2 = self.DefaultOptions.CountdownVoice2
+		end
+		if not found3 then
+			self:AddMsg(DBM_CORE_VOICE_COUNT_MISSING:format(3))
+			self.Options.CountdownVoice3 = self.DefaultOptions.CountdownVoice3
+		end
+	end
+
+	function DBM:CheckVoicePackVersion(value)
+		local activeVP = self.Options.ChosenVoicePack
+		--Check if voice pack out of date
+		if activeVP ~= "None" and activeVP == value then
+			if self.VoiceVersions[value] < 3 then--Version will be bumped when new voice packs released that contain new voices.
+				self:AddMsg(DBM_CORE_VOICE_PACK_OUTDATED)
+				SWFilterDisabed = self.VoiceVersions[value]--Set disable to version on current voice pack
+			else
+				SWFilterDisabed = 3
+			end
 		end
 	end
 
 	function DBM:PlaySpecialWarningSound(soundId)
-		local sound = type(soundId) == "number" and DBM.Options["SpecialWarningSound" .. (soundId == 1 and "" or soundId)] or soundId or DBM.Options.SpecialWarningSound
-		if DBM.Options.UseMasterVolume then
+		local sound = type(soundId) == "number" and self.Options["SpecialWarningSound" .. (soundId == 1 and "" or soundId)] or soundId or self.Options.SpecialWarningSound
+		if self.Options.UseMasterVolume then
 			PlaySoundFile(sound, "Master")
 		else
 			PlaySoundFile(sound)
-		end
-	end
-
-	do
-		local anchorFrame
-		local function moveEnd()
-			moving = false
-			anchorFrame:Hide()
-			frame.timer = 1.5 -- fade out
-			frame:SetFrameStrata("HIGH")
-			DBM:Unschedule(moveEnd)
-			DBM.Bars:CancelBar(DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
-		end
-
-		function DBM:MoveSpecialWarning()
-			if not anchorFrame then
-				anchorFrame = CreateFrame("Frame", nil, frame)
-				anchorFrame:SetWidth(32)
-				anchorFrame:SetHeight(32)
-				anchorFrame:EnableMouse(true)
-				anchorFrame:SetPoint("CENTER", 0, -32)
-				anchorFrame:RegisterForDrag("LeftButton")
-				anchorFrame:SetClampedToScreen()
-				anchorFrame:Hide()
-				local texture = anchorFrame:CreateTexture()
-				texture:SetTexture("Interface\\Addons\\DBM-GUI\\textures\\dot.blp")
-				texture:SetPoint("CENTER", anchorFrame, "CENTER", 0, 0)
-				texture:SetWidth(32)
-				texture:SetHeight(32)
-				anchorFrame:SetScript("OnDragStart", function()
-					frame:StartMoving()
-					self:Unschedule(moveEnd)
-					DBM.Bars:CancelBar(DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
-				end)
-				anchorFrame:SetScript("OnDragStop", function()
-					frame:StopMovingOrSizing()
-					local point, _, _, xOfs, yOfs = frame:GetPoint(1)
-					DBM.Options.SpecialWarningPoint = point
-					DBM.Options.SpecialWarningX = xOfs
-					DBM.Options.SpecialWarningY = yOfs
-					self:Schedule(15, moveEnd)
-					DBM.Bars:CreateBar(15, DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
-				end)
-			end
-			if anchorFrame:IsShown() then
-				moveEnd()
-			else
-				moving = true
-				anchorFrame:Show()
-				self:Schedule(15, moveEnd)
-				DBM.Bars:CreateBar(15, DBM_CORE_MOVE_SPECIAL_WARNING_BAR)
-				font:SetText(DBM_CORE_MOVE_SPECIAL_WARNING_TEXT)
-				frame:Show()
-				frame:SetFrameStrata("TOOLTIP")
-				frame:SetAlpha(1)
-				frame.timer = mhuge
-			end
 		end
 	end
 
@@ -7058,21 +8610,24 @@ do
 		if moving then
 			return
 		end
-		font:SetText(DBM_CORE_MOVE_SPECIAL_WARNING_TEXT)
-		frame:Show()
-		frame:SetAlpha(1)
+		DBM:AddSpecialWarning(DBM_CORE_MOVE_SPECIAL_WARNING_TEXT)
 		frame:SetFrameStrata("TOOLTIP")
 		self:Unschedule(testWarningEnd)
-		self:Schedule(3, testWarningEnd)
-		frame.timer = 3
-		DBM:PlaySpecialWarningSound(number)
-		if DBM.Options.ShowFlashFrame then
+		self:Schedule(self.Options.SpecialWarningDuration * 1.3, testWarningEnd)
+		self:PlaySpecialWarningSound(number)
+		if self.Options.ShowFlashFrame then
 			if number == 1 then
-				DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol1[1],DBM.Options.SpecialWarningFlashCol1[2], DBM.Options.SpecialWarningFlashCol1[3], DBM.Options.SpecialWarningFlashDura1, DBM.Options.SpecialWarningFlashAlph1)
+				local repeatCount = DBM.Options.SpecialWarningFlashRepeat1 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+				self.Flash:Show(self.Options.SpecialWarningFlashCol1[1],self.Options.SpecialWarningFlashCol1[2], self.Options.SpecialWarningFlashCol1[3], self.Options.SpecialWarningFlashDura1, self.Options.SpecialWarningFlashAlph1, repeatCount)
 			elseif number == 2 then
-				DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol2[1],DBM.Options.SpecialWarningFlashCol2[2], DBM.Options.SpecialWarningFlashCol2[3], DBM.Options.SpecialWarningFlashDura2, DBM.Options.SpecialWarningFlashAlph2)
+				local repeatCount = DBM.Options.SpecialWarningFlashRepeat2 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+				self.Flash:Show(self.Options.SpecialWarningFlashCol2[1],self.Options.SpecialWarningFlashCol2[2], self.Options.SpecialWarningFlashCol2[3], self.Options.SpecialWarningFlashDura2, self.Options.SpecialWarningFlashAlph2, repeatCount)
 			elseif number == 3 then
-				DBM.Flash:Show(DBM.Options.SpecialWarningFlashCol3[1],DBM.Options.SpecialWarningFlashCol3[2], DBM.Options.SpecialWarningFlashCol3[3], DBM.Options.SpecialWarningFlashDura3, DBM.Options.SpecialWarningFlashAlph3)
+				local repeatCount = DBM.Options.SpecialWarningFlashRepeat3 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+				self.Flash:Show(self.Options.SpecialWarningFlashCol3[1],self.Options.SpecialWarningFlashCol3[2], self.Options.SpecialWarningFlashCol3[3], self.Options.SpecialWarningFlashDura3, self.Options.SpecialWarningFlashAlph3, repeatCount)
+			elseif number == 4 then
+				local repeatCount = DBM.Options.SpecialWarningFlashRepeat4 and DBM.Options.SpecialWarningFlashRepeatAmount or 0
+				self.Flash:Show(self.Options.SpecialWarningFlashCol4[1],self.Options.SpecialWarningFlashCol4[2], self.Options.SpecialWarningFlashCol4[3], self.Options.SpecialWarningFlashDura4, self.Options.SpecialWarningFlashAlph4, repeatCount)
 			end
 		end
 	end
@@ -7095,8 +8650,21 @@ do
 			return self:Start(nil, timer, ...) -- first argument is optional!
 		end
 		if not self.option or self.mod.Options[self.option] then
+			if self.type and self.type:find("count") and not self.allowdouble then--cdcount, nextcount. remove previous timer.
+				for i = #self.startedTimers, 1, -1 do
+					DBM.Bars:CancelBar(self.startedTimers[i])
+					DBM:Debug("Timer "..self.id.. " refreshed before expires", 2)
+					self.startedTimers[i] = nil
+				end
+			end
 			local timer = timer and ((timer > 0 and timer) or self.timer + timer) or self.timer
 			local id = self.id..pformat((("\t%s"):rep(select("#", ...))), ...)
+			if not self.type or (self.type ~= "target" and self.type ~= "active" and self.type ~= "fades") then
+				local bar = DBM.Bars:GetBar(id)
+				if bar then
+					DBM:Debug("Timer "..self.id.. " refreshed before expires", 2)
+				end
+			end
 			local bar = DBM.Bars:CreateBar(timer, id, self.icon)
 			if not bar then
 				return false, "error" -- creating the timer failed somehow, maybe hit the hard-coded timer limit of 15
@@ -7109,6 +8677,7 @@ do
 			end
 			msg = msg:gsub(">.-<", stripServerName)
 			bar:SetText(msg)
+			--This callback sucks, it needs useful information for external mods to listen to it better, such as mod and spellid
 			fireEvent("DBM_TimerStart", id, msg, timer..DBM_CORE_SEC)
 			tinsert(self.startedTimers, id)
 			self.mod:Unschedule(removeEntry, self.startedTimers, id)
@@ -7130,13 +8699,14 @@ do
 		return schedule(t, self.Start, self.mod, self, ...)
 	end
 
-	function timerPrototype:Unschedule(t, ...)
+	function timerPrototype:Unschedule(...)
 		return unschedule(self.Start, self.mod, self, ...)
 	end
 
 	function timerPrototype:Stop(...)
 		if select("#", ...) == 0 then
 			for i = #self.startedTimers, 1, -1 do
+				--This callback sucks, it needs useful information for external mods to listen to it better, such as mod and spellid
 				fireEvent("DBM_TimerStop", self.startedTimers[i])
 				DBM.Bars:CancelBar(self.startedTimers[i])
 				self.startedTimers[i] = nil
@@ -7145,6 +8715,7 @@ do
 			local id = self.id..pformat((("\t%s"):rep(select("#", ...))), ...)
 			for i = #self.startedTimers, 1, -1 do
 				if self.startedTimers[i] == id then
+					--This callback sucks, it needs useful information for external mods to listen to it better, such as mod and spellid
 					fireEvent("DBM_TimerStop", id)
 					DBM.Bars:CancelBar(id)
 					tremove(self.startedTimers, i)
@@ -7162,6 +8733,12 @@ do
 		local id = self.id..pformat((("\t%s"):rep(select("#", ...))), ...)
 		local bar = DBM.Bars:GetBar(id)
 		return bar and (bar.totalTime - bar.timer) or 0, (bar and bar.totalTime) or 0
+	end
+	
+	function timerPrototype:GetRemaining(...)
+		local id = self.id..pformat((("\t%s"):rep(select("#", ...))), ...)
+		local bar = DBM.Bars:GetBar(id)
+		return bar and bar.timer or 0
 	end
 
 	function timerPrototype:IsStarted(...)
@@ -7186,7 +8763,7 @@ do
 		local id = self.id..pformat((("\t%s"):rep(select("#", ...))), ...)
 		local bar = DBM.Bars:GetBar(id)
 		if bar then
-			return bar:SetIcon((type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and select(3, GetSpellInfo(icon))) or icon or "Interface\\Icons\\Spell_Nature_WispSplode")
+			return bar:SetIcon((type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and GetSpellTexture(icon)) or icon or "Interface\\Icons\\Spell_Nature_WispSplode")
 		end
 	end
 
@@ -7222,7 +8799,7 @@ do
 	end
 
 	function bossModPrototype:NewTimer(timer, name, icon, optionDefault, optionName, r, g, b)
-		local icon = (type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and select(3, GetSpellInfo(icon))) or icon or "Interface\\Icons\\Spell_Nature_WispSplode"
+		local icon = (type(icon) == "string" and icon:match("ej%d+") and select(4, EJ_GetSectionInfo(string.sub(icon, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(icon, 3)))) or (type(icon) == "number" and GetSpellTexture(icon)) or icon or "Interface\\Icons\\Spell_Nature_WispSplode"
 		local obj = setmetatable(
 			{
 				text = self.localization.timers[name],
@@ -7253,9 +8830,10 @@ do
 			optionVersion = string.sub(timer, 14)
 			timer, spellId, timerText, optionDefault, optionName, texture, r, g, b = spellId, timerText, optionDefault, optionName, texture, r, g, b, temp
 		end
-		-- new argument timerText is optional (usually only required for achievement timers as they have looooong names)
-		if type(timerText) == "boolean" or type(optionDefault) == "string" then -- check if the argument was skipped
-			return newTimer(self, timerType, timer, spellId, nil, timerText, optionDefault, optionName, texture, r, g, b, optionVersion)
+		local allowdouble
+		if type(timer) == "string" and timer:match("d%d+") then
+			allowdouble = true
+			timer = tonumber(string.sub(timer, 2))
 		end
 		local spellName, icon
 		local unparsedId = spellId
@@ -7266,6 +8844,10 @@ do
 --				local completed = select(4, GetAchievementInfo(spellId))
 --				optionDefault = not completed
 --			end
+		elseif timerType == "cdspecial" or timerType == "nextspecial" or timerType == "phase" then
+			icon = type(texture) == "number" and GetSpellTexture(texture) or texture or type(spellId) == "string" and select(4, EJ_GetSectionInfo(string.sub(spellId, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(spellId, 3))) or (type(spellId) == "number" and GetSpellTexture(spellId)) or "Interface\\Icons\\Spell_Nature_WispSplode"
+		elseif timerType == "roleplay" then
+			icon = "Interface\\Icons\\Spell_Holy_BorrowedTime"
 		else
 			if type(spellId) == "string" and spellId:match("ej%d+") then
 				spellName = EJ_GetSectionInfo(string.sub(spellId, 3)) or ""
@@ -7273,7 +8855,7 @@ do
 				spellName = GetSpellInfo(spellId or 0)
 			end
 			if spellName then
-				icon = type(texture) == "number" and select(3, GetSpellInfo(texture)) or texture or type(spellId) == "string" and select(4, EJ_GetSectionInfo(string.sub(spellId, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(spellId, 3))) or (type(spellId) == "number" and select(3, GetSpellInfo(spellId)))
+				icon = type(texture) == "number" and GetSpellTexture(texture) or texture or type(spellId) == "string" and select(4, EJ_GetSectionInfo(string.sub(spellId, 3))) ~= "" and select(4, EJ_GetSectionInfo(string.sub(spellId, 3))) or (type(spellId) == "number" and GetSpellTexture(spellId))
 			else
 				icon = nil
 			end
@@ -7291,6 +8873,7 @@ do
 				r = r,
 				g = g,
 				b = b,
+				allowdouble = allowdouble,
 				startedTimers = {},
 				mod = self,
 			},
@@ -7301,6 +8884,8 @@ do
 		-- todo: move the string creation to the GUI with SetFormattedString...
 		if timerType == "achievement" then
 			self.localization.options[id] = DBM_CORE_AUTO_TIMER_OPTIONS[timerType]:format(GetAchievementLink(spellId):gsub("%[(.+)%]", "%1"))
+		elseif timerType == "cdspecial" or timerType == "nextspecial" or timerType == "phase" or timerType == "roleplay" then--Timers without spellid, generic
+			self.localization.options[id] = DBM_CORE_AUTO_TIMER_OPTIONS[timerType]--Using more than 1 phase timer or more than 1 special timer will break this, fortunately you should NEVER use more than 1 of either in a mod
 		else
 			self.localization.options[id] = DBM_CORE_AUTO_TIMER_OPTIONS[timerType]:format(unparsedId)
 		end
@@ -7356,6 +8941,22 @@ do
 
 	function bossModPrototype:NewAchievementTimer(...)
 		return newTimer(self, "achievement", ...)
+	end
+	
+	function bossModPrototype:NewCDSpecialTimer(...)
+		return newTimer(self, "cdspecial", ...)
+	end
+	
+	function bossModPrototype:NewNextSpecialTimer(...)
+		return newTimer(self, "nextspecial", ...)
+	end
+	
+	function bossModPrototype:NewPhaseTimer(...)
+		return newTimer(self, "phase", ...)
+	end
+	
+	function bossModPrototype:NewRPTimer(...)
+		return newTimer(self, "roleplay", ...)
 	end
 
 	function bossModPrototype:GetLocalizedTimerText(timerType, spellId)
@@ -7467,20 +9068,12 @@ end
 ---------------
 --  Options  --
 ---------------
-function bossModPrototype:AddEditBoxOption(name, options, default, cat, func) --Add by Mini_Dragon(Brilla@金色平原)
-	cat = cat or "misc"
-	self.Options[name] = default
-	self:SetOptionCategory(name, cat)
-	self.editboxes = self.editboxes or {}
-	self.editboxes[name] = options
-	if func then
-		self.optionFuncs = self.optionFuncs or {}
-		self.optionFuncs[name] = func
-	end
-end
-
 function bossModPrototype:AddBoolOption(name, default, cat, func)
 	cat = cat or "misc"
+	self.DefaultOptions[name] = (default == nil) or default
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
 	self.Options[name] = (default == nil) or default
 	self:SetOptionCategory(name, cat)
 	if func then
@@ -7491,12 +9084,21 @@ end
 
 function bossModPrototype:AddSpecialWarningOption(name, default, defaultSound, cat)
 	cat = cat or "misc"
+	self.DefaultOptions[name] = (default == nil) or default
+	self.DefaultOptions[name.."SpecialWarningSound"] = defaultSound or 1
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
 	self.Options[name] = (default == nil) or default
-	self.Options[name .. "SpecialWarningSound"] = defaultSound or "Sound\\Spells\\PVPFlagTaken.ogg"
+	self.Options[name.."SpecialWarningSound"] = defaultSound or 1
 	self:SetOptionCategory(name, cat)
 end
 
 function bossModPrototype:AddSetIconOption(name, spellId, default, isHostile)
+	self.DefaultOptions[name] = (default == nil) or default
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
 	self.Options[name] = (default == nil) or default
 	self:SetOptionCategory(name, "misc")
 	if isHostile then
@@ -7511,16 +9113,27 @@ function bossModPrototype:AddSetIconOption(name, spellId, default, isHostile)
 end
 
 function bossModPrototype:AddArrowOption(name, spellId, default, isRunTo)
+	if isRunTo == true then isRunTo = 2 end--Support legacy
+	self.DefaultOptions[name] = (default == nil) or default
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
 	self.Options[name] = (default == nil) or default
 	self:SetOptionCategory(name, "misc")
-	if isRunTo then
+	if isRunTo == 2 then
 		self.localization.options[name] = DBM_CORE_AUTO_ARROW_OPTION_TEXT:format(spellId)
+	elseif isRunTo == 3 then
+		self.localization.options[name] = DBM_CORE_AUTO_ARROW_OPTION_TEXT3:format(spellId)
 	else
 		self.localization.options[name] = DBM_CORE_AUTO_ARROW_OPTION_TEXT2:format(spellId)
 	end
 end
 
 function bossModPrototype:AddRangeFrameOption(range, spellId, default)
+	self.DefaultOptions["RangeFrame"] = (default == nil) or default
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
 	self.Options["RangeFrame"] = (default == nil) or default
 	self:SetOptionCategory("RangeFrame", "misc")
 	if spellId then
@@ -7530,7 +9143,25 @@ function bossModPrototype:AddRangeFrameOption(range, spellId, default)
 	end
 end
 
+function bossModPrototype:AddHudMapOption(name, spellId, default)
+	self.DefaultOptions[name] = (default == nil) or default
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
+	self.Options[name] = (default == nil) or default
+	self:SetOptionCategory(name, "misc")
+	if spellId then
+		self.localization.options[name] = DBM_CORE_AUTO_HUD_OPTION_TEXT:format(spellId)
+	else
+		self.localization.options[name] = DBM_CORE_AUTO_HUD_OPTION_TEXT_MULTI
+	end
+end
+
 function bossModPrototype:AddInfoFrameOption(spellId, default)
+	self.DefaultOptions["InfoFrame"] = (default == nil) or default
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
 	self.Options["InfoFrame"] = (default == nil) or default
 	self:SetOptionCategory("InfoFrame", "misc")
 	self.localization.options["InfoFrame"] = DBM_CORE_AUTO_INFO_FRAME_OPTION_TEXT:format(spellId)
@@ -7538,6 +9169,10 @@ end
 
 function bossModPrototype:AddReadyCheckOption(questId, default)
 	self.readyCheckQuestId = questId
+	self.DefaultOptions["ReadyCheck"] = (default == nil) or default
+	if default and type(default) == "string" then
+		default = self:GetRoleFlagValue(default)
+	end
 	self.Options["ReadyCheck"] = (default == nil) or default
 	self.localization.options["ReadyCheck"] = DBM_CORE_AUTO_READY_CHECK_OPTION_TEXT
 	self:SetOptionCategory("ReadyCheck", "misc")
@@ -7545,6 +9180,7 @@ end
 
 function bossModPrototype:AddSliderOption(name, minValue, maxValue, valueStep, default, cat, func)
 	cat = cat or "misc"
+	self.DefaultOptions[name] = {type = "slider", value = default or 0}
 	self.Options[name] = default or 0
 	self:SetOptionCategory(name, cat)
 	self.sliders = self.sliders or {}
@@ -7574,6 +9210,7 @@ end
 -- this will be fixed as soon as it is necessary due to removed options ;-)
 function bossModPrototype:AddDropdownOption(name, options, default, cat, func)
 	cat = cat or "misc"
+	self.DefaultOptions[name] = {type = "dropdown", value = default}
 	self.Options[name] = default
 	self:SetOptionCategory(name, cat)
 	self.dropdowns = self.dropdowns or {}
@@ -7591,6 +9228,16 @@ function bossModPrototype:AddOptionSpacer(cat)
 	end
 end
 
+function bossModPrototype:AddOptionLine(text, cat)
+	cat = cat or "misc"
+	if not self.optionCategories[cat] then
+		self.optionCategories[cat] = {}
+	end
+	if self.optionCategories[cat] then
+		tinsert(self.optionCategories[cat], {line = true, text = text})
+	end
+end
+
 function bossModPrototype:AddAnnounceSpacer()
 	return self:AddOptionSpacer("announce")
 end
@@ -7599,13 +9246,20 @@ function bossModPrototype:AddTimerSpacer()
 	return self:AddOptionSpacer("timer")
 end
 
+function bossModPrototype:AddAnnounceLine(text)
+	return self:AddOptionLine(text, "announce")
+end
+
+function bossModPrototype:AddTimerLine(text)
+	return self:AddOptionLine(text, "timer")
+end
+
 function bossModPrototype:RemoveOption(name)
 	self.Options[name] = nil
 	for i, options in pairs(self.optionCategories) do
 		removeEntry(options, name)
 		if #options == 0 then
 			self.optionCategories[i] = nil
-			removeEntry(self.categorySort, i)
 		end
 	end
 	if self.optionFuncs then
@@ -7619,7 +9273,6 @@ function bossModPrototype:SetOptionCategory(name, cat)
 	end
 	if not self.optionCategories[cat] then
 		self.optionCategories[cat] = {}
-		tinsert(self.categorySort, cat)
 	end
 	tinsert(self.optionCategories[cat], name)
 end
@@ -7870,251 +9523,260 @@ bossModPrototype.UnscheduleEvent = bossModPrototype.UnscheduleMethod
 --  Icons  --
 -------------
 
-local scanExpires = {}
-local addsIcon = {}
-local addsIconSet = {}
-
-function bossModPrototype:SetIcon(target, icon, timer)
-	if not target then return end--Fix a rare bug where target becomes nil at last second (end combat fires and clears targets)
-	if DBM.Options.DontSetIcons or not enableIcons or DBM:GetRaidRank(playerName) == 0 then
-		return
-	end
-	self:UnscheduleMethod("SetIcon", target)
-	icon = icon and icon >= 0 and icon <= 8 and icon or 8
-	local uId = DBM:GetRaidUnitId(target)
-	if uId and UnitIsUnit(uId, "player") and not IsInGroup() then return end--Solo raid, no reason to put icon on yourself.
-	if uId or UnitExists(target) then--target accepts uid, unitname both.
-		uId = uId or target
-		--save previous icon into a table.
-		if not self.iconRestore[uId] then
-			local oldIcon = self:GetIcon(uId) or 0
-			self.iconRestore[uId] = oldIcon
-		end
-		--set icon
-		SetRaidTarget(uId, self.iconRestore[uId] and icon == 0 and self.iconRestore[uId] or icon)
-		--schedule restoring old icon if timer enabled.
-		if timer then
-			self:ScheduleMethod(timer, "SetIcon", target, 0)
-		end
-	end
-end
-
 do
-	local iconSortTable = {}
-	local iconSet = 0
+	local scanExpires = {}
+	local addsIcon = {}
+	local addsIconSet = {}
 
-	local function sort_by_group(v1, v2)
-		return DBM:GetRaidSubgroup(DBM:GetUnitFullName(v1)) < DBM:GetRaidSubgroup(DBM:GetUnitFullName(v2))
-	end
-
-	local function clearSortTable()
-		table.wipe(iconSortTable)
-		iconSet = 0
-	end
-
-	function bossModPrototype:SetIconBySortedTable(startIcon, reverseIcon, returnFunc)
-		table.sort(iconSortTable, sort_by_group)
-		local icon = startIcon or 1
-		for i, v in ipairs(iconSortTable) do
-			if not self.iconRestore[v] then
-				local oldIcon = self:GetIcon(v) or 0
-				self.iconRestore[v] = oldIcon
-			end
-			SetRaidTarget(v, icon)--do not use SetIcon function again. It already checked in SetSortedIcon function.
-			if reverseIcon then
-				icon = icon - 1
-			else
-				icon = icon + 1
-			end
-			if returnFunc then
-				self[returnFunc](self, v, icon)--Send icon and target to returnFunc. (Generally used by announce icon targets to raid chat feature)
-			end
-		end
-		self:Schedule(1.5, clearSortTable)--Table wipe delay so if icons go out too early do to low fps or bad latency, when they get new target on table, resort and reapplying should auto correct teh icon within .2-.4 seconds at most.
-	end
-
-	function bossModPrototype:SetSortedIcon(delay, target, startIcon, maxIcon, reverseIcon, returnFunc)
-		if not target then return end
+	function bossModPrototype:SetIcon(target, icon, timer)
+		if not target then return end--Fix a rare bug where target becomes nil at last second (end combat fires and clears targets)
 		if DBM.Options.DontSetIcons or not enableIcons or DBM:GetRaidRank(playerName) == 0 then
 			return
 		end
-		if not startIcon then startIcon = 1 end
-		startIcon = startIcon and startIcon >= 0 and startIcon <= 8 and startIcon or 8
+		self:UnscheduleMethod("SetIcon", target)
+		if type(icon) ~= "number" or type(target) ~= "string" then--icon/target probably backwards.
+			DBM:Debug("SetIcon is being used impropperly. Check icon/target order")
+			return--Fail silently instead of spamming icon lua errors if we screw up
+		end
+		icon = icon and icon >= 0 and icon <= 8 and icon or 8
 		local uId = DBM:GetRaidUnitId(target)
+		if uId and UnitIsUnit(uId, "player") and DBM:GetNumRealGroupMembers() < 2 then return end--Solo raid, no reason to put icon on yourself.
 		if uId or UnitExists(target) then--target accepts uid, unitname both.
 			uId = uId or target
-			local foundDuplicate = false
-			for i = #iconSortTable, 1, -1 do
-				if iconSortTable[i] == uId then
-					foundDuplicate = true
-					break
-				end
-			end
-			if not foundDuplicate then
-				iconSet = iconSet + 1
-				table.insert(iconSortTable, uId)
-			end
-			self:UnscheduleMethod("SetIconBySortedTable")
-			if maxIcon and iconSet == maxIcon then
-				self:SetIconBySortedTable(startIcon, reverseIcon, returnFunc)
-			elseif self:LatencyCheck() then--lag can fail the icons so we check it before allowing.
-				self:ScheduleMethod(delay or 0.5, "SetIconBySortedTable", startIcon, reverseIcon, returnFunc)
-			end
-		end
-	end
-end
-
-function bossModPrototype:GetIcon(uId)
-	return UnitExists(uId) and GetRaidTargetIndex(uId)
-end
-
-function bossModPrototype:RemoveIcon(target)
-	return self:SetIcon(target, 0)
-end
-
-function bossModPrototype:ClearIcons()
-	if IsInRaid() then
-		for i = 1, GetNumGroupMembers() do
-			if UnitExists("raid"..i) and GetRaidTargetIndex("raid"..i) then
-				SetRaidTarget("raid"..i, 0)
-			end
-		end
-	else
-		for i = 1, GetNumSubgroupMembers() do
-			if UnitExists("party"..i) and GetRaidTargetIndex("party"..i) then
-				SetRaidTarget("party"..i, 0)
-			end
-		end
-	end
-end
-
-function bossModPrototype:ScanForMobs(creatureID, iconSetMethod, mobIcon, maxIcon, scanInterval, scanningTime, optionName)
-	if not optionName then optionName = self.findFastestComputer[1] end
-	if canSetIcons[optionName] then
-		--Declare variables.
-		local timeNow = GetTime()
-		local creatureID = creatureID--This function must not be used to boss, so remove self.creatureId. Accepts cid, guid and cid table
-		local iconSetMethod = iconSetMethod or 0--Set IconSetMethod -- 0: Descending / 1:Ascending / 2: Force Set / 9:Force Stop
-		--With different scanID, this function can support multi scanning same time. Required for Nazgrim.
-		local scanID = 0
-		if type(creatureID) == "number" then
-			scanID = creatureID --guid and table no not supports multi scanning. only cid supports multi scanning
-		end
-		if iconSetMethod == 9 then--Force stop scanning
-			--clear variables
-			scanExpires[scanID] = nil
-			addsIcon[scanID] = nil
-			addsIconSet[scanID] = nil
-			return
-		end
-		if not addsIcon[scanID] then addsIcon[scanID] = mobIcon or 8 end
-		if not addsIconSet[scanID] then addsIconSet[scanID] = 0 end
-		if not scanExpires[scanID] then scanExpires[scanID] = timeNow + scanningTime end
-		local maxIcon = maxIcon or 8 --We only have 8 icons.
-		local scanInterval = scanInterval or 0.2
-		local scanningTime = scanningTime or 8
-		--DO SCAN NOW
-		for uId in DBM:GetGroupMembers() do
+			--save previous icon into a table.
 			if not self.iconRestore[uId] then
 				local oldIcon = self:GetIcon(uId) or 0
 				self.iconRestore[uId] = oldIcon
 			end
-			local unitid = uId.."target"
-			local guid = UnitGUID(unitid)
-			local cid = self:GetCIDFromGUID(guid)
-			if guid and type(creatureID) == "table" and creatureID[cid] and not addsGUIDs[guid] then
-				if type(creatureID[cid]) == "number" then
-					SetRaidTarget(unitid, creatureID[cid])
+			--set icon
+			SetRaidTarget(uId, self.iconRestore[uId] and icon == 0 and self.iconRestore[uId] or icon)
+			--schedule restoring old icon if timer enabled.
+			if timer then
+				self:ScheduleMethod(timer, "SetIcon", target, 0)
+			end
+		end
+	end
+
+	do
+		local iconSortTable = {}
+		local iconSet = 0
+
+		local function sort_by_group(v1, v2)
+			return DBM:GetRaidSubgroup(DBM:GetUnitFullName(v1)) < DBM:GetRaidSubgroup(DBM:GetUnitFullName(v2))
+		end
+
+		local function clearSortTable()
+			twipe(iconSortTable)
+			iconSet = 0
+		end
+
+		function bossModPrototype:SetIconBySortedTable(startIcon, reverseIcon, returnFunc)
+			tsort(iconSortTable, sort_by_group)
+			local icon = startIcon or 1
+			for i, v in ipairs(iconSortTable) do
+				if not self.iconRestore[v] then
+					local oldIcon = self:GetIcon(v) or 0
+					self.iconRestore[v] = oldIcon
+				end
+				SetRaidTarget(v, icon)--do not use SetIcon function again. It already checked in SetSortedIcon function.
+				if reverseIcon then
+					icon = icon - 1
 				else
-					SetRaidTarget(unitid, addsIcon[scanID])
-					if iconSetMethod == 1 then
-						addsIcon[scanID] = addsIcon[scanID] + 1
-					else
-						addsIcon[scanID] = addsIcon[scanID] - 1
+					icon = icon + 1
+				end
+				if returnFunc then
+					self[returnFunc](self, v, icon)--Send icon and target to returnFunc. (Generally used by announce icon targets to raid chat feature)
+				end
+			end
+			self:Schedule(1.5, clearSortTable)--Table wipe delay so if icons go out too early do to low fps or bad latency, when they get new target on table, resort and reapplying should auto correct teh icon within .2-.4 seconds at most.
+		end
+
+		function bossModPrototype:SetSortedIcon(delay, target, startIcon, maxIcon, reverseIcon, returnFunc)
+			if not target then return end
+			if DBM.Options.DontSetIcons or not enableIcons or DBM:GetRaidRank(playerName) == 0 then
+				return
+			end
+			if not startIcon then startIcon = 1 end
+			startIcon = startIcon and startIcon >= 0 and startIcon <= 8 and startIcon or 8
+			local uId = DBM:GetRaidUnitId(target)
+			if uId or UnitExists(target) then--target accepts uid, unitname both.
+				uId = uId or target
+				local foundDuplicate = false
+				for i = #iconSortTable, 1, -1 do
+					if iconSortTable[i] == uId then
+						foundDuplicate = true
+						break
 					end
 				end
-				addsGUIDs[guid] = true
-				addsIconSet[scanID] = addsIconSet[scanID] + 1
-				if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
-					--clear variables
-					scanExpires[scanID] = nil
-					addsIcon[scanID] = nil
-					addsIconSet[scanID] = nil
-					return
+				if not foundDuplicate then
+					iconSet = iconSet + 1
+					tinsert(iconSortTable, uId)
 				end
-			elseif guid and ((guid == creatureID) or (cid == creatureID)) and not addsGUIDs[guid] then
-				if iconSetMethod == 2 then
-					SetRaidTarget(unitid, mobIcon)
-				else
-					SetRaidTarget(unitid, addsIcon[scanID])
-					if iconSetMethod == 1 then
-						addsIcon[scanID] = addsIcon[scanID] + 1
-					else
-						addsIcon[scanID] = addsIcon[scanID] - 1
-					end
-				end
-				addsGUIDs[guid] = true
-				addsIconSet[scanID] = addsIconSet[scanID] + 1
-				if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
-					--clear variables
-					scanExpires[scanID] = nil
-					addsIcon[scanID] = nil
-					addsIconSet[scanID] = nil
-					return
+				self:UnscheduleMethod("SetIconBySortedTable")
+				if maxIcon and iconSet == maxIcon then
+					self:SetIconBySortedTable(startIcon, reverseIcon, returnFunc)
+				elseif self:LatencyCheck() then--lag can fail the icons so we check it before allowing.
+					self:ScheduleMethod(delay or 0.5, "SetIconBySortedTable", startIcon, reverseIcon, returnFunc)
 				end
 			end
 		end
-		local guid2 = UnitGUID("mouseover")
-		local cid2 = self:GetCIDFromGUID(guid2)
-		if guid2 and type(creatureID) == "table" and creatureID[cid2] and not addsGUIDs[guid2] then
-			if type(creatureID[cid2]) == "number" then
-				SetRaidTarget("mouseover", creatureID[cid2])
-			else
-				SetRaidTarget("mouseover", addsIcon[scanID])
-				if iconSetMethod == 1 then
-					addsIcon[scanID] = addsIcon[scanID] + 1
-				else
-					addsIcon[scanID] = addsIcon[scanID] - 1
+	end
+
+	function bossModPrototype:GetIcon(uId)
+		return UnitExists(uId) and GetRaidTargetIndex(uId)
+	end
+
+	function bossModPrototype:RemoveIcon(target)
+		return self:SetIcon(target, 0)
+	end
+
+	function bossModPrototype:ClearIcons()
+		if IsInRaid() then
+			for i = 1, GetNumGroupMembers() do
+				if UnitExists("raid"..i) and GetRaidTargetIndex("raid"..i) then
+					SetRaidTarget("raid"..i, 0)
 				end
 			end
-			addsGUIDs[guid2] = true
-			addsIconSet[scanID] = addsIconSet[scanID] + 1
-			if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
-				--clear variables
-				scanExpires[scanID] = nil
-				addsIcon[scanID] = nil
-				addsIconSet[scanID] = nil
-				return
-			end
-		elseif guid2 and ((guid2 == creatureID) or (cid2 == creatureID)) and not addsGUIDs[guid2] then
-			if iconSetMethod == 2 then
-				SetRaidTarget("mouseover", mobIcon)
-			else
-				SetRaidTarget("mouseover", addsIcon[scanID])
-				if iconSetMethod == 1 then
-					addsIcon[scanID] = addsIcon[scanID] + 1
-				else
-					addsIcon[scanID] = addsIcon[scanID] - 1
-				end
-			end
-			addsGUIDs[guid2] = true
-			addsIconSet[scanID] = addsIconSet[scanID] + 1
-			if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
-				--clear variables
-				scanExpires[scanID] = nil
-				addsIcon[scanID] = nil
-				addsIconSet[scanID] = nil
-				return
-			end
-		end
-		if timeNow < scanExpires[scanID] then--scan for limited times.
-			self:ScheduleMethod(scanInterval, "ScanForMobs", creatureID, iconSetMethod, mobIcon, maxIcon, scanInterval, scanningTime, optionName)
 		else
-			--clear variables
-			scanExpires[scanID] = nil
-			addsIcon[scanID] = nil
-			addsIconSet[scanID] = nil
-			--Do not wipe adds GUID table here, it's wiped by :Stop() which is called by EndCombat
+			for i = 1, GetNumSubgroupMembers() do
+				if UnitExists("party"..i) and GetRaidTargetIndex("party"..i) then
+					SetRaidTarget("party"..i, 0)
+				end
+			end
+		end
+	end
+
+	local mobUids = {"mouseover", "boss1", "boss2", "boss3", "boss4", "boss5"}
+	function bossModPrototype:ScanForMobs(creatureID, iconSetMethod, mobIcon, maxIcon, scanInterval, scanningTime, optionName)
+		if not optionName then optionName = self.findFastestComputer[1] end
+		if canSetIcons[optionName] then
+			--Declare variables.
+			local timeNow = GetTime()
+			local creatureID = creatureID--This function must not be used to boss, so remove self.creatureId. Accepts cid, guid and cid table
+			local iconSetMethod = iconSetMethod or 0--Set IconSetMethod -- 0: Descending / 1:Ascending / 2: Force Set / 9:Force Stop
+			--With different scanID, this function can support multi scanning same time. Required for Nazgrim.
+			local scanID = 0
+			if type(creatureID) == "number" then
+				scanID = creatureID --guid and table no not supports multi scanning. only cid supports multi scanning
+			end
+			if iconSetMethod == 9 then--Force stop scanning
+				--clear variables
+				scanExpires[scanID] = nil
+				addsIcon[scanID] = nil
+				addsIconSet[scanID] = nil
+				return
+			end
+			if not addsIcon[scanID] then addsIcon[scanID] = mobIcon or 8 end
+			if not addsIconSet[scanID] then addsIconSet[scanID] = 0 end
+			if not scanExpires[scanID] then scanExpires[scanID] = timeNow + scanningTime end
+			local maxIcon = maxIcon or 8 --We only have 8 icons.
+			local scanInterval = scanInterval or 0.2
+			local scanningTime = scanningTime or 8
+			--DO SCAN NOW
+			for uId in DBM:GetGroupMembers() do
+				if not self.iconRestore[uId] then
+					local oldIcon = self:GetIcon(uId) or 0
+					self.iconRestore[uId] = oldIcon
+				end
+				local unitid = uId.."target"
+				local guid = UnitGUID(unitid)
+				local cid = self:GetCIDFromGUID(guid)
+				if guid and type(creatureID) == "table" and creatureID[cid] and not addsGUIDs[guid] then
+					if type(creatureID[cid]) == "number" then
+						SetRaidTarget(unitid, creatureID[cid])
+					else
+						SetRaidTarget(unitid, addsIcon[scanID])
+						if iconSetMethod == 1 then
+							addsIcon[scanID] = addsIcon[scanID] + 1
+						else
+							addsIcon[scanID] = addsIcon[scanID] - 1
+						end
+					end
+					addsGUIDs[guid] = true
+					addsIconSet[scanID] = addsIconSet[scanID] + 1
+					if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
+						--clear variables
+						scanExpires[scanID] = nil
+						addsIcon[scanID] = nil
+						addsIconSet[scanID] = nil
+						return
+					end
+				elseif guid and ((guid == creatureID) or (cid == creatureID)) and not addsGUIDs[guid] then
+					if iconSetMethod == 2 then
+						SetRaidTarget(unitid, mobIcon)
+					else
+						SetRaidTarget(unitid, addsIcon[scanID])
+						if iconSetMethod == 1 then
+							addsIcon[scanID] = addsIcon[scanID] + 1
+						else
+							addsIcon[scanID] = addsIcon[scanID] - 1
+						end
+					end
+					addsGUIDs[guid] = true
+					addsIconSet[scanID] = addsIconSet[scanID] + 1
+					if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
+						--clear variables
+						scanExpires[scanID] = nil
+						addsIcon[scanID] = nil
+						addsIconSet[scanID] = nil
+						return
+					end
+				end
+			end
+			for _, unitid2 in ipairs(mobUids) do
+				local guid2 = UnitGUID(unitid2)
+				local cid2 = self:GetCIDFromGUID(guid2)
+				if guid2 and type(creatureID) == "table" and creatureID[cid2] and not addsGUIDs[guid2] then
+					if type(creatureID[cid2]) == "number" then
+						SetRaidTarget(unitid2, creatureID[cid2])
+					else
+						SetRaidTarget(unitid2, addsIcon[scanID])
+						if iconSetMethod == 1 then
+							addsIcon[scanID] = addsIcon[scanID] + 1
+						else
+							addsIcon[scanID] = addsIcon[scanID] - 1
+						end
+					end
+					addsGUIDs[guid2] = true
+					addsIconSet[scanID] = addsIconSet[scanID] + 1
+					if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
+						--clear variables
+						scanExpires[scanID] = nil
+						addsIcon[scanID] = nil
+						addsIconSet[scanID] = nil
+						return
+					end
+				elseif guid2 and ((guid2 == creatureID) or (cid2 == creatureID)) and not addsGUIDs[guid2] then
+					if iconSetMethod == 2 then
+						SetRaidTarget(unitid2, mobIcon)
+					else
+						SetRaidTarget(unitid2, addsIcon[scanID])
+						if iconSetMethod == 1 then
+							addsIcon[scanID] = addsIcon[scanID] + 1
+						else
+							addsIcon[scanID] = addsIcon[scanID] - 1
+						end
+					end
+					addsGUIDs[guid2] = true
+					addsIconSet[scanID] = addsIconSet[scanID] + 1
+					if addsIconSet[scanID] >= maxIcon then--stop scan immediately to save cpu
+						--clear variables
+						scanExpires[scanID] = nil
+						addsIcon[scanID] = nil
+						addsIconSet[scanID] = nil
+						return
+					end
+				end
+			end
+			if timeNow < scanExpires[scanID] then--scan for limited times.
+				self:ScheduleMethod(scanInterval, "ScanForMobs", creatureID, iconSetMethod, mobIcon, maxIcon, scanInterval, scanningTime, optionName)
+			else
+				--clear variables
+				scanExpires[scanID] = nil
+				addsIcon[scanID] = nil
+				addsIconSet[scanID] = nil
+				--Do not wipe adds GUID table here, it's wiped by :Stop() which is called by EndCombat
+			end
 		end
 	end
 end
@@ -8173,9 +9835,13 @@ do
 	local returnKey = {__index = function(t, k) return k end}
 	local defaultCatLocalization = {
 		__index = setmetatable({
-			timer		= DBM_CORE_OPTION_CATEGORY_TIMERS,
-			announce	= DBM_CORE_OPTION_CATEGORY_WARNINGS,
-			misc		= MISCELLANEOUS
+			timer				= DBM_CORE_OPTION_CATEGORY_TIMERS,
+			announce			= DBM_CORE_OPTION_CATEGORY_WARNINGS,
+			announceother		= DBM_CORE_OPTION_CATEGORY_WARNINGS_OTHER,
+			announcepersonal	= DBM_CORE_OPTION_CATEGORY_WARNINGS_YOU,
+			announcerole		= DBM_CORE_OPTION_CATEGORY_WARNINGS_ROLE,
+			sound				= DBM_CORE_OPTION_CATEGORY_SOUNDS,
+			misc				= MISCELLANEOUS
 		}, returnKey)
 	}
 	local defaultTimerLocalization = {
@@ -8258,147 +9924,3 @@ do
 		return modLocalizations[name] or self:CreateModLocalization(name)
 	end
 end
-
----------------------------------
---  LT Special Warning Object  -- --Function by BH. Add by Mini_Dragon (Brilla@金色平原)
----------------------------------
-do
-	local frame, font, moving, showendnote, icon, cooldownframe
-	local function createFrame()
-		frame = CreateFrame("Frame", nil, UIParent)
-		frame:SetWidth(400)
-		frame:SetHeight(50)
-		frame:SetMovable(true)
-		frame:SetPoint(DBM.Options.LTSpecialWarningPoint, DBM.Options.LTSpecialWarningX, DBM.Options.LTSpecialWarningY)
-		font = frame:CreateFontString()	
-		font:SetDrawLayer("OVERLAY")
-		font:SetFont(DBM.Options.LTSpecialWarningFont, DBM.Options.LTSpecialWarningFontSize, "THICKOUTLINE")
-		font:SetTextColor(unpack(DBM.Options.LTSpecialWarningFontColor))
-		font:SetPoint("CENTER", 0, 0)
-		icon = frame:CreateTexture( nil, "ARTWORK" )
-		icon:SetPoint("CENTER", 0, DBM.Options.LTSpecialWarningFontSize <= 33 and DBM.Options.LTSpecialWarningFontSize + 15 or 48)
-		cooldownframe = CreateFrame("Cooldown", cooldownframe, frame)
-		cooldownframe:SetAllPoints(icon)
-		frame:Hide()
-	end
-	
-	function DBM:UpdateLTSpecialWarningOptions()
-		if not frame then
-			createFrame()
-		end
-		frame:ClearAllPoints()
-		frame:SetPoint(DBM.Options.LTSpecialWarningPoint, DBM.Options.LTSpecialWarningX, DBM.Options.LTSpecialWarningY)
-		font:SetFont(DBM.Options.LTSpecialWarningFont, DBM.Options.LTSpecialWarningFontSize, "THICKOUTLINE")
-		font:SetTextColor(unpack(DBM.Options.LTSpecialWarningFontColor))
-	end
-	
-	function DBM:ShowLTSpecialWarning(text, r, g, b, shake, iconspellid, hidetime, cdtime)
-		if (not DBM.Options.ShowLTSpecialWarnings) or (not text) then return end
-		if not frame then
-			createFrame()
-		end
-		frame:Show()
-		moving = false
-		frame:EnableMouse(false)
-		if type(text) == "number" then text = GetSpellInfo(text) end
-		font:SetText(text)
-		if r and g and b then
-			font:SetTextColor(r, g, b, 1)
-		else
-			font:SetTextColor(unpack(DBM.Options.LTSpecialWarningFontColor))
-		end
-		if iconspellid then
-			local _, _, texture = GetSpellInfo(tostring(iconspellid))
-			icon:SetTexture(texture)
-		else
-			icon:SetTexture(nil)
-		end
-		if shake then
-			local shaketime = 0.3
-			frame:SetScript("OnUpdate", function(self, e)
-				shaketime = shaketime + e
-				if shaketime <= shake then
-					local Amt = 30 / (1 + 10*(300^(-(shake))))
-					local moveX = random(-Amt, Amt)
-					local moveY = random(-Amt, Amt)
-					font:SetPoint("CENTER", moveX, moveY)
-					if iconspellid then
-						icon:SetPoint("CENTER", moveX, DBM.Options.LTSpecialWarningFontSize <= 33 and DBM.Options.LTSpecialWarningFontSize + 15 + moveY or 48 + moveY)
-					end
-				else
-					font:SetPoint("CENTER", 0, 0)
-					icon:SetPoint("CENTER", 0, DBM.Options.LTSpecialWarningFontSize <= 33 and DBM.Options.LTSpecialWarningFontSize + 15 or 48)
-				end
-			end)
-		end
-		if hidetime then
-			self:Schedule(hidetime, function() DBM:HideLTSpecialWarning() end)
-		end
-		if cdtime then
-			cooldownframe:SetCooldown(GetTime(), cdtime)
-		end
-	end
---	/run DBM:ShowLTSpecialWarning(145987, 1, 0, 0, 1, 145987, nil, 15)
-	function DBM:HideLTSpecialWarning()
-		if frame and frame:IsShown() then
-			frame:Hide()
-		end
-	end
-	
-	function DBM:MoveLTSpecialWarning()
-		if not frame then
-			createFrame()
-		end		
-		frame:RegisterForDrag("LeftButton")
-		frame:SetScript("OnDragStart", function(self)
-			frame:StartMoving()
-		end)
-		frame:SetScript("OnDragStop", function(self)
-			frame:StopMovingOrSizing()
-			local point, _, _, x, y = self:GetPoint(1)
-			DBM.Options.LTSpecialWarningPoint = point
-			DBM.Options.LTSpecialWarningX = x
-			DBM.Options.LTSpecialWarningY = y
-		end)
-		if frame:IsShown() then
-			if moving then
-				frame:EnableMouse(false)
-				frame:Hide()
-			else
-				font:SetText(DBM_GUI_Translations.BarWhileMove)
-				moving = true
-				frame:EnableMouse(true)
-				frame:SetFrameStrata("TOOLTIP")
-			end
-		else
-			font:SetText(DBM_GUI_Translations.BarWhileMove)
-			frame:Show()
-			moving = true
-			frame:EnableMouse(true)
-			frame:SetFrameStrata("TOOLTIP")
-		end
-	end
-	
-	local function testWarningEnd()
-		DBM:HideLTSpecialWarning()
-		if not showendnote then
-			DBM:AddMsg(DBM_GUI_Translations.TestWarningEnd)
-			showendnote = true
-		end
-	end
-	
-	function DBM:ShowTestLTSpecialWarning()
-		if not frame then
-			createFrame()
-		end
-		moving = false
-		frame:EnableMouse(false)
-		font:SetText(DBM_GUI_Translations.Panel_LTSpecWarnFrame)
-		frame:Show()
-		frame:SetFrameStrata("TOOLTIP")
-		self:Unschedule(testWarningEnd)
-		self:Schedule(5, testWarningEnd)
-	end
-end
-
---Sound Driver by Mini_Dragon (Brilla@金色平原)

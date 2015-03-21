@@ -11,7 +11,7 @@
 <Script file="Buttons.lua"/>
 <Script file="EventNames.lua"/>
 <Script file="ChannelNames.lua"/>
-<!-- <Script file="ChannelColorMemory.lua"/> -->
+<Script file="ChannelColorMemory.lua"/>
 <Script file="ChannelSticky.lua"/>
 <Script file="ChatFrames.lua"/>
 <Script file="ChatLog.lua"/>
@@ -35,7 +35,7 @@
 <Script file="Sounds.lua"/>
 <Script file="Substitutions.lua"/>
 <Script file="TellTarget.lua"/>
-<!-- <Script file="Timestamps.lua"/> -->
+<Script file="Timestamps.lua"/>
 <Script file="UrlCopy.lua"/>
 <Script file="WIM.lua"/>
 <Script file="ldb.lua"/>

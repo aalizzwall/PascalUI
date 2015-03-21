@@ -7,11 +7,12 @@ local L
 L= DBM:GetModLocalization(1128)
 
 L:SetTimerLocalization({
-	timerCrowdCD	= "Восст. Толпы"
+	timerSweeperCD			= DBM_CORE_AUTO_TIMER_TEXTS.next:format("Чистильщик арены")
 })
 
 L:SetOptionLocalization({
-	timerCrowdCD	= "Отсчет времени до появления новых аддов толпы"
+	timerSweeperCD			= "Отсчет времени до следующего Чистильщика арены",
+	countdownSweeper		= "Звуковой отсчет до восстановления \"Чистильщик арены\""
 })
 
 ---------------------------
@@ -33,20 +34,38 @@ L:SetMiscLocalization({
 ------------------
 L= DBM:GetModLocalization(1196)
 
+L:SetOptionLocalization({
+	InterruptCounter	= "Сбрасывать счетчик Ослабления после",
+	Two					= "После двух кастов",
+	Three				= "После трех кастов",
+	Four				= "После четырех кастов"
+})
+
 --------------
 -- Twin Ogron --
 --------------
 L= DBM:GetModLocalization(1148)
 
 L:SetOptionLocalization({
-	PhemosSpecial	= "Play countdown sound for Phemos' cooldowns",
-	PolSpecial		= "Play countdown sound for Pol's cooldowns"
+	PhemosSpecial	= "Звуковой обратный отсчет для кулдаунов Фем'а",
+	PolSpecial		= "Звуковой обратный отсчет для кулдаунов Пол'а",
+	PhemosSpecialVoice	= "Звуковые оповещения для способностей Фем'а используя выбранный звуковой пакет",
+	PolSpecialVoice		= "Звуковые оповещения для способностей Пол'а используя выбранный звуковой пакет"
 })
 
 --------------------
 --Koragh --
 --------------------
 L= DBM:GetModLocalization(1153)
+
+
+L:SetWarningLocalization({
+	specWarnExpelMagicFelFades	= "Скверна спадает через 5 сек. - вернитесь в начало"
+})
+
+L:SetOptionLocalization({
+	specWarnExpelMagicFelFades	= "Спец-предупреждение двигаться в начальную точку когда $spell:172895 спадает"
+})
 
 L:SetMiscLocalization({
 	supressionTarget1	= "Я сокрушу вас!",
@@ -59,6 +78,24 @@ L:SetMiscLocalization({
 -- Imperator Mar'gok --
 --------------------------
 L= DBM:GetModLocalization(1197)
+
+L:SetTimerLocalization({
+	timerNightTwistedCD		= "След. Поддавшийся ночи верный служитель"
+})
+
+L:SetOptionLocalization({
+	GazeYellType		= "Тип крика для Взгляд Бездны",
+	Countdown			= "Обратный отсчет до спадения",
+	Stacks				= "Получаемые стаки",
+	timerNightTwistedCD	= "Отсчет времени до след. Поддавшийся ночи верный служитель"
+})
+
+L:SetMiscLocalization({
+	BrandedYell			= "Клеймо (%d) %dм",
+	GazeYell			= "Взгляд спадает через %d",
+	GazeYell2			= "Взгляд (%d) на %s",
+	PlayerDebuffs		= "Ближайшие к Вспышке"
+})
 
 -------------
 --  Trash  --

@@ -198,6 +198,23 @@ end
 -- ****************************************************************************
 -- Called when the text in the input frame editbox changes to allow validation.
 -- ****************************************************************************
+local function ValidateInputCallback(message)
+ local frame = popupFrames.inputFrame
+ 
+ -- Clear validation message and enable okay button.
+ frame.validateFontString:SetText("")
+ frame.okayButton:Enable()
+
+  -- Disable the save button and display the validation message if validation failed.
+  if (message) then
+   frame.validateFontString:SetText(message)
+   frame.okayButton:Disable()
+  end
+end
+
+-- ****************************************************************************
+-- Called when the text in the input frame editbox changes to allow validation.
+-- ****************************************************************************
 local function ValidateInput(this)
  local frame = popupFrames.inputFrame
 
@@ -208,7 +225,7 @@ local function ValidateInput(this)
  if (frame.validateHandler) then
   local firstText = frame.inputEditbox:GetText()
   local secondText = frame.secondInputEditbox:GetText()
-  local message = frame.validateHandler(firstText, frame.showSecondEditbox and secondText)
+  local message = frame.validateHandler(firstText, frame.showSecondEditbox and secondText, ValidateInputCallback)
 
   -- Disable the save button and display the validation message if validation failed.
   if (message) then
@@ -2066,7 +2083,7 @@ end
 -- Validates if the passed skill name does not already exist and is valid.
 -- ****************************************************************************
 local function ValidateSoundFileName(fileName)
- if (not string.find(fileName, ".mp3") and not string.find(fileName, ".ogg")) then
+ if (not string.find(fileName, ".ogg")) then
   return L.MSG_INVALID_SOUND_FILE
  end
 end

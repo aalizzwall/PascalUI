@@ -114,8 +114,7 @@ end
 	
 
 ---------------------------------------------------------------------
--- local font = "FONTS\\arialn.ttf"
-local font = "Interface\\Addons\\TidyPlatesHub\\shared\\neuropol x cd rg.ttf"
+local font = "FONTS\\arialn.ttf"
 local art = "Interface\\Addons\\TidyPlatesWidgets\\ThreatLine\\ThreatLineUnified"
 local artCoordinates = {
 	--None = 		{.75,1,0,1},
