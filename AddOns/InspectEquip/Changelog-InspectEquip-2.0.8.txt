@@ -1,0 +1,16 @@
+tag 2.0.8
+f91126c5c9333469cb21c77524a470887954793e
+emelio <emelio.wow@gmail.com>
+2014-10-15 19:09:45 +0200
+
+InspectEquip 2.0.8:
+- Fix Lua error that occured on patch 6.0
+- Update item database
+
+
+--------------------
+
+emelio:
+	- Update faction items
+	- Update crafted items
+	- Fix Lua error that occured on patch 6.0

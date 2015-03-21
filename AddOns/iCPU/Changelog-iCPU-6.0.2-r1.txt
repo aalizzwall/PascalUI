@@ -1,0 +1,30 @@
+------------------------------------------------------------------------
+r21 | grdn | 2014-10-18 13:47:57 +0000 (Sat, 18 Oct 2014) | 1 line
+Changed paths:
+   A /tags/6.0.2-r1 (from /trunk:20)
+
+See r20, ready for WoD!
+------------------------------------------------------------------------
+r20 | grdn | 2014-10-18 13:47:32 +0000 (Sat, 18 Oct 2014) | 1 line
+Changed paths:
+   M /trunk/Locales/deDE.lua
+
+- updated german locales 
+------------------------------------------------------------------------
+r19 | grdn | 2014-10-18 13:42:47 +0000 (Sat, 18 Oct 2014) | 3 lines
+Changed paths:
+   M /trunk/Config.lua
+   M /trunk/Locales/enUS.lua
+   M /trunk/iCPU.lua
+   M /trunk/iCPU.toc
+
+- added scrollbar
+- added options for scrollbar
+- increased amount of maximum displayed addons by a large amount
+------------------------------------------------------------------------
+r18 | grdn | 2013-09-14 10:19:31 +0000 (Sat, 14 Sep 2013) | 1 line
+Changed paths:
+   D /trunk/5.4-r1
+
+.
+------------------------------------------------------------------------

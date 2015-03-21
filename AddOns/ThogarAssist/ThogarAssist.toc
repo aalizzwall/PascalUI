@@ -1,0 +1,27 @@
+## Interface: 60000
+## X-BigfootType: 1
+## X-BigfootDesc: Thogar Assist专用于黑石铸造厂6号boss，号称“铁胆火车侠”的索戈尔的专用监控下一列/多列列车进站以及会出什么小怪的插件。
+## Title: Thogar Assist
+## Notes: Displays incoming trains in the Thogar encounter
+## DefaultState: enabled
+## Author: Elvador
+## SavedVariables: ThogarAssistDB
+## OptionalDeps: Ace3
+## X-Curse-Packaged-Version: v6.0.3-6
+## X-Curse-Project-Name: Thogar Assist
+## X-Curse-Project-ID: thogar-assist
+## X-Curse-Repository-ID: wow/thogar-assist/mainline
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\koKR.lua
+Locales\ruRU.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+
+ThogarAssist.lua
