@@ -1,9 +1,0 @@
-﻿## Interface: 60000
-## Title: AshranInviteAlert
-## Title-deDE: AshranInviteAlert
-## Notes: This addon plays a sound when Ashran invite is ready.
-## Notes-deDE: Dieses Addon lässt einen Ton erklingen, wenn man Ashran betreten kann.
-## Author: Feeras
-## Version: 1.01
-
-AshranInviteAlert.lua

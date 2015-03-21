@@ -1,8 +1,0 @@
-﻿## Interface: 60000
-## Title: |cFF0099FF[介面]|r |cFF9988FF[ncShadow]|r 黑邊質感
-## Notes: 輸入『/shadow x』可調整黑邊濃度。x為數字，介於1~100之間。
-## Author: Nightcracker (Maintained by Ferous)
-## Version: 1.0.1
-## SavedVariables: ncShadowLevel
-
-ncShadow.lua
