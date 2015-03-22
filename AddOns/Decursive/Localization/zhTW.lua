@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT
     teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
@@ -74,7 +74,7 @@ T._LoadedFiles["zhTW.lua"] = false;
 local L = LibStub("AceLocale-3.0"):NewLocale("Decursive", "zhTW");
 
 if not L then
-    T._LoadedFiles["zhTW.lua"] = "2.7.3.6";
+    T._LoadedFiles["zhTW.lua"] = "2.7.4.1";
     return;
 end;
 
@@ -194,8 +194,8 @@ L["NORMAL"] = "一般"
 L["NOSPELL"] = "沒有可用法術"
 L["OPT_ABOLISHCHECK_DESC"] = "檢查玩家身上是否有淨化法術在運作。"
 L["OPT_ABOUT"] = "關於"
-L["OPT_ADD_A_CUSTOM_SPELL"] = "添加一個自訂法術"
-L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "點擊這裡並 Shift+點擊技能書上的一個法術。也可以直接寫法術名稱或數字 ID。"
+L["OPT_ADD_A_CUSTOM_SPELL"] = "添加一個自訂法術" -- Needs review
+L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "點擊這裡並 Shift+點擊技能書上的一個法術。也可以直接寫法術名稱或數字 ID。" -- Needs review
 L["OPT_ADDDEBUFF"] = "添加一負面效果到清單中"
 L["OPT_ADDDEBUFF_DESC"] = "將一個新的負面效果新增到清單中。"
 L["OPT_ADDDEBUFFFHIST"] = "新增一個最近受到的負面效果"
@@ -281,7 +281,7 @@ L["OPT_CUSTOM_SPELL_PRIORITY_DESC"] = [=[當有多個法術可以治療相同類
 注意Decursive預設管理的能力，優先程度設定範圍為0到9。
 
 因此如果你將自行設定之施法能力的優先程度設為負值，此能力只有在預設施法能力無法使用時才會被選用。]=] -- Needs review
-L["OPT_CUSTOMSPELLS"] = "自訂法術"
+L["OPT_CUSTOMSPELLS"] = "自訂法術" -- Needs review
 L["OPT_CUSTOMSPELLS_DESC"] = [=[這裡添加法術以擴展Decursive的自動配置。
 您的自訂法術總是會有高優先權，並且將蓋過與替代預設的法術(只有在你的角色可以使用這些法術的時候)。
 ]=]
@@ -486,4 +486,4 @@ L["UNSTABLERELEASE"] = "不穩定釋出版"
 
 
 
-T._LoadedFiles["zhTW.lua"] = "2.7.3.6";
+T._LoadedFiles["zhTW.lua"] = "2.7.4.1";

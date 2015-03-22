@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
     Starting from 2009-10-31 and until said otherwise by its author, Decursive
@@ -17,7 +17,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2014-10-15T00:15:14Z
+    This file was last updated on 2015-01-25T21:31:39Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -76,8 +76,9 @@ local GetTime           = _G.GetTime;
 local IsSpellInRange    = _G.IsSpellInRange;
 local UnitInRange       = _G.UnitInRange;
 local debugprofilestop  = _G.debugprofilestop;
+local GetSpellInfo      = _G.GetSpellInfo;
 
--- replacement for the default function as it is bugged in WoW5 (it returns nil for some spells)
+-- replacement for the default function as it is bugged in WoW5 (it returns nil for some spells such as resto shamans' 'Purify Spirit')
 D.IsSpellInRange = function (spellName, unit)
     local range = IsSpellInRange(spellName, unit);
 
@@ -468,8 +469,53 @@ function D:GetSpellFromLink(link)
     return nil;
 end
 
+
+local IsUsableItem      = _G.IsUsableItem;
+local IsEquippableItem  = _G.IsEquippableItem;
+local IsEquippedItem    = _G.IsEquippedItem;
+function D:isItemUsable(itemIDorName)
+    if IsEquippableItem(itemIDorName) and not IsEquippedItem(itemIDorName) then
+        return false;
+    end
+
+    return IsUsableItem(itemIDorName);
+end
+
+function D:GetItemFromLink(link)
+    -- GetItemInfo (only if item seen)
+    -- GetItemCooldown
+    -- IsUsableItem (ignores cooldowms and petty conditions)
+    -- IsItemInRange(itemID, "unit")
+    -- GetItemCount(itemId, includeBank, includeCharges)
+
+    if link:find('|Hitem:%d+') then
+        local itemID;
+        itemID = tonumber(link:match('|Hitem:(%d+)'));
+
+        local name = GetItemInfo(itemID);
+
+        if not name then
+            return nil;
+        end
+
+        D:Debug('Item link detected:', itemID, name);
+
+        return itemID;
+    end
+
+    return nil;
+end
+
+function D.GetSpellOrItemInfo(spellID)
+    if spellID > 0 then
+        return GetSpellInfo(spellID);
+    else
+        return GetItemInfo(spellID * -1);
+    end
+end
+
 local function BadLocalTest (localtest)
-        D:Print(L[localtest]);
+    D:Print(L[localtest]);
 end
 
 function D:MakeError(something)
@@ -754,4 +800,4 @@ do
 end
 
 
-T._LoadedFiles["Dcr_utils.lua"] = "2.7.3.6";
+T._LoadedFiles["Dcr_utils.lua"] = "2.7.4.1";

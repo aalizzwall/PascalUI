@@ -1,7 +1,7 @@
 ﻿--[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT
     teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
@@ -74,7 +74,7 @@ T._LoadedFiles["zhCN.lua"] = false;
 local L = LibStub("AceLocale-3.0"):NewLocale("Decursive", "zhCN");
 
 if not L then
-    T._LoadedFiles["zhCN.lua"] = "2.7.3.6";
+    T._LoadedFiles["zhCN.lua"] = "2.7.4.1";
     return;
 end;
 
@@ -195,8 +195,8 @@ L["NORMAL"] = "一般"
 L["NOSPELL"] = "没有相关技能"
 L["OPT_ABOLISHCHECK_DESC"] = "设置是否显示和净化带有“驱毒术”增益效果的玩家"
 L["OPT_ABOUT"] = "关于"
-L["OPT_ADD_A_CUSTOM_SPELL"] = "添加一个自定义法术"
-L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "点击这里并 Shift+点击技能书上的一个法术。也可以直接写法术名称或数字 ID。"
+L["OPT_ADD_A_CUSTOM_SPELL"] = "添加一个自定义法术/物品"
+L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "拖动一个法术或可用物品到这里。也可以直接写它们的名称或数字 ID，或者使用Shift+点击。"
 L["OPT_ADDDEBUFF"] = "新增自定义减益"
 L["OPT_ADDDEBUFF_DESC"] = "向列表中新增一个减益。"
 L["OPT_ADDDEBUFFFHIST"] = "新增一个最近受到的减益"
@@ -281,7 +281,7 @@ L["OPT_CUSTOM_SPELL_PRIORITY_DESC"] = [=[当有多个法术可以治疗相同类
 请注意，Decursive 所管理的默认技能有优先级，取值范围从0到9。
 
 因此，如果您给您的自定义法术过低的优先级，它只会选择默认的技能。]=]
-L["OPT_CUSTOMSPELLS"] = "自定义法术"
+L["OPT_CUSTOMSPELLS"] = "自定义法术/物品"
 L["OPT_CUSTOMSPELLS_DESC"] = [=[这里添加法术扩展 Decursive 的自动配置。
 自定义法术永远拥有更高的优先级并覆盖和替换默认法术（当且仅当你的角色可以使用这些法术）。
 ]=]
@@ -486,4 +486,4 @@ L["UNSTABLERELEASE"] = "不稳定版本"
 
 
 
-T._LoadedFiles["zhCN.lua"] = "2.7.3.6";
+T._LoadedFiles["zhCN.lua"] = "2.7.4.1";

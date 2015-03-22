@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
     Starting from 2009-10-31 and until said otherwise by its author, Decursive
@@ -17,7 +17,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2014-10-15T09:23:18Z
+    This file was last updated on 2015-02-19T07:02:08Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -48,10 +48,13 @@ end
 T._LoadedFiles["DCR_init.lua"] = false;
 
 local D;
+local _G                    = _G;
 local select                = _G.select;
 local GetSpellBookItemInfo  = _G.GetSpellBookItemInfo;
 local GetSpellInfo          = _G.GetSpellInfo;
 local IsSpellKnown          = _G.IsSpellKnown;
+local GetSpecialization     = _G.GetSpecialization;
+local IsPlayerSpell         = _G.IsPlayerSpell;
 
 local function RegisterDecursive_Once() -- {{{
 
@@ -63,7 +66,7 @@ local function RegisterDecursive_Once() -- {{{
     --@end-debug@]===]
 
     D.name = "Decursive";
-    D.version = "2.7.3.6";
+    D.version = "2.7.4.1";
     D.author = "John Wellesz";
 
     D.DcrFullyInitialized = false;
@@ -213,7 +216,6 @@ local function SetRuntimeConstants_Once () -- {{{
 
     local DS = T._C.DS;
     local DSI = T._C.DSI;
-    local IsSpellKnown = _G.IsSpellKnown;
 
     DC.IS_STEALTH_BUFF = D:tReverse({DS["Prowl"], DS["Stealth"], DS["Shadowmeld"],  DS["Invisibility"], DS["Lesser Invisibility"], DS["Camouflage"], DS["SHROUD_OF_CONCEALMENT"], DS['Greater Invisibility']});
 
@@ -336,7 +338,13 @@ local function SetRuntimeConstants_Once () -- {{{
             Pet = false,
         },
         -- Warlocks (Imp)
-        [DSI["SPELL_SINGE_MAGIC"]] = {
+        [DSI["PET_SINGE_MAGIC"]] = {
+            Types = {DC.MAGIC},
+            Better = 0,
+            Pet = true,
+        },
+         -- Warlocks (Fel-Imp)
+        [DSI["PET_SEAR_MAGIC"]] = {
             Types = {DC.MAGIC},
             Better = 0,
             Pet = true,
@@ -349,7 +357,7 @@ local function SetRuntimeConstants_Once () -- {{{
 
             EnhancedBy = true,
             EnhancedByCheck = function ()
-                return (GetSpellInfo(DS["SPELL_COMMAND_DEMON"]) == DS["SPELL_SINGE_MAGIC"]);
+                return (GetSpellInfo(DS["SPELL_COMMAND_DEMON"])) == DS["PET_SINGE_MAGIC"] or (GetSpellInfo(DS["SPELL_COMMAND_DEMON"])) == DS["PET_SEAR_MAGIC"];
             end,
             Enhancements = {
                 Types = {DC.MAGIC},
@@ -362,7 +370,12 @@ local function SetRuntimeConstants_Once () -- {{{
             Pet = false,
         },
         -- Warlocks
-        [DSI["PET_FEL_CAST"]] = {
+        [DSI["PET_DEVOUR_MAGIC"]] = {
+            Types = {DC.ENEMYMAGIC},
+            Better = 0,
+            Pet = true,
+        },
+        [DSI["PET_CLONE_MAGIC"]] = {
             Types = {DC.ENEMYMAGIC},
             Better = 0,
             Pet = true,
@@ -436,9 +449,9 @@ local function InitVariables_Once() -- {{{
     -- A table UnitID=>IsDebuffed (boolean)
     D.UnitDebuffed = {};
 
-    D.Revision = "0cceb4c"; -- not used here but some other add-on may request it from outside
-    D.date = "2014-11-09T16:51:53Z";
-    D.version = "2.7.3.6";
+    D.Revision = "706191c"; -- not used here but some other add-on may request it from outside
+    D.date = "2015-02-26T17:26:30Z";
+    D.version = "2.7.4.1";
 
     if D.date ~= "@project".."-date-iso@" then
         -- @project-timestamp@ doesn't work
@@ -468,8 +481,8 @@ local L  = D.L;
 local LC = D.LC;
 local DC = T._C;
 
-local BOOKTYPE_PET      = BOOKTYPE_PET;
-local BOOKTYPE_SPELL    = BOOKTYPE_SPELL;
+local BOOKTYPE_PET      = _G.BOOKTYPE_PET;
+local BOOKTYPE_SPELL    = _G.BOOKTYPE_SPELL;
 
 local select            = _G.select;
 local pairs             = _G.pairs;
@@ -507,7 +520,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
 
             if time() - self.db.global.LastExpirationAlert > 48 * 3600 or forceDisplay then
 
-                T._ShowNotice ("|cff00ff00Decursive version: 2.7.3.6|r\n\n" .. "|cFFFFAA66" .. L["TOC_VERSION_EXPIRED"] .. "|r");
+                T._ShowNotice ("|cff00ff00Decursive version: 2.7.4.1|r\n\n" .. "|cFFFFAA66" .. L["TOC_VERSION_EXPIRED"] .. "|r");
 
                 self.db.global.LastExpirationAlert = time();
             end
@@ -516,7 +529,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
         self.db.global.TocExpiredDetection = false;
     end
 
-    if (("2.7.3.6"):lower()):find("beta") or ("2.7.3.6"):find("RC") or ("2.7.3.6"):find("Candidate") or alpha then
+    if (("2.7.4.1"):lower()):find("beta") or ("2.7.4.1"):find("RC") or ("2.7.4.1"):find("Candidate") or alpha then
 
         D.RunningADevVersion = true;
 
@@ -529,7 +542,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
                 DC.DevVersionExpired = true;
                 -- Display the expiration notice only once evry 48 hours
                 if time() - self.db.global.LastExpirationAlert > 48 * 3600 or forceDisplay then
-                    T._ShowNotice ("|cff00ff00Decursive version: 2.7.3.6|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_EXPIRED"] .. "|r");
+                    T._ShowNotice ("|cff00ff00Decursive version: 2.7.4.1|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_EXPIRED"] .. "|r");
 
                     self.db.global.LastExpirationAlert = time();
                 end
@@ -540,16 +553,16 @@ function D:VersionWarnings(forceDisplay) -- {{{
         end
 
         -- display a warning if this is a developpment version (avoid insults from people who don't know what they're doing)
-        if self.db.global.NonRelease ~= "2.7.3.6" then
-            self.db.global.NonRelease = "2.7.3.6";
-            T._ShowNotice ("|cff00ff00Decursive version: 2.7.3.6|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_ALERT"] .. "|r");
+        if self.db.global.NonRelease ~= "2.7.4.1" then
+            self.db.global.NonRelease = "2.7.4.1";
+            T._ShowNotice ("|cff00ff00Decursive version: 2.7.4.1|r\n\n" .. "|cFFFFAA66" .. L["DEV_VERSION_ALERT"] .. "|r");
         end
     end
 
     --[===[@debug@
     fromCheckOut = true;
     if time() - self.db.global.LastUnpackagedAlert > 24 * 3600  then
-        T._ShowNotice ("|cff00ff00Decursive version: 2.7.3.6|r\n\n" .. "|cFFFFAA66" ..
+        T._ShowNotice ("|cff00ff00Decursive version: 2.7.4.1|r\n\n" .. "|cFFFFAA66" ..
         [[
         |cFFFF0000You're using an unpackaged version of Decursive.|r
         Decursive is not meant to be used this way.
@@ -587,7 +600,7 @@ function D:VersionWarnings(forceDisplay) -- {{{
         if D.db.global.NewerVersionDetected > D.VersionTimeStamp and D.db.global.NewerVersionName ~= D.version then -- it's still newer than this one
             if time() - D.db.global.NewerVersionAlert > 3600 * 24 * 4 then -- it's been more than 4 days since the new version alert was shown
                 if not D.db.global.NewVersionsBugMeNot then -- the user did not disable new version alerts
-                    T._ShowNotice ("|cff55ff55Decursive version: 2.7.3.6|r\n\n" .. "|cFF55FFFF" .. (L["NEW_VERSION_ALERT"]):format(D.db.global.NewerVersionName or "none", date("%Y-%m-%d", D.db.global.NewerVersionDetected)) .. "|r");
+                    T._ShowNotice ("|cff55ff55Decursive version: 2.7.4.1|r\n\n" .. "|cFF55FFFF" .. (L["NEW_VERSION_ALERT"]):format(D.db.global.NewerVersionName or "none", date("%Y-%m-%d", D.db.global.NewerVersionDetected)) .. "|r");
                     D.db.global.NewerVersionAlert = time();
                 end
             end
@@ -693,12 +706,16 @@ function D:OnEnable() -- called after PLAYER_LOGIN -- {{{
     end); -- }}}
 
     D:SecureHook("CastSpellByName", "HOOK_CastSpellByName");
+    D:SecureHook("UseItemByName",   "HOOK_UseItemByName");
 
     -- these events are automatically stopped when the addon is disabled by Ace
 
     -- Spell changes events
     self:RegisterEvent("LEARNED_SPELL_IN_TAB");
     self:RegisterEvent("SPELLS_CHANGED");
+    self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
+    self:RegisterEvent("BAG_UPDATE_DELAYED");
+    self:RegisterEvent("GET_ITEM_INFO_RECEIVED");
     self:RegisterEvent("PLAYER_TALENT_UPDATE");
     self:RegisterEvent("PLAYER_ALIVE"); -- talents SHOULD be available
     self:RegisterEvent("PLAYER_ENTERING_WORLD");
@@ -761,6 +778,7 @@ function D:SetConfiguration() -- {{{
     D.Groups_datas_are_invalid = true;
     D.Status = {};
     D.Status.FoundSpells = {};
+    --FoundSpells is {1: Pet?, 2: spellID, 3: IsEnhanced, 4: spell prio, 5: user MacroText, 6: unit filter};
     D.Status.UnitFilteringTypes = {};
     D.Status.CuringSpells = {};
     D.Status.CuringSpellsPrio = {};
@@ -782,6 +800,7 @@ function D:SetConfiguration() -- {{{
     D.Status.Unit_Array = {};
     D.Status.InternalPrioList = {};
     D.Status.InternalSkipList = {};
+    D.Status.WaitingForSpellInfo = false;
 
     D.Stealthed_Units = {};
 
@@ -1061,10 +1080,20 @@ function D:ReConfigure() --{{{
     local SpellName = "";
 
     local Reconfigure = false;
-    for spellID, spell in SpellIterator() do
+    for spellID, spell in SpellIterator() do repeat
+
+        SpellName = D.GetSpellOrItemInfo(spellID);
+
+        -- if item info not available yet
+        if spell.IsItem and not SpellName then
+            self.Status.WaitingForSpellInfo = -1 * spellID;
+            self:Debug("Item name not available yet");
+            break;
+        end
+
         -- Do we have that spell?
-        if IsSpellKnown(spellID, spell.Pet) then
-            SpellName = GetSpellInfo(spellID);
+        if not spell.IsItem and IsSpellKnown(spellID, spell.Pet)
+            or spell.IsItem and D:isItemUsable(-1 * spellID) then
 
             -- We had it but it's been disabled
             if spell.Disabled and D.Status.FoundSpells[SpellName] then
@@ -1100,11 +1129,11 @@ function D:ReConfigure() --{{{
             end
 
         elseif D.Status.FoundSpells[SpellName] then -- we don't have it anymore...
-            D:Debug("D:ReConfigure:", SpellName, 'is no longer available');
+            D:Debug("D:ReConfigure:", SpellName, 'is no longer available', spellID);
             Reconfigure = true;
             break;
         end
-    end
+    break until true if Reconfigure then break end end -- a continue statement would have been nice in Lua...
 
     if Reconfigure == true then
         D:Debug("D:ReConfigure RECONFIGURATION!");
@@ -1135,7 +1164,6 @@ function D:Configure() --{{{
 
     local Type, _;
     local GetSpellBookItemInfo = _G.GetSpellBookItemInfo;
-    local GetSpellInfo = _G.GetSpellInfo;
     local IsSpellKnown = _G.IsSpellKnown;
     local Types = {};
     local UnitFiltering = false;
@@ -1145,12 +1173,22 @@ function D:Configure() --{{{
 
     self:Debug("Configuring Decursive...");
 
-    for spellID, spell in SpellIterator() do
+    for spellID, spell in SpellIterator() do repeat
         if not spell.Disabled then
             -- self:Debug("trying spell", spellID);
             -- Do we have that spell?
-            if IsSpellKnown(spellID, spell.Pet) then
-                SpellName = GetSpellInfo(spellID);
+            if not spell.IsItem and IsSpellKnown(spellID, spell.Pet)
+                or spell.IsItem and D:isItemUsable(-1 * spellID) then
+
+                SpellName = D.GetSpellOrItemInfo(spellID);
+
+                -- if item info not available yet
+                if spell.IsItem and not SpellName then
+                    self.Status.WaitingForSpellInfo = -1 * spellID;
+                    self:Debug("Item name not available yet");
+                    break;
+                end
+
                 Types = spell.Types;
                 UnitFiltering = false;
                 IsEnhanced = false;
@@ -1185,12 +1223,11 @@ function D:Configure() --{{{
                     UnitFiltering = spell.UnitFiltering;
                 end
 
-
                 -- register it
-                self.Status.FoundSpells[SpellName] = {spell.Pet, "", IsEnhanced, spell.Better, spell.MacroText};
+                self.Status.FoundSpells[SpellName] = {spell.Pet, spellID, IsEnhanced, spell.Better, spell.MacroText, nil};
                 for _, Type in ipairs (Types) do
 
-                    if not CuringSpells[Type] or spell.Better > self.Status.FoundSpells[CuringSpells[Type]][4] then  -- we did not already registered this spell or it's not the best spell for this type
+                    if not CuringSpells[Type] or spell.Better > self.Status.FoundSpells[CuringSpells[Type]][4] then  -- we did not already register this spell or it's not the best spell for this type
 
                         CuringSpells[Type] = SpellName;
 
@@ -1235,7 +1272,7 @@ function D:Configure() --{{{
 
             end
         end
-    end
+    break until true end
 
     -- Verify the cure order list (if it was damaged)
     self:CheckCureOrder ();
@@ -1266,7 +1303,8 @@ function D:SetSpellsTranslations(FromDIAG) -- {{{
             ['SPELL_HEX']                   =  51514, -- shamans
             ["CLEANSE_SPIRIT"]              =  51886,
             ["SPELL_PURGE"]                 =  370,
-            ["PET_FEL_CAST"]                =  19505,
+            ["PET_DEVOUR_MAGIC"]            =  19505,
+            ["PET_CLONE_MAGIC"]             =  115284,
             ["SPELL_FEAR"]                  =  5782,
             ["DCR_LOC_SILENCE"]             =  15487,
             ["DCR_LOC_MINDVISION"]          =  2096,
@@ -1299,7 +1337,8 @@ function D:SetSpellsTranslations(FromDIAG) -- {{{
             ['Flame Shock']                 =  8050,
             ["SPELL_REMOVE_CURSE"]          =  475, -- Druids/Mages
             ["SPELL_REMOVE_CORRUPTION"]     =  2782,
-            ["SPELL_SINGE_MAGIC"]           =  89808, -- Warlock imp
+            ["PET_SINGE_MAGIC"]             =  89808, -- Warlock imp
+            ["PET_SEAR_MAGIC"]              =  115276, -- Warlock Fel imp
             ["SPELL_PURIFY"]                =  527,
             ["SPELL_DISPELL_MAGIC"]         =  528,
             ["PURIFY_SPIRIT"]               =  77130, -- resto shaman
@@ -1370,6 +1409,8 @@ end -- }}}
 -- Create the macro for Decursive
 -- This macro will cast the first spell (priority)
 
+local MAX_ACCOUNT_MACROS = _G.MAX_ACCOUNT_MACROS;
+
 function D:UpdateMacro () -- {{{
 
 
@@ -1422,7 +1463,7 @@ function D:UpdateMacro () -- {{{
 	else
 	    D:Debug("Macro not updated due to AllowMacroEdit");
 	end
-    elseif (GetNumMacros()) < 36 then
+    elseif (GetNumMacros()) < MAX_ACCOUNT_MACROS then
         CreateMacro(unpack(MacroParameters));
     else
         D:errln("Too many macros exist, Decursive cannot create its macro");
@@ -1460,7 +1501,7 @@ end -- }}}
 
 
 
-T._LoadedFiles["DCR_init.lua"] = "2.7.3.6";
+T._LoadedFiles["DCR_init.lua"] = "2.7.4.1";
 
 -------------------------------------------------------------------------------
 
@@ -1475,28 +1516,28 @@ Simple replacements
 @project-revision@
     Turns into the highest revision of the entire project in integer form. e.g. 1234
     Note: does not work for git
-3ecc18bf405aa1a72dcc1960e026edb385f5a0c0
+f055c7b97316dab126b002effa62f8e4b1250de5
     Turns into the hash of the file in hex form. e.g. 106c634df4b3dd4691bf24e148a23e9af35165ea
     Note: does not work for svn
-0cceb4c3800e5b90d01d425ee3dd80d77d0b22d4
+706191c67808e897d21b373c5c972a64151dbc6b
     Turns into the hash of the entire project in hex form. e.g. 106c634df4b3dd4691bf24e148a23e9af35165ea
     Note: does not work for svn
-3ecc18b
+f055c7b
     Turns into the abbreviated hash of the file in hex form. e.g. 106c63 Note: does not work for svn
-0cceb4c
+706191c
     Turns into the abbreviated hash of the entire project in hex form. e.g. 106c63
     Note: does not work for svn
 Archarodim
     Turns into the last author of the file. e.g. ckknight
 Archarodim
     Turns into the last author of the entire project. e.g. ckknight
-2014-10-15T09:23:18Z
+2015-02-19T07:02:08Z
     Turns into the last changed date (by UTC) of the file in ISO 8601. e.g. 2008-05-01T12:34:56Z
-2014-11-09T16:51:53Z
+2015-02-26T17:26:30Z
     Turns into the last changed date (by UTC) of the entire project in ISO 8601. e.g. 2008-05-01T12:34:56Z
-20141015092318
+20150219070208
     Turns into the last changed date (by UTC) of the file in a readable integer fashion. e.g. 20080501123456
-20141109165153
+20150226172630
     Turns into the last changed date (by UTC) of the entire project in a readable integer fashion. e.g. 2008050123456
 @file-timestamp@
     Turns into the last changed date (by UTC) of the file in POSIX timestamp. e.g. 1209663296
@@ -1504,7 +1545,7 @@ Archarodim
 @project-timestamp@
     Turns into the last changed date (by UTC) of the entire project in POSIX timestamp. e.g. 1209663296
     Note: does not work for git
-2.7.3.6
+2.7.4.1
     Turns into an approximate version of the project. The tag name if on a tag, otherwise it's up to the repo.
     :SVN returns something like "r1234"
     :Git returns something like "v0.1-873fc1"

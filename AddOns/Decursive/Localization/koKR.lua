@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT
     teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
@@ -78,7 +78,7 @@ T._LoadedFiles["koKR.lua"] = false;
 local L = LibStub("AceLocale-3.0"):NewLocale("Decursive", "koKR");
 
 if not L then
-    T._LoadedFiles["koKR.lua"] = "2.7.3.6";
+    T._LoadedFiles["koKR.lua"] = "2.7.4.1";
     return;
 end;
 
@@ -198,8 +198,8 @@ L["NORMAL"] = "정상"
 L["NOSPELL"] = "이용가능한 주문이 없습니다."
 L["OPT_ABOLISHCHECK_DESC"] = "'해제' 주문을 가진 대상을 표시하고 치유 할 지를 선택합니다."
 L["OPT_ABOUT"] = "관하여"
-L["OPT_ADD_A_CUSTOM_SPELL"] = "사용자 주문 추가"
-L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "여길 클릭하고 마법책의 주문에 쉬프트-클릭합니다. 이름 또는 숫자ID로 직접 작성할 수 있습니다."
+L["OPT_ADD_A_CUSTOM_SPELL"] = "사용자 주문 추가" -- Needs review
+L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "여길 클릭하고 마법책의 주문에 쉬프트-클릭합니다. 이름 또는 숫자ID로 직접 작성할 수 있습니다." -- Needs review
 L["OPT_ADDDEBUFF"] = "목록에 디버프 추가"
 L["OPT_ADDDEBUFF_DESC"] = "이 목록에 새로운 디버프 추가"
 L["OPT_ADDDEBUFFFHIST"] = "최근의 디버프 추가"
@@ -261,7 +261,7 @@ L["OPT_CUSTOM_SPELL_MACRO_TEXT_DESC"] = [=[기본 매크로 문자 편집:
 L["OPT_CUSTOM_SPELL_MACRO_TOO_LONG"] = "당신의 매크로가 길어서 %d 문자를 제거해야 합니다."
 L["OPT_CUSTOM_SPELL_PRIORITY"] = "주문 우선순위"
 L["OPT_CUSTOM_SPELL_PRIORITY_DESC"] = "동일 피해 형식을 여러가지 주문으로 치료하려면, 원하는 주문의 우선순위가 높아야 합니다." -- Needs review
-L["OPT_CUSTOMSPELLS"] = "사용자 주문"
+L["OPT_CUSTOMSPELLS"] = "사용자 주문" -- Needs review
 L["OPT_CUSTOMSPELLS_DESC"] = "여기 당신의 주문을 추가해 Decursive의 자동 구성설정을 확장할 수 있습니다."
 L["OPT_CUSTOMSPELLS_EFFECTIVE_ASSIGNMENTS"] = "효과적인 주문 할당:"
 L["OPT_CUSTOM_SPELL_UNAVAILABLE"] = "사용할 수 없음"
@@ -446,4 +446,4 @@ L["UNSTABLERELEASE"] = "비안정화판 배포"
 
 
 
-T._LoadedFiles["koKR.lua"] = "2.7.3.6";
+T._LoadedFiles["koKR.lua"] = "2.7.4.1";

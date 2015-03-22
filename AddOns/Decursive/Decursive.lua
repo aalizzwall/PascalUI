@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
     Starting from 2009-10-31 and until said otherwise by its author, Decursive
@@ -17,7 +17,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
     
-    This file was last updated on 2014-10-13T09:20:46Z
+    This file was last updated on 2015-01-25T21:31:39Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -415,7 +415,7 @@ do
         if D.LiveList.TestItemDisplayed and UnitExists(Unit) then -- and not UnTrustedUnitIDs[Unit] then
             if i == 1 then
                 Name, Rank, Texture, Applications, TypeName, Duration, ExpirationTime, SpellID = "Test item", 1, "Interface\\AddOns\\Decursive\\iconON.tga", 2, DC.TypeNames[D.Status.ReversedCureOrder[1]], 70, (D.LiveList.TestItemDisplayed + 70), 0;
-                D:Debug("|cFFFF0000Setting test debuff for ", Unit, " (debuff ", i, ")|r");--, Name, Rank, Texture, Applications, TypeName, Duration, ExpirationTime);
+                -- D:Debug("|cFFFF0000Setting test debuff for ", Unit, " (debuff ", i, ")|r");--, Name, Rank, Texture, Applications, TypeName, Duration, ExpirationTime);
                 return true;
             else
                 i = i - 1;
@@ -850,6 +850,6 @@ end
 
 
 
-T._LoadedFiles["Decursive.lua"] = "2.7.3.6";
+T._LoadedFiles["Decursive.lua"] = "2.7.4.1";
 
 -- Sin

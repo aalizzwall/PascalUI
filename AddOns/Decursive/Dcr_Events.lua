@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
     Starting from 2009-10-31 and until said otherwise by its author, Decursive
@@ -17,7 +17,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
     
-    This file was last updated on 2014-10-13T09:20:46Z
+    This file was last updated on 2015-01-25T22:45:22Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -419,6 +419,24 @@ function D:SPELLS_CHANGED()
     self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self); -- used to be 15s changed to 4 to be more reaactive for warlocks
 end
 
+function D:PLAYER_EQUIPMENT_CHANGED()
+    D:Debug("|cFFFF0000Equipment changed, scheduling a reconfiguration check|r");
+    self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self);
+end
+
+function D:BAG_UPDATE_DELAYED()
+    D:Debug("|cFFFF0000Bag changed, scheduling a reconfiguration check|r");
+    self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self);
+end
+
+function D:GET_ITEM_INFO_RECEIVED()
+    if self.Status.WaitingForSpellInfo and GetItemInfo(self.Status.WaitingForSpellInfo) then
+        self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self);
+        self.Status.WaitingForSpellInfo = false;
+        D:Debug("|cFFFF0000Missing itemInfo received, scheduling a reconfiguration check|r");
+    end
+end
+
 function D:PLAYER_TALENT_UPDATE()
     D:Debug("|cFFFF0000Talents were changed, scheduling a reconfiguration check|r");
     self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self);
@@ -553,6 +571,20 @@ function D:HOOK_CastSpellByName (spellName, target)
     end
 end
 
+local GetItemSpell = _G.GetItemSpell;
+local GetItemCount = _G.GetItemCount;
+local GetItemInfo  = _G.GetItemInfo;
+function D:HOOK_UseItemByName (itemName, target)
+    if self.Status.ClickCastingWIP and self.Status.ClickedMF then
+        self.Status.ClickedMF.CastingSpell = GetItemSpell(itemName);
+
+        if (select(8, GetItemInfo(itemName))) > 1 and GetItemCount(itemName, false, true) < 2 then
+            self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self);
+        end
+
+        self:Debug("HOOK_UseItemByName:", itemName, target, 'left:', GetItemCount(itemName), (select(8, GetItemInfo(itemName))));
+    end
+end
 do -- Combat log event handling {{{1
     local bit           = _G.bit;
     local band          = bit.band;
@@ -580,8 +612,11 @@ do -- Combat log event handling {{{1
     local HOSTILE_OUTSIDER      = bit.bor (COMBATLOG_OBJECT_AFFILIATION_OUTSIDER, COMBATLOG_OBJECT_REACTION_HOSTILE);
     -- }}} ]=]
 
-    local FRIENDLY_TARGET       = bit.bor (COMBATLOG_OBJECT_TARGET, COMBATLOG_OBJECT_REACTION_FRIENDLY);
-    local ME                    = COMBATLOG_OBJECT_AFFILIATION_MINE;
+    local SPELL_FAILED_LINE_OF_SIGHT = _G.SPELL_FAILED_LINE_OF_SIGHT;
+    local SPELL_FAILED_BAD_TARGETS =   _G.SPELL_FAILED_BAD_TARGETS;
+
+    local FRIENDLY_TARGET       = bit.bor (_G.COMBATLOG_OBJECT_TARGET, _G.COMBATLOG_OBJECT_REACTION_FRIENDLY);
+    local ME                    = _G.COMBATLOG_OBJECT_AFFILIATION_MINE;
 
 
     local AuraEvents = {
@@ -1125,6 +1160,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.7.3.6";
+T._LoadedFiles["Dcr_Events.lua"] = "2.7.4.1";
 
 -- The Great Below

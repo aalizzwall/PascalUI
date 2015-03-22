@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
-    
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
     Starting from 2009-10-31 and until said otherwise by its author, Decursive
@@ -9,7 +9,7 @@
 
     The only official and allowed distribution means are www.2072productions.com, www.wowace.com and curse.com.
     To distribute Decursive through other means a special authorization is required.
-    
+
 
     Decursive is inspired from the original "Decursive v1.9.4" by Patrick Bohnet (Quu).
     The original "Decursive 1.9.4" is in public domain ( www.quutar.com )
@@ -17,7 +17,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2014-10-15T00:25:50Z
+    This file was last updated on 2015-01-08T08:29:58Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ local DebugTextTable    = T._DebugTextTable;
 local Reported          = {};
 
 local UNPACKAGED = "@pro" .. "ject-version@";
-local VERSION = "2.7.3.6";
+local VERSION = "2.7.4.1";
 
 T._LoadedFiles = {};
 T._LoadedFiles["Dcr_DIAG.lua"] = false; -- here for consistency but useless in this particular file
@@ -119,7 +119,7 @@ T._LoadOrderedFiles = { -- {{{
     "zhTW.lua",
     "ptBR.lua",
     "itIT.lua",
-    
+
     "DCR_init.lua",
     "Dcr_LDB.lua",
     "Dcr_utils.lua",
@@ -128,7 +128,7 @@ T._LoadOrderedFiles = { -- {{{
     "Dcr_Events.lua",
 
     "Dcr_Raid.lua",
-    
+
     "Decursive.lua",
     "Decursive.xml",
 
@@ -178,7 +178,7 @@ end
 -- }}}
 
  -- DEBUG REPORTING {{{
- 
+
 function T._AddDebugText(a1, ...) -- {{{
 
     _Debug("Error processed");
@@ -270,7 +270,7 @@ do
         _Debug(unpack(TIandBI));
 
 
-        DebugHeader = ("%s\n2.7.3.6  %s(%s)  CT: %0.4f D: %s %s %s BDTHFAd: %s nDrE: %d Embeded: %s W: %d LA: %d TA: %d NDRTA: %d BUIE: %d TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
+        DebugHeader = ("%s\n2.7.4.1  %s(%s)  CT: %0.4f D: %s %s %s BDTHFAd: %s nDrE: %d Embeded: %s W: %d LA: %d TA: %d NDRTA: %d BUIE: %d TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
         tostring(DC.MyClass), tostring(UnitLevel("player") or "??"), NiceTime(), date(), GetLocale(), -- %s(%s)  CT: %0.4f D: %s %s
         BugGrabber and "BG" .. (T.BugGrabber and "e" or "") or "NBG", -- %s
         tostring(T._BDT_HotFix1_applyed), -- BDTHFAd: %s
@@ -282,7 +282,7 @@ do
         T._NDRTaintingAccusations, -- NDRTA: %d
         T._BlizzardUIErrors, -- BUIE: %d
         unpack(TIandBI));
-       -- T.Dcr:GetTimersInfo(), -- TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] 
+       -- T.Dcr:GetTimersInfo(), -- TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u]
        -- GetBuildInfo()); --  (%s, %s, %s, %s)
     end
 
@@ -342,7 +342,7 @@ local function PlaySoundFile_RanTooLongheck(message)
         _Print("|cffff0000*DING!*|r (Decursive failed to play a sound)");
         return true;
     end
-    
+
     return false;
 end
 
@@ -393,7 +393,7 @@ function T._onError(event, errorObject)
         and ( T._CatchAllErrors or (
         errorml:find("decursive") and -- first, make a general test to see if it's worth looking further
         (
-           ( not errorml:find("\\libs\\") ) -- errors happpening in something located below Decursive's path but not inside \Libs 
+           ( not errorml:find("\\libs\\") ) -- errors happpening in something located below Decursive's path but not inside \Libs
         or ( errorm:find("[\"']Decursive[\"']") ) -- events involving Decursive
         or ( errorm:find("Decursive:") ) -- libraries error involving Decursive (AceLocal)
         or ( errorml:find("decursive%.")) -- for Aceconfig
@@ -463,7 +463,7 @@ function T._onError(event, errorObject)
                 return;
             end
         end
-        _G.DEBUGLOCALS_LEVEL = 12; -- XXX must be set to the right value to get the correct stack and locals. This is why we need to load Blizzard_DebugTools ourselves... That sucks... 
+        _G.DEBUGLOCALS_LEVEL = 12; -- XXX must be set to the right value to get the correct stack and locals. This is why we need to load Blizzard_DebugTools ourselves... That sucks...
 
         -- forward the error to the default Blizzad error displayer
         if _G._ERRORMESSAGE then
@@ -477,7 +477,7 @@ function T._onError(event, errorObject)
                 --@end-alpha@]===]
                 return;
             end
-           
+
             _Debug("Lua error forwarded");
 
             _G._ERRORMESSAGE( errorm );
@@ -693,7 +693,7 @@ do
         end
 
         local sucess, MouseButtons = pcall(function ()return D.db.global.MouseButtons end);
-        
+
         if not sucess then
             return errorPrefix("couldn't get MouseButtons: " .. MouseButtons);
         end
@@ -786,7 +786,7 @@ do
         end
 
         local DcrMinTOC = tonumber(GetAddOnMetadata("Decursive", "X-Min-Interface") or 60000); -- once GetAddOnMetadata() was bugged and returned nil...
-        
+
         -- test if Decursive is backward compatible with the client's version
         if tocversion < DcrMinTOC then
             table.insert(Errors, ("Your World of Warcraft client version (%d) is too old to run this version of Decursive.\n"):format(tocversion));
@@ -950,4 +950,4 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_DIAG.lua"] = "2.7.3.6";
+T._LoadedFiles["Dcr_DIAG.lua"] = "2.7.4.1";

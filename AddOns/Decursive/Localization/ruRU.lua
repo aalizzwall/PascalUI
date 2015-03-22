@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT
     teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
@@ -74,7 +74,7 @@ T._LoadedFiles["ruRU.lua"] = false;
 local L = LibStub("AceLocale-3.0"):NewLocale("Decursive", "ruRU");
 
 if not L then
-    T._LoadedFiles["ruRU.lua"] = "2.7.3.6";
+    T._LoadedFiles["ruRU.lua"] = "2.7.4.1";
     return;
 end;
 
@@ -191,8 +191,8 @@ L["NORMAL"] = "Нормальное"
 L["NOSPELL"] = "Нет доступных заклинаний"
 L["OPT_ABOLISHCHECK_DESC"] = "выберите, отображать ли игроков с активным на них заклинанием 'Устранение', делая их доступными для лечения"
 L["OPT_ABOUT"] = "О проекте"
-L["OPT_ADD_A_CUSTOM_SPELL"] = "Добавить пользовательское заклинание"
-L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "Щелкните тут и щелкните с Shift по заклинанию в своей книге заклинаний. Вы также можете прямо написать название или номер ID заклинания."
+L["OPT_ADD_A_CUSTOM_SPELL"] = "Добавить пользовательское заклинание" -- Needs review
+L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "Щелкните тут и щелкните с Shift по заклинанию в своей книге заклинаний. Вы также можете прямо написать название или номер ID заклинания." -- Needs review
 L["OPT_ADDDEBUFF"] = "Добавить недуг"
 L["OPT_ADDDEBUFF_DESC"] = "Добавить новый недуг в данный список"
 L["OPT_ADDDEBUFFFHIST"] = "Добавить недавнее заражение"
@@ -249,7 +249,7 @@ L["OPT_CUSTOM_SPELL_MACRO_TEXT"] = "Текст макроса:" -- Needs review
 L["OPT_CUSTOM_SPELL_MACRO_TOO_LONG"] = "Ваш макрос слишком длинный, необходимо удалить %d символов." -- Needs review
 L["OPT_CUSTOM_SPELL_PRIORITY"] = "Приоритеты заклинаний"
 L["OPT_CUSTOM_SPELL_PRIORITY_DESC"] = "Когда несколько заклинаний могут вылечить те же типы недугов, какое из них будет с более высоким приоритетом тому и будет отдаваться предпочтение." -- Needs review
-L["OPT_CUSTOMSPELLS"] = "Пользовательские заклинания"
+L["OPT_CUSTOMSPELLS"] = "Пользовательские заклинания" -- Needs review
 L["OPT_CUSTOMSPELLS_DESC"] = "Здесь Вы можете добавлять заклинания для расширения автоматического конфигурирования Decursive" -- Needs review
 L["OPT_CUSTOMSPELLS_EFFECTIVE_ASSIGNMENTS"] = "Эффективные задания заклинаний:" -- Needs review
 L["OPT_CUSTOM_SPELL_UNAVAILABLE"] = "недоступно"
@@ -430,4 +430,4 @@ L["UNSTABLERELEASE"] = "Нестабильный релиз"
 
 
 
-T._LoadedFiles["ruRU.lua"] = "2.7.3.6";
+T._LoadedFiles["ruRU.lua"] = "2.7.4.1";

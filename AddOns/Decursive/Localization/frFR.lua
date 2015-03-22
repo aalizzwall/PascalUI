@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
     
-    Decursive (v 2.7.3.6) add-on for World of Warcraft UI
+    Decursive (v 2.7.4.1) add-on for World of Warcraft UI
     Copyright (C) 2006-2014 John Wellesz (archarodim AT teaser.fr) ( http://www.2072productions.com/to/decursive.php )
 
     Starting from 2009-10-31 and until said otherwise by its author, Decursive
@@ -73,7 +73,7 @@ T._LoadedFiles["frFR.lua"] = false;
 local L = LibStub("AceLocale-3.0"):NewLocale("Decursive", "frFR");
 
 if not L then 
-    T._LoadedFiles["frFR.lua"] = "2.7.3.6";
+    T._LoadedFiles["frFR.lua"] = "2.7.4.1";
     return;
 end
 
@@ -192,8 +192,8 @@ L["NORMAL"] = "Normal"
 L["NOSPELL"] = "Aucun sort disponible"
 L["OPT_ABOLISHCHECK_DESC"] = "Définit si les unités avec un sort 'Abolir' actif sont affichées et soignées"
 L["OPT_ABOUT"] = "À propos"
-L["OPT_ADD_A_CUSTOM_SPELL"] = "Ajouter un sort personnalisé"
-L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "Cliquez ici et MAJ-cliquez sur un sort dans votre grimoire. Vous pouvez aussi directement taper son nom ou son identifiant numérique."
+L["OPT_ADD_A_CUSTOM_SPELL"] = "Ajouter un sort / objet personnalisé"
+L["OPT_ADD_A_CUSTOM_SPELL_DESC"] = "Glissez-déposez un sort ou un objet utilisable ici. Vous pouvez aussi directement taper son nom, son identifiant numérique ou utiliser MAJ+Clique."
 L["OPT_ADDDEBUFF"] = "Ajouter une affection"
 L["OPT_ADDDEBUFF_DESC"] = "Ajoute une nouvelle affection à cette liste"
 L["OPT_ADDDEBUFFFHIST"] = "Ajouter une affection récente"
@@ -278,7 +278,7 @@ L["OPT_CUSTOM_SPELL_PRIORITY_DESC"] = [=[Quand plusieurs sorts peuvent guérir l
 Notez que les sorts par défaut gérés par Decursive ont une priorité allant de 0 à 9.
 
 Ainsi, si vous donnez une priorité négative à l'un de vos sort, il ne sera choisi que si le sort par défaut n'est pas disponible.]=]
-L["OPT_CUSTOMSPELLS"] = "Sorts personnalisés"
+L["OPT_CUSTOMSPELLS"] = "Sorts / objets personnalisés"
 L["OPT_CUSTOMSPELLS_DESC"] = [=[Ici vous pouvez ajouter des sorts pour étendre la configuration automatique de Decursive.
 Vos sorts personnalisés auront toujours une priorité plus élevée et remplaceront systématiquement les sorts par défaut (si et seulement si votre personnage peut utiliser ces sorts)]=]
 L["OPT_CUSTOMSPELLS_EFFECTIVE_ASSIGNMENTS"] = "Assignations effectives des sorts :"
@@ -484,4 +484,4 @@ L["UNSTABLERELEASE"] = "Version instable"
 
 
 
-T._LoadedFiles["frFR.lua"] = "2.7.3.6";
+T._LoadedFiles["frFR.lua"] = "2.7.4.1";
