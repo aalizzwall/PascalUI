@@ -1,0 +1,23 @@
+------------------------------------------------------------------------
+r54 | shenton | 2014-10-18 20:11:08 +0000 (Sat, 18 Oct 2014) | 1 line
+Changed paths:
+   A /tags/v1.8.1 (from /trunk:53)
+
+Tagging as v1.8.1
+------------------------------------------------------------------------
+r53 | shenton | 2014-10-18 19:58:24 +0000 (Sat, 18 Oct 2014) | 1 line
+Changed paths:
+   M /trunk/Broker_DualSpec.toc
+   M /trunk/Core.lua
+
+Fixed an error without dual spec enabled
+------------------------------------------------------------------------
+r51 | shenton | 2014-10-15 21:09:11 +0000 (Wed, 15 Oct 2014) | 2 lines
+Changed paths:
+   M /trunk/Broker_DualSpec.toc
+   M /trunk/Core.lua
+   D /trunk/Embeds.xml
+
+WoD toc bump
+Fixed GetTalentInfo modifications
+------------------------------------------------------------------------

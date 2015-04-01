@@ -1,4 +1,6 @@
 ## Interface: 60000
+## X-BigfootType: 3
+## X-BigfootDesc: 进行了一些界面的调整和美化，并且参考Grid的扩展集添加进了几个需求最普遍的扩展插件，包括边角指示器、点击施法、团队Debuff醒目显示、以及框架材质扩充。
 ## Title: CompactRaid
 ## Version: 4.02
 ## Author: Abin
