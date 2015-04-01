@@ -1,0 +1,6 @@
+Shadowed:
+	- Fixed a combo points error when using SoulShards/ShadowOrbs/HolyPower/Chi
+	- Properly add localcheck.rb to not be packaged
+	- Strip out any WoD specific code
+	- Redo combo point modules to dynamically create indicators as needed and not rely on the max flag
+	- TOC update
